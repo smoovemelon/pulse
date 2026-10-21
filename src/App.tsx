@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Dashboard } from './components/Dashboard/Dashboard'
 import { Dock } from './components/Dock'
 import { Feed } from './components/Feed/Feed'
@@ -13,6 +13,7 @@ import { IdentityModal } from './components/Modals/IdentityModal'
 import { SettingsModal } from './components/Modals/SettingsModal'
 import { Toast } from './components/Toast'
 import { Vault } from './components/Vault/Vault'
+import { useBackLayer } from './hooks/useBackLayer'
 import { useCore } from './hooks/core'
 import { PulseProvider } from './hooks/PulseProvider'
 import { usePulseEconomy } from './hooks/usePulseEconomy'
@@ -24,7 +25,7 @@ type OpenModal = 'action' | 'settings' | 'anchor' | 'vault' | 'spend' | null
 
 function Shell() {
   const { state } = useCore()
-  const { decayAlert } = usePulseEconomy()
+  const { decayAlert, dismissDecay } = usePulseEconomy()
   const { saveUsername } = useSettings()
   const identityOpen = !state.isOnboarded || state.username.trim() === ''
   const [tab, setTab] = useState<'feed' | 'vault'>('feed')
@@ -37,6 +38,27 @@ function Shell() {
     setResumeAction(false)
     setModal(null)
   }
+
+  const resumeRef = useRef(resumeAction)
+  resumeRef.current = resumeAction
+
+  useBackLayer(tab === 'vault', () => setTab('feed'))
+  useBackLayer(modal === 'action' || resumeAction, () => {
+    setResumeAction(false)
+    setModal(null)
+  })
+  useBackLayer(modal === 'settings', closeModal)
+  useBackLayer(modal === 'spend', () => setModal(null))
+  useBackLayer(modal === 'vault', () => setModal(null))
+  useBackLayer(modal === 'anchor', () => {
+    if (resumeRef.current) {
+      setResumeAction(false)
+      setModal('action')
+      return
+    }
+    setModal(null)
+  })
+  useBackLayer(decayAlert !== null, dismissDecay)
 
   const sheetOpen = modal !== null || decayAlert !== null || introOpen || identityOpen
 

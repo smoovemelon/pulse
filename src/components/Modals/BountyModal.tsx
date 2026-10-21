@@ -53,7 +53,7 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
   }
 
   return (
-    <ModalSheet labelledBy="vault-editor-heading">
+    <ModalSheet labelledBy="vault-editor-heading" onDismiss={onClose}>
       <div className="flex justify-between items-center">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">

@@ -10,7 +10,7 @@ export function AnchorModal({ onClose }: { readonly onClose: () => void }) {
   const [value, setValue] = useState(anchor === DEFAULT_ANCHOR ? (demoMode ? DEMO_ANCHOR : '') : anchor)
 
   return (
-    <Modal align="center" labelledBy="anchor-heading">
+    <Modal align="center" labelledBy="anchor-heading" onDismiss={onClose}>
       <div className="w-full max-w-[360px] bg-card text-ink rounded-[32px] p-6 border border-line shadow-2xl flex flex-col gap-4 animate-slide-up">
         <div className="flex justify-between items-center">
           <div>

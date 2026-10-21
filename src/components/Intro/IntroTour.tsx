@@ -1,4 +1,5 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { pushEntry } from '../../lib/backStack'
 import { markIntroSeen } from '../../services/persistence'
 import { Button } from '../Common/Button'
 import { AnchorIcon, FlameIcon, PlusIcon, VaultIcon } from '../Icons'
@@ -93,26 +94,68 @@ function GoalMark() {
 
 export function IntroTour({ onClose }: { readonly onClose: () => void }) {
   const [step, setStep] = useState(0)
+  const stepRef = useRef(0)
+  const releases = useRef<Array<() => void>>([])
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
   const current = STEPS[step]
   const last = step === STEPS.length - 1
 
   const finish = () => {
     markIntroSeen()
-    onClose()
+    onCloseRef.current()
   }
+
+  useEffect(() => {
+    let cancel = false
+    let release: (() => void) | null = null
+    queueMicrotask(() => {
+      if (cancel) return
+      release = pushEntry(() => {
+        markIntroSeen()
+        onCloseRef.current()
+      })
+    })
+    return () => {
+      cancel = true
+      while (releases.current.length > 0) releases.current.pop()?.()
+      release?.()
+    }
+  }, [])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       markIntroSeen()
-      onClose()
+      onCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [])
+
+  const advance = () => {
+    const leaving = stepRef.current
+    const release = pushEntry(() => {
+      stepRef.current = leaving
+      setStep(leaving)
+    })
+    releases.current.push(release)
+    const next = leaving + 1
+    stepRef.current = next
+    setStep(next)
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="intro-heading">
+    <div
+      data-testid="sheet-backdrop"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="intro-heading"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) finish()
+      }}
+    >
       <div className="flex w-full max-w-[360px] animate-slide-up flex-col gap-5 rounded-[32px] border border-line bg-card p-6 text-ink shadow-2xl">
         <div className="flex items-center justify-between">
           <span className="font-num text-[10px] font-extrabold tracking-widest text-faint">
@@ -151,7 +194,7 @@ export function IntroTour({ onClose }: { readonly onClose: () => void }) {
             <Button
               tone="card"
               data-testid="intro-back"
-              onClick={() => setStep((index) => index - 1)}
+              onClick={() => history.back()}
               className="flex-1 rounded-2xl py-3.5 text-xs font-extrabold active:scale-95"
             >
               Back
@@ -162,7 +205,7 @@ export function IntroTour({ onClose }: { readonly onClose: () => void }) {
             data-testid="intro-next"
             onClick={() => {
               if (last) finish()
-              else setStep((index) => index + 1)
+              else advance()
             }}
             className="flex-1 rounded-2xl py-3.5 text-xs font-extrabold uppercase tracking-wider active:scale-95"
           >

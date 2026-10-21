@@ -96,7 +96,7 @@ export function ActionModal({
   const weight = verdict ? weightClassStyles(verdict.multiplier) : null
 
   return (
-    <ModalSheet labelledBy="action-heading">
+    <ModalSheet labelledBy="action-heading" onDismiss={onClose}>
       <div className="flex justify-between items-center">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">

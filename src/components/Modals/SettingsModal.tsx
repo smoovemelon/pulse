@@ -19,7 +19,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
   }, [apiKey, checkKey])
 
   return (
-    <ModalSheet labelledBy="settings-heading" className="max-h-[88vh]">
+    <ModalSheet labelledBy="settings-heading" className="max-h-[88vh]" onDismiss={onClose}>
       <div className="flex justify-between items-center">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">Preferences</span>

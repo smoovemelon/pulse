@@ -12,7 +12,7 @@ import { CategoryPicker } from '../Common/CategoryPicker'
 
 export function SpendModal({ onClose }: { readonly onClose: () => void }) {
   return (
-    <ModalSheet labelledBy="spend-heading">
+    <ModalSheet labelledBy="spend-heading" onDismiss={onClose}>
       <div className="flex justify-between items-center">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">Vault</span>
