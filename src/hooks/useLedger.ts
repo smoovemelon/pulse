@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { celebrate } from '../lib/confetti'
 import { utcDateKey } from '../lib/dates'
 import { balanceAfterRemoval, calculateVaultValuation, validateVaultDraft } from '../services/engine'
 import type { EarnDraft, FeedFilter, SpendDraft, Transaction } from '../types'
@@ -52,6 +53,7 @@ export function useLedgerController(): LedgerApi {
         ],
       })
       feedback('earn')
+      celebrate()
       notify(`+${tx.points} PTS: "${tx.title}"`)
     },
     [commit, feedback, notify, read],
@@ -101,6 +103,7 @@ export function useLedgerController(): LedgerApi {
         ],
       })
       feedback('spend')
+      celebrate()
       notify(`-${quote.cost} PTS: "${title}"`)
       return true
     },

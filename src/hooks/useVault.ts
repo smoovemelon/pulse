@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { celebrate } from '../lib/confetti'
 import { utcDateKey } from '../lib/dates'
 import { calculateVaultValuation, validateVaultDraft } from '../services/engine'
 import type { BountyDraft, VaultFilter, VaultItem } from '../types'
@@ -108,6 +109,7 @@ export function useVaultController(): VaultApi {
         ],
       })
       feedback('spend')
+      celebrate()
       notify(`Unlocked: "${item.title}"`)
     },
     [commit, feedback, notify, read],
