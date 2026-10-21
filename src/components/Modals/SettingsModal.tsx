@@ -1,6 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { RELEASE_LABEL } from '../../release'
-import { usePulseEconomy } from '../../hooks/usePulseEconomy'
 import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { Button } from '../Common/Button'
@@ -9,7 +8,6 @@ import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
   const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo, username, saveUsername } = useSettings()
-  const { decayEnabled, toggleDecay, runAudit } = usePulseEconomy()
   const { feedback } = useSensory()
   const [key, setKey] = useState(apiKey)
   const [name, setName] = useState(username)
@@ -130,35 +128,6 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
             />
           </label>
         </div>
-      </div>
-
-      <div className="depth-well rounded-2xl p-4 flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <span className="text-xs font-extrabold tracking-tight text-ink block">Discipline Decay</span>
-            <span className="text-[10px] text-muted">-15 PTS if a day closes under 60 PTS</span>
-          </div>
-          <Button
-            tone="card"
-            onClick={toggleDecay}
-            className={`px-2.5 py-1 rounded-lg text-[10px] font-black ${
-              decayEnabled ? 'text-emerald-700 border-emerald-200' : 'text-muted'
-            }`}
-          >
-            {decayEnabled ? 'Active' : 'Disabled'}
-          </Button>
-        </div>
-        <Button
-          tone="card"
-          data-testid="manual-audit"
-          onClick={() => {
-            feedback('click')
-            runAudit(true)
-          }}
-          className="mt-1 py-2 rounded-xl text-body text-[11px] font-bold text-center active:scale-95"
-        >
-          Run Midnight Audit Check Now
-        </Button>
       </div>
 
       <div className="depth-well rounded-2xl px-4 py-3 flex flex-col gap-2">

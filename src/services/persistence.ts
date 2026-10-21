@@ -212,7 +212,7 @@ export function loadState(): PulseState {
   return {
     balance,
     soundEnabled: localStorage.getItem(KEYS.sound) !== 'false',
-    decayEnabled: localStorage.getItem(KEYS.decay) !== 'false',
+    decayEnabled: true,
     lastAuditDate: localStorage.getItem(KEYS.audit) || utcDateKey(),
     apiKey: localStorage.getItem(KEYS.apiKey) || '',
     disciplineAnchor: readAnchor(),
@@ -265,7 +265,7 @@ export function readDemoSnapshot(): PulseState | null {
     return {
       balance,
       soundEnabled: parsed.soundEnabled !== false,
-      decayEnabled: parsed.decayEnabled !== false,
+      decayEnabled: true,
       lastAuditDate: typeof parsed.lastAuditDate === 'string' ? parsed.lastAuditDate : utcDateKey(),
       apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey : '',
       disciplineAnchor:
@@ -347,7 +347,7 @@ export function mergeBackup(current: PulseState, parsed: unknown): PulseState {
       typeof source.anchor === 'string' && source.anchor.trim() ? source.anchor.trim() : current.disciplineAnchor,
     transactions: transactions ?? current.transactions,
     vaultItems: vaultItems ?? current.vaultItems,
-    decayEnabled: typeof source.decayEnabled === 'boolean' ? source.decayEnabled : current.decayEnabled,
+    decayEnabled: true,
     soundEnabled: typeof source.soundEnabled === 'boolean' ? source.soundEnabled : current.soundEnabled,
     username: typeof source.username === 'string' ? source.username : current.username,
     isOnboarded: typeof source.isOnboarded === 'boolean' ? source.isOnboarded : current.isOnboarded,
