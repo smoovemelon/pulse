@@ -47,11 +47,11 @@ export function BountyCard({
         shortfall={item.cost - balance}
       />
 
-      <div className="flex items-center justify-between pt-1 border-t border-line">
+      <div className="flex items-center justify-between border-t border-line pt-4">
         <div className="flex items-center gap-1.5">
           <Button
             tone="ghost"
-            className="hover:text-ink p-1.5 rounded-lg active:scale-90"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:text-ink active:scale-90"
             aria-label={`Edit ${item.title}`}
             onClick={onEdit}
           >
@@ -59,7 +59,7 @@ export function BountyCard({
           </Button>
           <Button
             tone="ghost"
-            className="hover:text-rose-600 p-1.5 rounded-lg active:scale-90"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:text-rose-600 active:scale-90"
             aria-label={`Delete ${item.title}`}
             onClick={onDelete}
           >

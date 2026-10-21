@@ -16,7 +16,7 @@ export function UnlockButton({
       tone={canAfford ? 'dark' : 'muted'}
       data-testid={testId}
       onClick={onClick}
-      className="px-3.5 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider active:scale-95"
+      className="inline-flex h-8 items-center justify-center leading-none px-3.5 rounded-xl text-[11px] font-black uppercase tracking-wider whitespace-nowrap active:scale-95"
     >
       {canAfford ? 'Unlock Reward' : `${percent}% Funded`}
     </Button>
