@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { triggerSensoryFeedback } from '../lib/audio'
-import { loadState, saveState } from '../services/persistence'
+import { applyDocumentTheme, loadState, saveState } from '../services/persistence'
 import type { DecayAlert, FeedbackKind, PulseState } from '../types'
 import { CoreContext, useCore, type PulseCore } from './core'
 import { SliceContext, type PulseSlices } from './slices'
@@ -58,8 +58,7 @@ export function PulseProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    document.documentElement.dataset.theme = state.theme
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#18181B')
+    applyDocumentTheme(state.theme)
   }, [state.theme])
 
   const core = useMemo<PulseCore>(

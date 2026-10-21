@@ -19,7 +19,10 @@ const KEYS = {
   audit: 'pulse_last_audit',
   apiKey: 'pulse_gemini_key',
   theme: 'pulse_theme',
+  profile: 'pulse_profile',
 } as const
+
+const FRESH_PROFILE = 'fresh-1'
 
 const WEIGHT_CLASSES = ['Heavyweight (2.0x)', 'Cruiserweight (1.5x)', 'Middleweight (1.0x)'] as const
 const VAULT_CATEGORIES = ['Gaming', 'Items', 'Dining', 'Events'] as const
@@ -129,77 +132,51 @@ function readUnknown(key: string): unknown {
   }
 }
 
-function seedTransactions(): readonly Transaction[] {
-  return [
-    {
-      id: 'tx-1',
-      type: 'EARN',
-      title: '60-Min Push Session w/ Brandon',
-      points: 84,
-      effort_strain: 7,
-      anchor_alignment: 8.5,
-      multiplier: 1.5,
-      weight_class: 'Cruiserweight (1.5x)',
-      reasoning: 'Directly reinforces primary physical target with heavy compound overload.',
-      formula_breakdown: 'Base 56 × 1.5x Multiplier',
-      timestamp: 'Today, 2:15 PM',
-      date: utcDateKey(),
-    },
-    {
-      id: 'tx-2',
-      type: 'SPEND',
-      title: '1 Hour of Valorant Session',
-      points: 50,
-      category: 'Gaming',
-      timestamp: 'Yesterday, 8:30 PM',
-      date: utcDateKey(new Date(Date.now() - 86_400_000)),
-    },
-  ]
-}
-
-function seedVault(): readonly VaultItem[] {
-  return [
-    {
-      id: 'v-1',
-      title: '1 Hour of Valorant Session',
-      cost: 50,
-      category: 'Gaming',
-      usd: 0,
-      hrs: 1,
-      formulaTag: '1.0 hrs @ 50 PTS/hr',
-    },
-    {
-      id: 'v-2',
-      title: 'Korean BBQ Dinner',
-      cost: 770,
-      category: 'Dining',
-      usd: 35,
-      hrs: 2,
-      formulaTag: '$35 + 2.0 hrs',
-    },
-    {
-      id: 'v-3',
-      title: 'Jonsbo N4 NAS Chassis',
-      cost: 1600,
-      category: 'Items',
-      usd: 80,
-      hrs: 0,
-      formulaTag: '$80 @ 20 PTS/$',
-    },
-  ]
+export function freshState(): PulseState {
+  return {
+    balance: 0,
+    soundEnabled: true,
+    decayEnabled: true,
+    lastAuditDate: utcDateKey(),
+    apiKey: '',
+    disciplineAnchor: DEFAULT_ANCHOR,
+    dailyGoal: DAILY_GOAL,
+    theme: 'light',
+    transactions: [],
+    vaultItems: [],
+  }
 }
 
 export function readStoredTheme(): ThemeName {
   return localStorage.getItem(KEYS.theme) === 'dark' ? 'dark' : 'light'
 }
 
+export function canvasThemeColor(theme: ThemeName = readStoredTheme()) {
+  return theme === 'dark' ? '#09090B' : '#F4F4F5'
+}
+
+export function applyDocumentTheme(theme: ThemeName = readStoredTheme()) {
+  const color = canvasThemeColor(theme)
+  const root = document.documentElement
+  root.dataset.theme = theme
+  root.style.backgroundColor = color
+  document.body.style.backgroundColor = color
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color)
+  document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', theme)
+}
+
 export function loadState(): PulseState {
+  if (localStorage.getItem(KEYS.profile) !== FRESH_PROFILE) {
+    const next = freshState()
+    saveState(next)
+    localStorage.setItem(KEYS.profile, FRESH_PROFILE)
+    return next
+  }
+
   const balanceRaw = localStorage.getItem(KEYS.balance)
-  const balance = balanceRaw === null || Number.isNaN(Number(balanceRaw)) ? 420 : Number(balanceRaw)
+  const balance = balanceRaw === null || Number.isNaN(Number(balanceRaw)) ? 0 : Number(balanceRaw)
   const storedTx = localStorage.getItem(KEYS.txs)
   const storedVault = localStorage.getItem(KEYS.vault)
-  const transactions = storedTx === null ? seedTransactions() : (parseTransactions(readUnknown(KEYS.txs)) ?? seedTransactions())
-  const vaultItems = storedVault === null ? seedVault() : (parseVaultItems(readUnknown(KEYS.vault)) ?? seedVault())
 
   return {
     balance,
@@ -210,8 +187,8 @@ export function loadState(): PulseState {
     disciplineAnchor: localStorage.getItem(KEYS.anchor) || DEFAULT_ANCHOR,
     dailyGoal: DAILY_GOAL,
     theme: readStoredTheme(),
-    transactions,
-    vaultItems,
+    transactions: storedTx === null ? [] : (parseTransactions(readUnknown(KEYS.txs)) ?? []),
+    vaultItems: storedVault === null ? [] : (parseVaultItems(readUnknown(KEYS.vault)) ?? []),
   }
 }
 

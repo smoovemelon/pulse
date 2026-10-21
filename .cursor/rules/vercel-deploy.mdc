@@ -1,9 +1,27 @@
 ---
-description: Automatically build, verify, and deploy updates to Vercel production
+description: Build, deploy to Vercel production, and push the same changes to GitHub
 globs: ["src/**/*", "index.html", "vite.config.ts", "package.json"]
 ---
-# Vercel Deployment Automation
+# Vercel and GitHub
+
 When you complete a requested feature, bug fix, or refactor:
-1. Verify Build: Run `npm run build` using the terminal tool. The build script runs the unit tests first (`vitest run`), then TypeScript and the Vite bundle. Stop if any test, type, or bundler error fails.
-2. Deploy to Production: Run `npx vercel --prod --yes` directly via the terminal tool to publish changes to the live production environment.
-3. Output Verification: Extract the live production URL from the Vercel CLI command output and present it directly to the user.
+
+1. Verify the build. Run `npm run build`. It runs unit tests, then TypeScript, then the Vite bundle. Stop if any step fails.
+2. Bump the release marker with `node scripts/bump-release.mjs` unless this change already updates `src/release.ts`. Include that file in the commit so one `git push` succeeds.
+3. Commit the completed work on the current branch. Stage the files that belong to the change, including the release marker. Do not stage secrets (`.env`, credentials, keys).
+4. Push to GitHub with `git push origin HEAD`. Do not force-push. Do not skip hooks.
+5. Deploy with `npx vercel --prod --yes`.
+6. Tell the user the production URL and that `origin` received the same commit.
+
+```bash
+npm run build
+node scripts/bump-release.mjs
+git add src/release.ts <changed files>
+git commit -m "$(cat <<'EOF'
+Short why-focused message.
+
+EOF
+)"
+git push origin HEAD
+npx vercel --prod --yes
+```

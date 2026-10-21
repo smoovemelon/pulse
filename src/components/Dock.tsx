@@ -13,7 +13,7 @@ export function Dock({
   const { feedback } = useSensory()
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 flex justify-center px-4 pb-4 pt-2 pointer-events-none">
+    <nav className="dock-bar">
       <div
         className="w-full max-w-[430px] rounded-[32px] p-2 border border-line shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14)] flex items-center justify-between pointer-events-auto relative"
         style={{ background: 'var(--dock)', backdropFilter: 'blur(24px)' }}

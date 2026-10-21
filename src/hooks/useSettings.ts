@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { callGemini } from '../lib/gemini'
-import { exportBackup as downloadBackup, mergeBackup } from '../services/persistence'
+import { exportBackup as downloadBackup, freshState, mergeBackup } from '../services/persistence'
 import { useCore } from './core'
 import { useSlices } from './slices'
 
@@ -16,10 +16,11 @@ export interface SettingsApi {
   checkKey: (candidate?: string) => Promise<void>
   exportBackup: () => void
   importBackup: (file: File) => Promise<boolean>
+  startFresh: () => void
 }
 
 export function useSettingsController(): SettingsApi {
-  const { state, read, commit, notify, feedback } = useCore()
+  const { state, read, commit, notify, feedback, setDecayAlert } = useCore()
   const [keyBadge, setKeyBadge] = useState('Checking...')
   const [keyBadgeClass, setKeyBadgeClass] = useState('bg-well text-muted border-line')
 
@@ -85,6 +86,15 @@ export function useSettingsController(): SettingsApi {
     notify('Backup JSON exported successfully')
   }, [feedback, notify, read])
 
+  const startFresh = useCallback(() => {
+    commit(freshState())
+    setDecayAlert(null)
+    setKeyBadge('No Key Entered')
+    setKeyBadgeClass('bg-amber-50 text-amber-700 border-amber-200')
+    feedback('click')
+    notify('Fresh start. Balance, ledger, and vault are clear.')
+  }, [commit, feedback, notify, setDecayAlert])
+
   const importBackup = useCallback(
     async (file: File) => {
       try {
@@ -114,6 +124,7 @@ export function useSettingsController(): SettingsApi {
     checkKey,
     exportBackup,
     importBackup,
+    startFresh,
   }
 }
 

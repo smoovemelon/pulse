@@ -28,6 +28,7 @@
   --line: #e4e4e7;
   --field: #fafafa;
   --dock: rgb(255 255 255 / 0.92);
+  --safe-area-max-inset-bottom: env(safe-area-max-inset-bottom, env(safe-area-inset-bottom, 0px));
   color-scheme: light;
 }
 
@@ -49,7 +50,8 @@ html[data-theme='dark'] {
 html,
 body,
 #root {
-  min-height: 100%;
+  min-height: 100dvh;
+  background: var(--canvas);
 }
 
 html,
@@ -65,6 +67,48 @@ body {
 
 body {
   margin: 0;
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  background: var(--canvas);
+}
+
+body::before {
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+}
+
+body::after {
+  z-index: 35;
+  bottom: 0;
+  height: env(safe-area-inset-bottom, 0px);
+}
+
+.dock-bar {
+  position: fixed;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0.5rem 1rem calc(1rem + var(--safe-area-max-inset-bottom));
+  bottom: calc(env(safe-area-inset-bottom, 0px) - var(--safe-area-max-inset-bottom));
+  background: linear-gradient(
+    to top,
+    var(--canvas) var(--safe-area-max-inset-bottom),
+    transparent var(--safe-area-max-inset-bottom)
+  );
 }
 
 input,

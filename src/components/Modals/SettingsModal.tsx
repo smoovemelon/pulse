@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { RELEASE_LABEL } from '../../release'
 import { usePulseEconomy } from '../../hooks/usePulseEconomy'
 import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
@@ -7,13 +8,15 @@ import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
-  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup } = useSettings()
+  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh } = useSettings()
   const { decayEnabled, toggleDecay, runAudit } = usePulseEconomy()
   const { feedback } = useSensory()
   const [key, setKey] = useState(apiKey)
   const [formulasOpen, setFormulasOpen] = useState(false)
+  const [freshArmed, setFreshArmed] = useState(false)
 
   useEffect(() => {
+    setKey(apiKey)
     void checkKey(apiKey)
   }, [apiKey, checkKey])
 
@@ -23,7 +26,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
         <h3 id="settings-heading" className="text-base font-black tracking-tight text-ink">Settings & Economy</h3>
         <div className="flex items-center gap-2">
           <span data-testid="version-stamp" className="font-num text-[10px] font-extrabold tracking-wide text-faint">
-            v1.0.1
+            {RELEASE_LABEL}
           </span>
           <CloseButton onClick={onClose} />
         </div>
@@ -165,8 +168,48 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           </div>
         )}
       </div>
+      <div className="depth-well rounded-2xl px-4 py-3 flex flex-col gap-2">
+        <div>
+          <span className="text-xs font-black text-ink block">Developer</span>
+          <span className="text-[10px] text-muted">Start over as a new user. This clears the balance, ledger, and vault on this device.</span>
+        </div>
+        {freshArmed ? (
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              tone="card"
+              onClick={() => setFreshArmed(false)}
+              className="py-2.5 rounded-xl text-[11px] font-extrabold active:scale-95"
+            >
+              Cancel
+            </Button>
+            <Button
+              tone="dark"
+              data-testid="confirm-fresh"
+              onClick={() => {
+                startFresh()
+                onClose()
+              }}
+              className="py-2.5 rounded-xl text-[11px] font-extrabold active:scale-95"
+            >
+              Start fresh
+            </Button>
+          </div>
+        ) : (
+          <Button
+            tone="card"
+            data-testid="start-fresh"
+            onClick={() => {
+              feedback('click')
+              setFreshArmed(true)
+            }}
+            className="py-2.5 rounded-xl text-[11px] font-extrabold text-body active:scale-95"
+          >
+            Start fresh
+          </Button>
+        )}
+      </div>
       <p data-testid="build-indicator" className="text-center font-num text-[10px] font-bold tracking-wide text-faint">
-        Pulse v1.0.0-prod
+        Pulse {RELEASE_LABEL}
       </p>
     </ModalSheet>
   )

@@ -1,0 +1,14 @@
+---
+description: Bump the Settings release marker on every git push
+alwaysApply: true
+---
+# Release marker
+
+`src/release.ts` is the only release label. Settings shows it in the header stamp and the footer (`Pulse` plus that label).
+
+Before every `git push`:
+1. Run `node scripts/bump-release.mjs` unless the commits being pushed already change `src/release.ts`.
+2. Include that file in the commit you push.
+3. The label steps the patch number by one, keeping the `vMAJOR.MINOR.PATCH-prod` form.
+
+The repo hook `scripts/pre-push` does this if a push would otherwise leave the marker unchanged. Install it with `cp scripts/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push`.
