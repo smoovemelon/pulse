@@ -3,6 +3,7 @@ import { useLedger } from '../../hooks/useLedger'
 import { useNotice } from '../../hooks/useNotice'
 import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
+import { isNamedAnchor } from '../../lib/dates'
 import { buildJudgmentPayload, callGemini, polishReasoning, type ActionJudgment } from '../../lib/gemini'
 import { calculateActionPoints, localActionFallback } from '../../services/engine'
 import type { ActionScore } from '../../types'
@@ -13,11 +14,18 @@ import { ClockIcon, MinusIcon, PlusIcon, SparkleIcon } from '../Icons'
 
 const CHIPS = [15, 30, 45, 60, 90]
 
-export function ActionModal({ onClose }: { readonly onClose: () => void }) {
+export function ActionModal({
+  onClose,
+  onEditAnchor,
+}: {
+  readonly onClose: () => void
+  readonly onEditAnchor: () => void
+}) {
   const { entries, appendEarn } = useLedger()
   const { notify } = useNotice()
   const { feedback } = useSensory()
   const { anchor, apiKey } = useSettings()
+  const named = isNamedAnchor(anchor)
   const [text, setText] = useState('')
   const [duration, setDuration] = useState(60)
   const [pending, setPending] = useState(false)
@@ -29,6 +37,12 @@ export function ActionModal({ onClose }: { readonly onClose: () => void }) {
   }
 
   const submit = async () => {
+    if (!isNamedAnchor(anchor)) {
+      feedback('error')
+      notify('Name your discipline anchor first')
+      return
+    }
+
     const rawAction = text.trim()
     if (!rawAction) {
       feedback('error')
@@ -139,6 +153,22 @@ export function ActionModal({ onClose }: { readonly onClose: () => void }) {
         </div>
       </div>
 
+      {!named && (
+        <div className="depth-well rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+          <p className="text-[11px] leading-relaxed text-body">Name your discipline anchor before this can be judged.</p>
+          <Button
+            tone="dark"
+            onClick={() => {
+              feedback('click')
+              onEditAnchor()
+            }}
+            className="shrink-0 px-3 py-2 rounded-xl text-[11px] font-extrabold active:scale-95"
+          >
+            Set anchor
+          </Button>
+        </div>
+      )}
+
       {verdict && weight && (
         <div data-testid="verdict-card" className="bg-[#18181B] text-white rounded-2xl p-4 flex flex-col gap-3 shadow-lg">
           <div className="flex items-center justify-between border-b border-zinc-700 pb-2">
@@ -162,11 +192,18 @@ export function ActionModal({ onClose }: { readonly onClose: () => void }) {
         tone="dark"
         data-testid="submit-action"
         disabled={pending}
-        onClick={() => void submit()}
+        onClick={() => {
+          if (!named) {
+            feedback('click')
+            onEditAnchor()
+            return
+          }
+          void submit()
+        }}
         className="w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
       >
         <SparkleIcon className="w-4 h-4" />
-        <span>{pending ? 'Evaluating Action...' : 'Submit for Judgment'}</span>
+        <span>{pending ? 'Evaluating Action...' : named ? 'Submit for Judgment' : 'Set anchor'}</span>
       </Button>
     </ModalSheet>
   )

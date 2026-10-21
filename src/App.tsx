@@ -20,7 +20,13 @@ function Shell() {
   const { decayAlert } = usePulseEconomy()
   const [tab, setTab] = useState<'feed' | 'vault'>('feed')
   const [modal, setModal] = useState<OpenModal>(null)
+  const [resumeAction, setResumeAction] = useState(false)
   const [editing, setEditing] = useState<VaultItem | null>(null)
+
+  const closeModal = () => {
+    setResumeAction(false)
+    setModal(null)
+  }
 
   const sheetOpen = modal !== null || decayAlert !== null
   useEffect(() => {
@@ -32,7 +38,10 @@ function Shell() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setModal(null)
+      if (event.key === 'Escape') {
+        setResumeAction(false)
+        setModal(null)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -43,7 +52,12 @@ function Shell() {
       <Toast />
       <div className="w-full max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4">
         <Header onOpenSettings={() => setModal('settings')} />
-        <Dashboard onEditAnchor={() => setModal('anchor')} />
+        <Dashboard
+          onEditAnchor={() => {
+            setResumeAction(false)
+            setModal('anchor')
+          }}
+        />
         {tab === 'feed' ? (
           <Feed />
         ) : (
@@ -60,9 +74,28 @@ function Shell() {
         )}
       </div>
       <Dock tab={tab} onTab={setTab} onAction={() => setModal('action')} />
-      {modal === 'action' && <ActionModal onClose={() => setModal(null)} />}
-      {modal === 'settings' && <SettingsModal onClose={() => setModal(null)} />}
-      {modal === 'anchor' && <AnchorModal onClose={() => setModal(null)} />}
+      {(modal === 'action' || resumeAction) && (
+        <ActionModal
+          onClose={closeModal}
+          onEditAnchor={() => {
+            setResumeAction(true)
+            setModal('anchor')
+          }}
+        />
+      )}
+      {modal === 'settings' && <SettingsModal onClose={closeModal} />}
+      {modal === 'anchor' && (
+        <AnchorModal
+          onClose={() => {
+            if (resumeAction) {
+              setResumeAction(false)
+              setModal('action')
+              return
+            }
+            setModal(null)
+          }}
+        />
+      )}
       {modal === 'vault' && <BountyModal item={editing} onClose={() => setModal(null)} />}
       <DecayAlertModal />
     </div>
