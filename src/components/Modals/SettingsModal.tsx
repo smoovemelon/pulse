@@ -165,6 +165,9 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           </div>
         )}
       </div>
+      <p data-testid="build-indicator" className="text-center font-num text-[10px] font-bold tracking-wide text-faint">
+        Pulse v1.0.0-prod
+      </p>
     </ModalSheet>
   )
 }
