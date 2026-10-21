@@ -241,6 +241,13 @@ html[data-theme='dark'] .cat-sub-active {
   transform: scale(0.95);
 }
 
+.momentum-track { stroke: #ececef; }
+.momentum-progress { stroke: #6bbf45; }
+.momentum-knob { fill: #6bbf45; }
+.momentum-knob-ring { fill: #fff; }
+
+html[data-theme='dark'] .momentum-track { stroke: #3f3f46; }
+
 .chip-sky { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
 .chip-amber { background: #fffbeb; color: #b45309; border-color: #fde68a; }
 .chip-emerald { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
