@@ -25,8 +25,14 @@ const STEPS: readonly { readonly kicker: string; readonly title: string; readonl
   {
     kicker: 'Daily line',
     title: 'Fill the ring',
-    body: 'The ring tracks points earned today toward 120. Reach 60 to hold the streak, and 120 to add a day. Close under 60 and the ledger charges 15 points and the streak resets.',
+    body: 'The ring is how close today is to 120 points.',
     mark: <GoalMark />,
+  },
+  {
+    kicker: 'Streak',
+    title: 'Hold the line',
+    body: 'Clear 120 points and the streak adds a day. Land from 60 to 119 and it holds. Close under 60 and it resets, with a 15 point charge. New points pick up a bonus: 1.1× from day 3, 1.2× from day 7, and 1.3× from day 14.',
+    mark: <StreakMark />,
   },
   {
     kicker: 'Spend',
@@ -37,7 +43,7 @@ const STEPS: readonly { readonly kicker: string; readonly title: string; readonl
   {
     kicker: 'Ready',
     title: 'Start with the anchor',
-    body: 'Name the goal, log one action, and watch the ring. The question mark in the header opens this guide again.',
+    body: 'Name the goal, log one action, and keep the streak under the balance. The question mark in the header opens this guide again.',
     mark: <MarkTile><FlameIcon className="h-[18px] w-[18px]" /></MarkTile>,
   },
 ]
@@ -50,6 +56,20 @@ function MarkTile({ children }: { readonly children: ReactNode }) {
   return (
     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink text-canvas">
       {children}
+    </div>
+  )
+}
+
+function StreakMark() {
+  const marks = ['bg-ink', 'bg-ink', 'border border-ink', 'border border-line', 'border border-line']
+  return (
+    <div className="flex items-end gap-1.5" aria-hidden="true">
+      {marks.map((tone, index) => (
+        <span key={tone + index} className="flex flex-col items-center gap-1">
+          <span className="text-[9px] font-extrabold uppercase tracking-widest text-faint">{'MTWTF'[index]}</span>
+          <span className={`h-1.5 w-4 rounded-full ${tone}`} />
+        </span>
+      ))}
     </div>
   )
 }

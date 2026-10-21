@@ -13,8 +13,9 @@ function Svg({ className, children }: IconProps & { children: ReactNode }) {
 export function VolumeOn({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M4.5 10v4h2.8l3.7 3V7l-3.7 3H4.5z" />
+      <path d="M14.2 9.4a3.2 3.2 0 0 1 0 5.2" />
+      <path d="M16.4 7.4a6 6 0 0 1 0 9.2" />
     </Svg>
   )
 }
@@ -22,9 +23,9 @@ export function VolumeOn({ className = 'w-4 h-4' }: IconProps) {
 export function VolumeOff({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-      <line x1="23" y1="9" x2="17" y2="15" />
-      <line x1="17" y1="9" x2="23" y2="15" />
+      <path d="M4.5 10v4h2.8l3.7 3V7l-3.7 3H4.5z" />
+      <line x1="15.5" y1="10" x2="19.5" y2="14" />
+      <line x1="19.5" y1="10" x2="15.5" y2="14" />
     </Svg>
   )
 }
@@ -32,9 +33,9 @@ export function VolumeOff({ className = 'w-4 h-4' }: IconProps) {
 export function GuideIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M9.6 9.2a2.4 2.4 0 0 1 4.6 1c0 1.6-2.2 1.8-2.2 3.2" />
-      <circle cx="12" cy="17" r="0.8" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="8" />
+      <path d="M9.8 9.6a2.3 2.3 0 1 1 3.5 1.9c-.6.4-1.1.9-1.1 1.7" />
+      <circle cx="12" cy="16.2" r="0.7" fill="currentColor" stroke="none" />
     </Svg>
   )
 }
@@ -219,8 +220,8 @@ export function TrashIcon({ className = 'w-3.5 h-3.5' }: IconProps) {
 export function SunIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      <circle cx="12" cy="12" r="3.5" />
+      <path d="M12 4v1.8M12 18.2V20M4 12h1.8M18.2 12H20M6.2 6.2l1.3 1.3M16.5 16.5l1.3 1.3M17.8 6.2l-1.3 1.3M7.5 16.5l-1.3 1.3" />
     </Svg>
   )
 }
@@ -228,7 +229,7 @@ export function SunIcon({ className = 'w-4 h-4' }: IconProps) {
 export function MoonIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>
-      <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z" />
+      <path d="M19.5 14.2A7.2 7.2 0 1 1 9.8 4.5a6 6 0 0 0 9.7 9.7z" />
     </Svg>
   )
 }
