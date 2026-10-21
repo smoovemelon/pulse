@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_ANCHOR } from '../../lib/dates'
 import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
-import { calculateActionPoints, currentStreak, validateVaultDraft } from '../economy'
+import { balanceAfterRemoval, calculateActionPoints, currentStreak, earnedOn, lifetimeStats, validateVaultDraft } from '../economy'
 
 const JUDGED = ['Session', 'Session', 'Logged work'] as const
 
@@ -129,6 +129,44 @@ describe('midnight decay', () => {
     const result = runDecayAudit(ledger({ balance: 10, transactions: [] }))
     expect(result.state.balance).toBe(0)
     expect(result.state.transactions[0]?.points).toBe(15)
+  })
+})
+
+describe('history removal', () => {
+  const spend = (points: number): Transaction => ({
+    id: `spend-${points}`,
+    type: 'SPEND',
+    title: 'Purchase',
+    points,
+    timestamp: 'Today',
+    date: '2026-10-21',
+    category: 'Gaming',
+  })
+
+  it('removes earned points from the balance, momentum, streak, and lifetime totals', () => {
+    const today = '2026-10-21'
+    const session = earn(today, 120)
+    const kept = earn('2026-10-20', 120)
+    const history = [session, kept]
+    const remaining = history.filter((tx) => tx.id !== session.id)
+
+    expect(balanceAfterRemoval(200, session)).toBe(80)
+    expect(earnedOn(history, today)).toBe(120)
+    expect(earnedOn(remaining, today)).toBe(0)
+    expect(currentStreak(history, today)).toBe(2)
+    expect(currentStreak(remaining, today)).toBe(1)
+    expect(lifetimeStats(remaining)).toEqual({ earned: 120, spent: 0 })
+  })
+
+  it('returns spent points and drops them from lifetime spend', () => {
+    const purchase = spend(45)
+    expect(balanceAfterRemoval(20, purchase)).toBe(65)
+    expect(lifetimeStats([purchase].filter((tx) => tx.id !== purchase.id))).toEqual({ earned: 0, spent: 0 })
+    expect(lifetimeStats([purchase])).toEqual({ earned: 0, spent: 45 })
+  })
+
+  it('does not drive the balance below zero', () => {
+    expect(balanceAfterRemoval(10, earn('2026-10-21', 40))).toBe(0)
   })
 })
 

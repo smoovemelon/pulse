@@ -1,9 +1,10 @@
-import { SparkleIcon } from '../Icons'
+import { SparkleIcon, TrashIcon } from '../Icons'
+import { Button } from '../Common/Button'
 import type { Transaction } from '../../types'
 import { WeightClassPill } from './WeightClassPill'
 import { weightClassStyles } from './weightStyles'
 
-export function TransactionCard({ tx }: { readonly tx: Transaction }) {
+export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; readonly onDelete: () => void }) {
   const weight = weightClassStyles(tx.multiplier || 1)
   return (
     <article className="depth-card rounded-2xl p-4 flex flex-col gap-2.5">
@@ -21,11 +22,22 @@ export function TransactionCard({ tx }: { readonly tx: Transaction }) {
           </div>
           <h4 className="text-sm font-extrabold text-ink mt-1.5 leading-snug tracking-tight break-words">{tx.title}</h4>
         </div>
-        <div className="text-right shrink-0">
-          <span className={`text-base font-extrabold font-num ${tx.type === 'EARN' ? 'text-emerald-600' : 'text-rose-600'}`}>
-            {tx.type === 'EARN' ? `+${tx.points}` : `-${tx.points}`}
-          </span>
-          <span className="text-[10px] font-extrabold text-faint ml-0.5 font-num">PTS</span>
+        <div className="flex items-start gap-1 shrink-0">
+          <div className="text-right">
+            <span className={`text-base font-extrabold font-num ${tx.type === 'EARN' ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {tx.type === 'EARN' ? `+${tx.points}` : `-${tx.points}`}
+            </span>
+            <span className="text-[10px] font-extrabold text-faint ml-0.5 font-num">PTS</span>
+          </div>
+          <Button
+            tone="ghost"
+            aria-label={`Delete ${tx.title}`}
+            data-testid={`delete-${tx.id}`}
+            onClick={onDelete}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:text-rose-600 active:scale-90"
+          >
+            <TrashIcon />
+          </Button>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { utcDateKey } from '../lib/dates'
-import { calculateVaultValuation, validateVaultDraft } from '../services/engine'
+import { balanceAfterRemoval, calculateVaultValuation, validateVaultDraft } from '../services/engine'
 import type { EarnDraft, FeedFilter, SpendDraft, Transaction } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -12,6 +12,7 @@ export interface LedgerApi {
   setFilter: (filter: FeedFilter) => void
   appendEarn: (tx: EarnDraft) => void
   appendSpend: (draft: SpendDraft) => boolean
+  deleteEntry: (id: string) => void
 }
 
 function matches(tx: Transaction, filter: FeedFilter) {
@@ -106,6 +107,25 @@ export function useLedgerController(): LedgerApi {
     [commit, feedback, notify, read],
   )
 
+  const deleteEntry = useCallback(
+    (id: string) => {
+      const current = read()
+      const tx = current.transactions.find((item) => item.id === id)
+      if (!tx) return
+      const balance = balanceAfterRemoval(current.balance, tx)
+      const delta = balance - current.balance
+      commit({
+        ...current,
+        balance,
+        transactions: current.transactions.filter((item) => item.id !== id),
+      })
+      feedback(tx.type === 'EARN' ? 'spend' : 'earn')
+      const signed = delta > 0 ? `+${delta}` : `${delta}`
+      notify(`Removed "${tx.title}". ${signed} PTS`)
+    },
+    [commit, feedback, notify, read],
+  )
+
   return {
     filter,
     entries: state.transactions,
@@ -113,6 +133,7 @@ export function useLedgerController(): LedgerApi {
     setFilter,
     appendEarn,
     appendSpend,
+    deleteEntry,
   }
 }
 

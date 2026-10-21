@@ -1,4 +1,5 @@
 export {
+  balanceAfterRemoval,
   calculateActionPoints,
   calculateVaultValuation,
   currentStreak,
