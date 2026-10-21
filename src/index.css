@@ -28,8 +28,7 @@
   --line: #e4e4e7;
   --field: #fafafa;
   --dock: rgb(255 255 255 / 0.92);
-  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
-  --dock-bottom-gap: max(1rem, calc(var(--safe-area-inset-bottom) - 0.5rem));
+  --dock-bottom-gap: 0.5rem;
   color-scheme: only light;
 }
 
