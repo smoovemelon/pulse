@@ -1,19 +1,14 @@
 import { useSensory } from '../hooks/useSensory'
 import { useSettings } from '../hooks/useSettings'
-import { MoonIcon, PulseMark, SettingsIcon, SunIcon, VolumeOff, VolumeOn } from './Icons'
+import { MoonIcon, SettingsIcon, SunIcon, VolumeOff, VolumeOn } from './Icons'
 
 export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
   const { theme, toggleTheme } = useSettings()
   const { soundEnabled, toggleSound, feedback } = useSensory()
 
   return (
-    <header className="flex items-center justify-between">
-      <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-2xl brand-mark flex items-center justify-center">
-          <PulseMark />
-        </div>
-        <h1 className="text-xl heading-athletic text-ink tracking-tighter">PULSE</h1>
-      </div>
+    <header className="flex h-10 items-center justify-between">
+      <h1 className="text-xl heading-athletic leading-none text-ink tracking-tighter">ALTIUS</h1>
       <div className="flex items-center gap-2">
         <button
           type="button"

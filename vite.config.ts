@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'Pulse Economy',
-        short_name: 'Pulse',
-        description: 'Pulse Productivity Economy',
+        name: 'Altius',
+        short_name: 'Altius',
+        description: 'Altius',
         start_url: '.',
         scope: '/',
         display: 'standalone',

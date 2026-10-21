@@ -1,15 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
-  <defs>
-    <linearGradient id="pulse-brand" x1="20" y1="0" x2="20" y2="40" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#18181B" />
-      <stop offset="1" stop-color="#09090B" />
-    </linearGradient>
-  </defs>
-  <rect width="40" height="40" rx="16" fill="url(#pulse-brand)" stroke="#3F3F46" stroke-opacity="0.6" />
-  <svg x="10" y="10" width="20" height="20" viewBox="0 0 24 24" fill="none" color="#F4F4F5">
-    <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="0.5" stroke-opacity="0.2" stroke-dasharray="1.5 1.5" />
-    <line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="0.5" stroke-opacity="0.15" stroke-dasharray="1.5 1.5" />
-    <path d="M2.5 12H6.5L8 7.5L10.5 16.5L13 3.5L15.5 19L17.5 12H21.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-    <circle cx="13" cy="3.5" r="1.4" fill="#10B981" />
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <rect width="40" height="40" rx="12" fill="#09090B" />
+  <g transform="translate(5 6.9) scale(0.13636)" fill="#F4F4F5">
+    <path fill-rule="evenodd" d="M214 4 L215 9 L211 29 L208 60 L207 61 L195 50 L129 131 L57 160 L41 187 L4 187 L5 184 L47 117 L105 18 L135 67 L116 92 L107 77 L104 77 L79 119 L77 123 L79 124 L114 109 L130 91 L176 33 L161 25 L213 5Z M181 145 L207 186 L170 187 L161 170 L181 146Z M160 109 L176 135 L156 161 L147 149 L140 135 L159 110Z" />
+  </g>
 </svg>

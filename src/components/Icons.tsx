@@ -10,17 +10,6 @@ function Svg({ className, children }: IconProps & { children: ReactNode }) {
   )
 }
 
-export function PulseMark({ className = 'w-5 h-5' }: IconProps) {
-  return (
-    <svg className={`${className} drop-shadow-[0_0_8px_rgba(52,211,153,0.35)]`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.2" strokeDasharray="1.5 1.5" />
-      <line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.15" strokeDasharray="1.5 1.5" />
-      <path d="M2.5 12H6.5L8 7.5L10.5 16.5L13 3.5L15.5 19L17.5 12H21.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="13" cy="3.5" r="1.4" fill="#10B981" />
-    </svg>
-  )
-}
-
 export function VolumeOn({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>

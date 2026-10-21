@@ -218,7 +218,7 @@ export function saveState(state: PulseState) {
 
 export function exportBackup(state: PulseState) {
   const backup = {
-    app: 'Pulse Productivity Economy',
+    app: 'Altius',
     version: '1.3.0',
     exported_at: new Date().toISOString(),
     state: {
@@ -234,7 +234,7 @@ export function exportBackup(state: PulseState) {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `pulse_backup_${utcDateKey()}.json`
+  link.download = `altius_backup_${utcDateKey()}.json`
   document.body.appendChild(link)
   link.click()
   link.remove()

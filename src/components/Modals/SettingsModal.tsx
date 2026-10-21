@@ -184,7 +184,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
         )}
       </div>
       <p data-testid="build-indicator" className="text-center font-num text-[10px] font-bold tracking-wide text-faint">
-        Pulse {RELEASE_LABEL}
+        Altius {RELEASE_LABEL}
       </p>
     </ModalSheet>
   )

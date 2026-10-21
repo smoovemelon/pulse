@@ -63,7 +63,7 @@ export async function callGemini<T>(payload: unknown, apiKey: string): Promise<G
 }
 
 export function buildJudgmentPayload(anchor: string, rawAction: string, duration: number, history: string) {
-  const systemPrompt = `You evaluate user actions in Pulse.
+  const systemPrompt = `You evaluate user actions in Altius.
 Evaluate effort strain (1-10) and alignment to their anchor ("${anchor}").
 
 RECENT TRAINING CONTEXT:
