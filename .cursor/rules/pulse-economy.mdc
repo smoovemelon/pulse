@@ -31,7 +31,7 @@ Action points: `Base = Strain (1–10) × 8 × (Duration_min / 45)^0.45`, then r
 - `>= 4.0` → 1.5× Cruiserweight
 - `< 4.0` → 1.0× Middleweight
 
-Default anchor text is `Paused Bench Press 205 lbs`.
+Default anchor text for a new user is `Your main goal`.
 
 Vault:
 

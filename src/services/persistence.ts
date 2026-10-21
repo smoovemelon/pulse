@@ -23,6 +23,7 @@ const KEYS = {
 } as const
 
 const FRESH_PROFILE = 'fresh-1'
+const LEGACY_ANCHOR = 'Paused Bench Press 205 lbs'
 
 const WEIGHT_CLASSES = ['Heavyweight (2.0x)', 'Cruiserweight (1.5x)', 'Middleweight (1.0x)'] as const
 const VAULT_CATEGORIES = ['Gaming', 'Items', 'Dining', 'Events'] as const
@@ -169,6 +170,12 @@ export function applyDocumentTheme(theme: ThemeName = readStoredTheme()) {
   document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', scheme)
 }
 
+function readAnchor(): string {
+  const stored = localStorage.getItem(KEYS.anchor)?.trim() ?? ''
+  if (!stored || stored === LEGACY_ANCHOR) return DEFAULT_ANCHOR
+  return stored
+}
+
 export function loadState(): PulseState {
   if (localStorage.getItem(KEYS.profile) !== FRESH_PROFILE) {
     const next = freshState()
@@ -188,7 +195,7 @@ export function loadState(): PulseState {
     decayEnabled: localStorage.getItem(KEYS.decay) !== 'false',
     lastAuditDate: localStorage.getItem(KEYS.audit) || utcDateKey(),
     apiKey: localStorage.getItem(KEYS.apiKey) || '',
-    disciplineAnchor: localStorage.getItem(KEYS.anchor) || DEFAULT_ANCHOR,
+    disciplineAnchor: readAnchor(),
     dailyGoal: DAILY_GOAL,
     theme: readStoredTheme(),
     transactions: storedTx === null ? [] : (parseTransactions(readUnknown(KEYS.txs)) ?? []),

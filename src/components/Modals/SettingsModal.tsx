@@ -146,7 +146,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
                 Base = Strain (1–10) × 8 × (Duration / 45)<sup>0.45</sup>.
                 <br />
                 Multipliers: Alignment ≥ 8.0 (2.0x Heavyweight), ≥ 4.0 (1.5x Cruiserweight), &lt; 4.0 (1.0x Middleweight).
-                Default anchor: Paused Bench Press 205 lbs.
+                Default anchor: Your main goal.
               </p>
             </div>
             <div>

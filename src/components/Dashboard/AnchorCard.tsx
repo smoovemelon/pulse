@@ -1,7 +1,9 @@
+import { DEFAULT_ANCHOR } from '../../lib/dates'
 import { TargetIcon } from '../Icons'
 import { Button } from '../Common/Button'
 
 export function AnchorCard({ anchor, onEdit }: { readonly anchor: string; readonly onEdit: () => void }) {
+  const placeholder = anchor === DEFAULT_ANCHOR
   return (
     <div className="depth-well rounded-2xl p-3.5 flex items-center justify-between">
       <div className="flex items-center gap-2.5 pr-2 min-w-0">
@@ -10,7 +12,10 @@ export function AnchorCard({ anchor, onEdit }: { readonly anchor: string; readon
         </div>
         <div className="min-w-0">
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block">Discipline Anchor</span>
-          <span data-testid="anchor-label" className="text-xs font-extrabold text-ink truncate max-w-[180px] block tracking-tight">
+          <span
+            data-testid="anchor-label"
+            className={`text-xs font-extrabold truncate max-w-[180px] block tracking-tight ${placeholder ? 'text-faint' : 'text-ink'}`}
+          >
             {anchor}
           </span>
         </div>

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { DEFAULT_ANCHOR } from '../../lib/dates'
 import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
 import { calculateActionPoints, currentStreak, validateVaultDraft } from '../economy'
@@ -27,7 +28,7 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     decayEnabled: true,
     lastAuditDate: '2026-10-20',
     apiKey: '',
-    disciplineAnchor: 'Paused Bench Press 205 lbs',
+    disciplineAnchor: DEFAULT_ANCHOR,
     dailyGoal: 120,
     theme: 'light',
     transactions: [],

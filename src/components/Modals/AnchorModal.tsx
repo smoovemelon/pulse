@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import { DEFAULT_ANCHOR } from '../../lib/dates'
 import { useSettings } from '../../hooks/useSettings'
 import { Button } from '../Common/Button'
 import { CloseButton, Modal } from '../Common/ModalSheet'
 
 export function AnchorModal({ onClose }: { readonly onClose: () => void }) {
   const { anchor, saveAnchor } = useSettings()
-  const [value, setValue] = useState(anchor)
+  const [value, setValue] = useState(anchor === DEFAULT_ANCHOR ? '' : anchor)
 
   return (
     <Modal align="center" labelledBy="anchor-heading">
@@ -17,6 +18,7 @@ export function AnchorModal({ onClose }: { readonly onClose: () => void }) {
         <input
           data-testid="anchor-input"
           value={value}
+          placeholder={DEFAULT_ANCHOR}
           onChange={(event) => setValue(event.target.value)}
           className="field w-full rounded-2xl p-3.5 text-xs focus:outline-none font-bold"
         />
