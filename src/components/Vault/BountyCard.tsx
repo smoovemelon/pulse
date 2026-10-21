@@ -30,15 +30,13 @@ export function BountyCard({
             <CategoryIcon kind={visual.kind} />
           </div>
           <div className="min-w-0">
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-zinc-900 text-white tracking-wider">
-              {item.category}
-            </span>
-            <h4 className="text-sm font-black text-ink mt-1.5 break-words">{item.title}</h4>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">{item.category}</span>
+            <h4 className="text-sm font-extrabold tracking-tight text-ink mt-1.5 break-words">{item.title}</h4>
           </div>
         </div>
         <div className="text-right shrink-0">
-          <span className="text-base font-black text-ink font-num">{item.cost.toLocaleString()}</span>
-          <span className="text-[10px] font-bold text-muted ml-1 font-num">PTS</span>
+          <span className="text-base font-extrabold text-ink font-num">{item.cost.toLocaleString()}</span>
+          <span className="text-[10px] font-extrabold text-faint ml-0.5 font-num">PTS</span>
         </div>
       </div>
 

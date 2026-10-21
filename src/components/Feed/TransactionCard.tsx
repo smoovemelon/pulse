@@ -12,9 +12,7 @@ export function TransactionCard({ tx }: { readonly tx: Transaction }) {
           <div className="flex items-center gap-2">
             <span
               className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
-                tx.type === 'EARN'
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-rose-50 text-rose-700 border-rose-200'
+                tx.type === 'EARN' ? 'chip-emerald' : 'chip-rose'
               }`}
             >
               {tx.type}
@@ -45,10 +43,10 @@ export function TransactionCard({ tx }: { readonly tx: Transaction }) {
             <WeightClassPill multiplier={tx.multiplier || 1} label={tx.weight_class || weight.label} />
           </div>
           <div className="grid grid-cols-2 gap-2 h-1.5">
-            <div className="bg-zinc-200 rounded-full overflow-hidden">
-              <div className="bg-zinc-800 h-full rounded-full" style={{ width: `${(tx.effort_strain / 10) * 100}%` }} />
+            <div className="bg-line rounded-full overflow-hidden">
+              <div className="bg-ink h-full rounded-full" style={{ width: `${(tx.effort_strain / 10) * 100}%` }} />
             </div>
-            <div className="bg-zinc-200 rounded-full overflow-hidden">
+            <div className="bg-line rounded-full overflow-hidden">
               <div className={`${weight.bar} h-full rounded-full`} style={{ width: `${((tx.anchor_alignment || 0) / 10) * 100}%` }} />
             </div>
           </div>

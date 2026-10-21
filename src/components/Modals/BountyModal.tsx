@@ -5,18 +5,8 @@ import { useVault } from '../../hooks/useVault'
 import { calculateVaultValuation } from '../../services/engine'
 import type { VaultCategory, VaultItem } from '../../types'
 import { Button } from '../Common/Button'
+import { CategoryPicker } from '../Common/CategoryPicker'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
-
-const CATEGORIES: ReadonlyArray<{
-  readonly id: VaultCategory
-  readonly sub: string
-  readonly idle: string
-}> = [
-  { id: 'Items', sub: 'Price only', idle: 'bg-sky-50 text-sky-700' },
-  { id: 'Dining', sub: 'Needs time', idle: 'bg-amber-50 text-amber-700' },
-  { id: 'Events', sub: 'Needs time', idle: 'bg-emerald-50 text-emerald-700' },
-  { id: 'Gaming', sub: 'Time only', idle: 'bg-violet-50 text-violet-700' },
-]
 
 function asCategory(value: string | undefined): VaultCategory {
   if (value === 'Items' || value === 'Dining' || value === 'Events' || value === 'Gaming') return value
@@ -86,25 +76,7 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        {CATEGORIES.map((entry) => {
-          const active = entry.id === category
-          return (
-            <Button
-              key={entry.id}
-              tone={active ? 'pillActive' : 'pill'}
-              data-testid={`cat-${entry.id}`}
-              onClick={() => choose(entry.id)}
-              className="w-full py-2.5 px-2.5 rounded-xl text-[10px] font-black uppercase flex flex-col items-center justify-center gap-1"
-            >
-              <span>{entry.id}</span>
-              <span className={`text-[8px] font-extrabold font-num px-1.5 py-0.5 rounded-md whitespace-nowrap ${active ? 'cat-sub-active' : entry.idle}`}>
-                {entry.sub}
-              </span>
-            </Button>
-          )
-        })}
-      </div>
+      <CategoryPicker value={category} onChange={choose} />
 
       <div className={priceDisabled || hoursDisabled ? 'grid grid-cols-1' : 'grid grid-cols-2 gap-2.5'}>
         {!priceDisabled && (
@@ -173,7 +145,7 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
         tone="dark"
         data-testid="save-bounty"
         onClick={save}
-        className="w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider shadow-md active:scale-95"
+        className="action-btn"
       >
         Confirm & Save to Vault
       </Button>

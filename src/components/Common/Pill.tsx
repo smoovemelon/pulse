@@ -16,7 +16,7 @@ export function Pill({
     <Button
       tone={active ? 'pillActive' : 'pill'}
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap ${className}`.trim()}
+      className={`inline-flex items-center justify-center px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap ${className}`.trim()}
     >
       {children}
     </Button>

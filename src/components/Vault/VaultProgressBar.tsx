@@ -15,13 +15,13 @@ export function VaultProgressBar({
         <span className="text-muted uppercase tracking-wider">
           Funded: {percent}% ({formulaTag})
         </span>
-        <span className={canAfford ? 'text-emerald-600 font-black' : 'text-faint'}>
-          {canAfford ? '✓ Ready' : `Need ${shortfall} PTS`}
+        <span className={canAfford ? 'text-emerald-600 font-extrabold dark:text-emerald-300' : 'text-faint'}>
+          {canAfford ? 'Ready' : `Need ${shortfall} PTS`}
         </span>
       </div>
-      <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
+      <div className="w-full bg-line h-1.5 rounded-full overflow-hidden">
         <div
-          className={`h-full transition-all duration-500 ${canAfford ? 'bg-emerald-500' : 'bg-zinc-800'}`}
+          className={`h-full transition-all duration-500 ${canAfford ? 'bg-emerald-500' : 'bg-ink'}`}
           style={{ width: `${percent}%` }}
         />
       </div>

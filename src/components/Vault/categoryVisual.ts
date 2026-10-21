@@ -3,7 +3,7 @@ export function categoryVisual(catName = '') {
   if (name.includes('game') || name.includes('valorant')) {
     return {
       kind: 'gaming' as const,
-      chip: 'bg-violet-50/90 border-violet-200/80 text-violet-600',
+      chip: 'chip-violet',
       tag: 'Gaming (Time)',
     }
   }
@@ -16,27 +16,27 @@ export function categoryVisual(catName = '') {
   ) {
     return {
       kind: 'items' as const,
-      chip: 'bg-sky-50/90 border-sky-200/80 text-sky-600',
+      chip: 'chip-sky',
       tag: 'Items (Price)',
     }
   }
   if (name.includes('din') || name.includes('food') || name.includes('bbq') || name.includes('meal')) {
     return {
       kind: 'dining' as const,
-      chip: 'bg-amber-50/90 border-amber-200/80 text-amber-600',
+      chip: 'chip-amber',
       tag: 'Dining (Time+)',
     }
   }
   if (name.includes('event') || name.includes('ticket') || name.includes('concert')) {
     return {
       kind: 'events' as const,
-      chip: 'bg-emerald-50/90 border-emerald-200/80 text-emerald-600',
+      chip: 'chip-emerald',
       tag: 'Events (Time+)',
     }
   }
   return {
     kind: 'items' as const,
-    chip: 'bg-zinc-100 border-zinc-200 text-zinc-600',
+    chip: 'chip-zinc',
     tag: 'Items',
   }
 }

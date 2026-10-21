@@ -23,7 +23,10 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
   return (
     <ModalSheet labelledBy="settings-heading" className="max-h-[88vh]">
       <div className="flex justify-between items-center">
-        <h3 id="settings-heading" className="text-base font-black tracking-tight text-ink">Settings & Economy</h3>
+        <div>
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">Preferences</span>
+          <h3 id="settings-heading" className="text-base heading-athletic text-ink">Settings</h3>
+        </div>
         <div className="flex items-center gap-2">
           <span data-testid="version-stamp" className="font-num text-[10px] font-extrabold tracking-wide text-faint">
             {RELEASE_LABEL}
@@ -34,8 +37,8 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
 
       <div className="flex flex-col gap-1.5">
         <div className="flex justify-between items-center gap-2">
-          <label htmlFor="api-key" className="text-[11px] font-black uppercase tracking-wider text-muted">
-            Gemini API Key (Action Judgments)
+          <label htmlFor="api-key" className="text-[10px] font-extrabold uppercase tracking-widest text-muted">
+            Gemini API Key
           </label>
           <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border shrink-0 ${keyBadgeClass}`}>{keyBadge}</span>
         </div>
@@ -57,18 +60,18 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
             feedback('click')
             void checkKey(key)
           }}
-          className="py-3 rounded-2xl text-xs font-black active:scale-95 flex items-center justify-center gap-1.5"
+          className="py-3.5 rounded-2xl text-xs font-extrabold active:scale-95 flex items-center justify-center gap-1.5"
         >
           <CheckIcon className="w-3.5 h-3.5 text-emerald-600" />
           Test Key Ping
         </Button>
-        <Button tone="dark" onClick={() => saveApiKey(key)} className="py-3 rounded-2xl text-xs font-black active:scale-95">
+        <Button tone="dark" onClick={() => saveApiKey(key)} className="action-btn">
           Save Key
         </Button>
       </div>
 
       <div className="depth-well rounded-2xl p-4 flex flex-col gap-2.5">
-        <span className="text-[10px] font-black uppercase tracking-wider text-muted block">Data Protection & Device Sync</span>
+        <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted block">Backup</span>
         <div className="grid grid-cols-2 gap-2">
           <Button
             tone="card"
@@ -103,7 +106,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       <div className="depth-well rounded-2xl p-4 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <span className="text-xs font-black text-ink block">Discipline Decay (Anti-Inflation)</span>
+            <span className="text-xs font-extrabold tracking-tight text-ink block">Discipline Decay</span>
             <span className="text-[10px] text-muted">-15 PTS tax if daily target isn't met</span>
           </div>
           <Button
@@ -135,7 +138,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           onClick={() => setFormulasOpen((open) => !open)}
           className="flex w-full items-center justify-between gap-3 text-left"
         >
-          <span className="text-xs font-black text-ink leading-tight">Economic Formulas & Rules</span>
+          <span className="text-xs font-extrabold tracking-tight text-ink leading-tight">Economic Formulas & Rules</span>
           <ChevronIcon className="text-muted" up={formulasOpen} />
         </button>
         {formulasOpen && (
@@ -170,7 +173,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       </div>
       <div className="depth-well rounded-2xl px-4 py-3 flex flex-col gap-2">
         <div>
-          <span className="text-xs font-black text-ink block">Developer</span>
+          <span className="text-xs font-extrabold tracking-tight text-ink block">Developer</span>
           <span className="text-[10px] text-muted">Start over as a new user. This clears the balance, ledger, and vault on this device.</span>
         </div>
         {freshArmed ? (

@@ -28,7 +28,7 @@ export function useSettingsController(): SettingsApi {
     const trimmed = candidate.trim()
     if (!trimmed) {
       setKeyBadge('No Key Entered')
-      setKeyBadgeClass('bg-amber-50 text-amber-700 border-amber-200')
+      setKeyBadgeClass('chip-amber')
       return
     }
     setKeyBadge('Testing...')
@@ -44,10 +44,10 @@ export function useSettingsController(): SettingsApi {
       )
       const elapsed = Math.round(performance.now() - started)
       setKeyBadge(`Online (${model} · ${elapsed}ms)`)
-      setKeyBadgeClass('bg-emerald-50 text-emerald-700 border-emerald-200')
+      setKeyBadgeClass('chip-emerald')
     } catch {
       setKeyBadge('Key Error')
-      setKeyBadgeClass('bg-rose-50 text-rose-700 border-rose-200')
+      setKeyBadgeClass('chip-rose')
     }
   }, [read])
 
@@ -90,7 +90,7 @@ export function useSettingsController(): SettingsApi {
     commit(freshState())
     setDecayAlert(null)
     setKeyBadge('No Key Entered')
-    setKeyBadgeClass('bg-amber-50 text-amber-700 border-amber-200')
+    setKeyBadgeClass('chip-amber')
     feedback('click')
     notify('Fresh start. Balance, ledger, and vault are clear.')
   }, [commit, feedback, notify, setDecayAlert])

@@ -11,13 +11,13 @@ export function VaultFilters({
   readonly onFilter: (filter: VaultFilter) => void
 }) {
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5 no-scrollbar">
+    <div className="grid grid-cols-6 gap-1.5">
       {FILTERS.map((cat) => (
         <Pill
           key={cat}
           active={filter.toLowerCase() === cat.toLowerCase()}
           onClick={() => onFilter(cat)}
-          className="uppercase active:scale-95"
+          className={`w-full justify-center px-1 ${cat === 'Dining' || cat === 'Events' ? 'col-span-3' : 'col-span-2'}`}
         >
           {cat === 'ALL' ? 'All Rewards' : cat}
         </Pill>

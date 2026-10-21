@@ -2,10 +2,10 @@ import { Pill } from '../Common/Pill'
 import type { FeedFilter } from '../../types'
 
 const FILTERS: ReadonlyArray<{ readonly id: FeedFilter; readonly label: string }> = [
-  { id: 'ALL', label: 'All Activity' },
-  { id: 'HEAVY', label: 'Heavy/Cruiser (1.5x+)' },
-  { id: 'ALIGNED', label: 'Anchor Aligned' },
-  { id: 'SPEND', label: 'Unlocks' },
+  { id: 'ALL', label: 'All' },
+  { id: 'HEAVY', label: 'Heavy+' },
+  { id: 'ALIGNED', label: 'Aligned' },
+  { id: 'SPEND', label: 'Spends' },
 ]
 
 export function FeedFilters({
@@ -16,9 +16,9 @@ export function FeedFilters({
   readonly onFilter: (filter: FeedFilter) => void
 }) {
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5 no-scrollbar">
+    <div className="grid grid-cols-4 gap-1.5">
       {FILTERS.map((item) => (
-        <Pill key={item.id} active={filter === item.id} onClick={() => onFilter(item.id)}>
+        <Pill key={item.id} active={filter === item.id} onClick={() => onFilter(item.id)} className="w-full justify-center px-1">
           {item.label}
         </Pill>
       ))}

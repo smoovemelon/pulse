@@ -9,8 +9,8 @@ export function DecayAlertModal() {
   return (
     <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-md flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="decay-heading">
       <div className="w-full max-w-[360px] bg-card text-ink rounded-[32px] p-6 border border-line shadow-2xl flex flex-col gap-4 animate-slide-up text-center">
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600">
-          <AlertIcon className="w-6 h-6 text-rose-600" />
+        <div className="mx-auto w-12 h-12 rounded-2xl chip-rose border flex items-center justify-center">
+          <AlertIcon className="w-6 h-6" />
         </div>
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-1">Discipline Ledger Audit</span>
@@ -37,7 +37,7 @@ export function DecayAlertModal() {
           tone="dark"
           data-testid="dismiss-decay"
           onClick={dismissDecay}
-          className="w-full py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider shadow-md active:scale-95"
+          className="action-btn"
         >
           Acknowledge & Rebuild
         </Button>

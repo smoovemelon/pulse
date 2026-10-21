@@ -10,7 +10,7 @@ import type { ActionScore } from '../../types'
 import { Button } from '../Common/Button'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { weightClassStyles } from '../Feed/weightStyles'
-import { ClockIcon, MinusIcon, PlusIcon, SparkleIcon } from '../Icons'
+import { MinusIcon, PlusIcon, SparkleIcon } from '../Icons'
 import { SpendPanel } from './SpendPanel'
 
 const CHIPS = [15, 30, 45, 60, 90]
@@ -147,7 +147,7 @@ export function ActionModal({
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="e.g., Push day at the gym with Brandon"
-          className="field w-full rounded-2xl p-3.5 text-xs focus:outline-none resize-none"
+          className="field w-full rounded-2xl p-3.5 text-xs font-bold focus:outline-none resize-none"
         />
         <div className="flex items-center gap-1 text-[10px] text-faint font-semibold px-1">
           <SparkleIcon className="w-3.5 h-3.5 shrink-0" />
@@ -155,31 +155,28 @@ export function ActionModal({
         </div>
       </div>
 
-      <div className="depth-well rounded-2xl p-3.5 flex flex-col gap-3">
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Session duration</span>
           <div className="flex items-center gap-1.5">
-            <ClockIcon className="w-4 h-4 text-muted" />
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-body">Session Duration</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-card px-2 py-1 rounded-xl border border-line shadow-sm">
-            <button type="button" className="w-6 h-6 rounded-lg bg-well text-body flex items-center justify-center active:scale-90" aria-label="Decrease Duration" onClick={() => setMinutes(duration - 5)}>
+            <button type="button" className="w-7 h-7 rounded-lg depth-well text-body flex items-center justify-center active:scale-90" aria-label="Decrease Duration" onClick={() => setMinutes(duration - 5)}>
               <MinusIcon />
             </button>
-            <span data-testid="action-duration" className="font-num text-xs font-extrabold text-ink px-1.5 min-w-[50px] text-center">
+            <span data-testid="action-duration" className="font-num text-xs font-extrabold text-ink min-w-[42px] text-center">
               {duration}m
             </span>
-            <button type="button" className="w-6 h-6 rounded-lg bg-well text-body flex items-center justify-center active:scale-90" aria-label="Increase Duration" onClick={() => setMinutes(duration + 5)}>
+            <button type="button" className="w-7 h-7 rounded-lg depth-well text-body flex items-center justify-center active:scale-90" aria-label="Increase Duration" onClick={() => setMinutes(duration + 5)}>
               <PlusIcon className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+        <div className="grid grid-cols-5 gap-1.5">
           {CHIPS.map((chip) => (
             <Button
               key={chip}
-              tone={duration === chip ? 'dark' : 'card'}
+              tone={duration === chip ? 'pillActive' : 'pill'}
               onClick={() => setMinutes(chip)}
-              className={`flex-1 py-1.5 px-2 rounded-xl text-[10px] font-extrabold font-num ${duration === chip ? '' : 'text-body'}`}
+              className="w-full py-2 rounded-xl text-[10px] font-extrabold font-num"
             >
               {chip}m
             </Button>
@@ -188,7 +185,7 @@ export function ActionModal({
       </div>
 
       {!named && (
-        <div className="depth-well rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+        <div className="depth-card rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
           <p className="text-[11px] leading-relaxed text-body">Name your discipline anchor before this can be judged.</p>
           <Button
             tone="dark"
@@ -204,7 +201,7 @@ export function ActionModal({
       )}
 
       {verdict && weight && (
-        <div data-testid="verdict-card" className="bg-[#18181B] text-white rounded-2xl p-4 flex flex-col gap-3 shadow-lg">
+        <div data-testid="verdict-card" className="brand-mark rounded-2xl p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between border-b border-zinc-700 pb-2">
             <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Verdict</span>
             <span className={`text-[10px] font-black px-2 py-0.5 rounded border ${weight.badge}`}>{verdict.weightClass}</span>
@@ -234,7 +231,7 @@ export function ActionModal({
           }
           void submit()
         }}
-        className="w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+        className="action-btn flex items-center justify-center gap-2 disabled:opacity-70"
       >
         <SparkleIcon className="w-4 h-4" />
         <span>{pending ? 'Evaluating Action...' : named ? 'Submit for Judgment' : 'Set anchor'}</span>

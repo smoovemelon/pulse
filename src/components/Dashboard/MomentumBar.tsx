@@ -23,7 +23,7 @@ export function MomentumBar({ percent }: { readonly percent: number }) {
       <div className="w-full depth-well h-2.5 rounded-full overflow-hidden p-0.5">
         <div
           data-testid="momentum-bar"
-          className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-zinc-800 to-zinc-950 shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+          className="h-full rounded-full transition-all duration-500 bg-ink"
           style={{ width: `${percent}%` }}
         />
       </div>
