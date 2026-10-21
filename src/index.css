@@ -288,3 +288,43 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
 .animate-slide-up {
   animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+@keyframes introRise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.intro-step {
+  animation: introRise 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro-arc {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  animation: introArc 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes introArc {
+  to {
+    stroke-dashoffset: 28;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-step,
+  .intro-arc {
+    animation: none;
+  }
+
+  .intro-arc {
+    stroke-dashoffset: 28;
+  }
+}

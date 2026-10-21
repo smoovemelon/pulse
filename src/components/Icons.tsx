@@ -29,6 +29,16 @@ export function VolumeOff({ className = 'w-4 h-4' }: IconProps) {
   )
 }
 
+export function GuideIcon({ className = 'w-4 h-4' }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.6 9.2a2.4 2.4 0 0 1 4.6 1c0 1.6-2.2 1.8-2.2 3.2" />
+      <circle cx="12" cy="17" r="0.8" fill="currentColor" stroke="none" />
+    </Svg>
+  )
+}
+
 export function SettingsIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>

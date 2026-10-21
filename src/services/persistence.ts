@@ -22,6 +22,7 @@ const KEYS = {
   profile: 'pulse_profile',
   demo: 'pulse_demo',
   demoSnapshot: 'pulse_demo_snapshot',
+  intro: 'pulse_intro',
 } as const
 
 const FRESH_PROFILE = 'fresh-1'
@@ -259,6 +260,18 @@ export function readDemoSnapshot(): PulseState | null {
 
 export function clearDemoSnapshot() {
   localStorage.removeItem(KEYS.demoSnapshot)
+}
+
+export function hasSeenIntro(): boolean {
+  return localStorage.getItem(KEYS.intro) === 'seen'
+}
+
+export function markIntroSeen() {
+  localStorage.setItem(KEYS.intro, 'seen')
+}
+
+export function clearIntroSeen() {
+  localStorage.removeItem(KEYS.intro)
 }
 
 export function exportBackup(state: PulseState) {

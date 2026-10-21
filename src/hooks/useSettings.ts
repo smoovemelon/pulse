@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { callGemini } from '../lib/gemini'
 import { enterDemo, exitDemo } from '../services/demo'
-import { clearDemoSnapshot, exportBackup as downloadBackup, freshState, mergeBackup } from '../services/persistence'
+import { clearDemoSnapshot, clearIntroSeen, exportBackup as downloadBackup, freshState, mergeBackup } from '../services/persistence'
 import { useCore } from './core'
 import { useSlices } from './slices'
 
@@ -92,6 +92,7 @@ export function useSettingsController(): SettingsApi {
   const startFresh = useCallback(() => {
     const current = read()
     if (!current.demoMode) clearDemoSnapshot()
+    clearIntroSeen()
     commit({ ...freshState(), demoMode: current.demoMode })
     setDecayAlert(null)
     setKeyBadge('No Key Entered')

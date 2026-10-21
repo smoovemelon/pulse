@@ -3,6 +3,7 @@ import { Dashboard } from './components/Dashboard/Dashboard'
 import { Dock } from './components/Dock'
 import { Feed } from './components/Feed/Feed'
 import { Header } from './components/Header'
+import { IntroTour } from './components/Intro/IntroTour'
 import { ActionModal } from './components/Modals/ActionModal'
 import { AnchorModal } from './components/Modals/AnchorModal'
 import { BountyModal } from './components/Modals/BountyModal'
@@ -10,25 +11,33 @@ import { DecayAlertModal } from './components/Modals/DecayAlertModal'
 import { SettingsModal } from './components/Modals/SettingsModal'
 import { Toast } from './components/Toast'
 import { Vault } from './components/Vault/Vault'
+import { useCore } from './hooks/core'
 import { PulseProvider } from './hooks/PulseProvider'
 import { usePulseEconomy } from './hooks/usePulseEconomy'
+import { shouldIntroduce } from './services/intro'
 import type { VaultItem } from './types'
 
 type OpenModal = 'action' | 'settings' | 'anchor' | 'vault' | null
 
 function Shell() {
+  const { state } = useCore()
   const { decayAlert } = usePulseEconomy()
   const [tab, setTab] = useState<'feed' | 'vault'>('feed')
   const [modal, setModal] = useState<OpenModal>(null)
   const [resumeAction, setResumeAction] = useState(false)
   const [editing, setEditing] = useState<VaultItem | null>(null)
+  const [introOpen, setIntroOpen] = useState(false)
 
   const closeModal = () => {
     setResumeAction(false)
     setModal(null)
   }
 
-  const sheetOpen = modal !== null || decayAlert !== null
+  const sheetOpen = modal !== null || decayAlert !== null || introOpen
+
+  useEffect(() => {
+    if (shouldIntroduce(state)) setIntroOpen(true)
+  }, [state])
   useEffect(() => {
     document.body.style.overflow = sheetOpen ? 'hidden' : ''
     return () => {
@@ -51,7 +60,14 @@ function Shell() {
     <div className="min-h-dvh bg-canvas text-ink pb-[calc(7.5rem+env(safe-area-max-inset-bottom,0px))]">
       <Toast />
       <div className="w-full max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4">
-        <Header onOpenSettings={() => setModal('settings')} />
+        <Header
+          onOpenSettings={() => setModal('settings')}
+          onOpenIntro={() => {
+            setResumeAction(false)
+            setModal(null)
+            setIntroOpen(true)
+          }}
+        />
         <Dashboard
           onEditAnchor={() => {
             setResumeAction(false)
@@ -98,6 +114,7 @@ function Shell() {
       )}
       {modal === 'vault' && <BountyModal item={editing} onClose={() => setModal(null)} />}
       <DecayAlertModal />
+      {introOpen && <IntroTour onClose={() => setIntroOpen(false)} />}
     </div>
   )
 }

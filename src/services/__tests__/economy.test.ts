@@ -4,7 +4,8 @@ import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
 import { DEMO_ACTION, DEMO_ANCHOR, DEMO_BOUNTY, DEMO_SPEND, enterDemo, exitDemo } from '../demo'
 import { balanceAfterRemoval, calculateActionPoints, currentStreak, earnedOn, lifetimeStats, validateVaultDraft } from '../economy'
-import { freshState, readDemoSnapshot } from '../persistence'
+import { shouldIntroduce } from '../intro'
+import { clearIntroSeen, freshState, hasSeenIntro, markIntroSeen, readDemoSnapshot } from '../persistence'
 
 const JUDGED = ['Session', 'Session', 'Logged work'] as const
 
@@ -306,5 +307,45 @@ describe('demo mode', () => {
     expect(validateVaultDraft(DEMO_SPEND.category, Number(DEMO_SPEND.usd), Number(DEMO_SPEND.hrs) || 0)).toEqual({ ok: true })
     expect(validateVaultDraft(DEMO_BOUNTY.category, Number(DEMO_BOUNTY.usd), Number(DEMO_BOUNTY.hrs))).toEqual({ ok: true })
     expect(DEMO_ANCHOR).not.toBe(DEFAULT_ANCHOR)
+  })
+})
+
+describe('intro', () => {
+  beforeEach(() => {
+    const bag = new Map<string, string>()
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => bag.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        bag.set(key, value)
+      },
+      removeItem: (key: string) => {
+        bag.delete(key)
+      },
+      clear: () => {
+        bag.clear()
+      },
+    })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('opens for an empty unnamed profile and stays closed once seen or used', () => {
+    expect(shouldIntroduce(freshState())).toBe(true)
+
+    markIntroSeen()
+    expect(hasSeenIntro()).toBe(true)
+    expect(shouldIntroduce(freshState())).toBe(false)
+
+    clearIntroSeen()
+    expect(shouldIntroduce({ ...freshState(), balance: 12 })).toBe(false)
+    expect(shouldIntroduce({ ...freshState(), transactions: [earn('2026-10-21', 40)] })).toBe(false)
+    expect(shouldIntroduce({
+      ...freshState(),
+      vaultItems: [{ id: 'v', title: 'Coffee', cost: 100, category: 'Items', usd: 5, hrs: 0, formulaTag: 'USD' }],
+    })).toBe(false)
+    expect(shouldIntroduce({ ...freshState(), disciplineAnchor: 'Be a studious student.' })).toBe(false)
+    expect(shouldIntroduce(freshState())).toBe(true)
   })
 })
