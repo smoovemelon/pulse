@@ -1,0 +1,46 @@
+---
+description: Pulse Productivity Economy stack, folder boundaries, scoring rules, and UI standards
+alwaysApply: true
+---
+
+# Pulse Economy
+
+## Tech stack
+
+React 19, TypeScript, Vite, Tailwind CSS v4 (`@tailwindcss/vite`), Lucide React. Do not add another UI kit or CSS framework.
+
+## Architecture
+
+- Types live only in `src/types/`. Do not declare shared interfaces inside components or services.
+- Non-UI logic and APIs live in `src/services/` (scoring, vault quotes, decay audit, storage, Gemini).
+- Reusable views live in `src/components/`. Screens compose those views; they do not reimplement formulas.
+
+```ts
+// ❌ cost math inside a component
+const pts = hours * 50
+
+// ✅ src/services/economy.ts
+export function quoteVault(category: VaultCategory, usd: number, hrs: number): VaultQuote
+```
+
+## Economy (do not change these numbers)
+
+Action points: `Base = Strain (1–10) × 8 × (Duration_min / 45)^0.45`, then round. Anchor alignment multiplies the base:
+
+- `>= 8.0` → 2.0× Heavyweight
+- `>= 4.0` → 1.5× Cruiserweight
+- `< 4.0` → 1.0× Middleweight
+
+Default anchor text is `Paused Bench Press 205 lbs`.
+
+Vault:
+
+- Gaming: time only. Price locked at `$0`. `hours × 50` PTS. Duration must be `> 0`.
+- Items: price only. Duration locked at `0` hrs. `USD × 20` PTS. Price must be `> $0`.
+- Dining and Events: duration is required (`> 0` hrs). Price is optional. `(USD × 20) + (hours × 35)` when price `> 0`; `hours × 50` when price is `$0`. Timed quotes floor at 25 PTS.
+
+Anti-inflation: daily momentum target is 120 PTS earned. If that target is missed past midnight, assess −15 PTS once for that missed day.
+
+## UI
+
+Dark athletic tactile surfaces. Plus Jakarta Sans for UI, Space Grotesk (tabular) for numerics. Sheets and modals hide browser scrollbars and lock page scroll while open.
