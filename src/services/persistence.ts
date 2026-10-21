@@ -31,7 +31,7 @@ const KEYS = {
 const FRESH_PROFILE = 'fresh-1'
 const LEGACY_ANCHOR = 'Paused Bench Press 205 lbs'
 
-const WEIGHT_CLASSES = ['Heavyweight (2.0x)', 'Cruiserweight (1.5x)', 'Middleweight (1.0x)'] as const
+const WEIGHT_CLASSES = ['Heavyweight (2.0x)', 'Cruiserweight (1.5x)', 'Middleweight (1.0x)', 'Lightweight (0.5x)'] as const
 const VAULT_CATEGORIES = ['Gaming', 'Items', 'Dining', 'Events'] as const
 
 function isRecord(value: unknown): value is Record<string, unknown> {

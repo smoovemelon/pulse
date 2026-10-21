@@ -15,6 +15,14 @@ export function weightClassStyles(multiplier = 1) {
       label: 'Cruiserweight (1.5x)',
     }
   }
+  if (multiplier < 1) {
+    return {
+      badge: 'chip-zinc',
+      dot: 'bg-zinc-500',
+      bar: 'bg-zinc-400',
+      label: 'Lightweight (0.5x)',
+    }
+  }
   return {
       badge: 'chip-zinc',
       dot: 'bg-zinc-400',

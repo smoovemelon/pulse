@@ -31,6 +31,8 @@ Action points: `Base = Strain (1–10) × 8 × (Duration_min / 45)^0.45`, then r
 - `>= 4.0` → 1.5× Cruiserweight
 - `< 4.0` → 1.0× Middleweight
 
+The judge pays heavyweight or cruiserweight only for a direct advance of the anchor scored at 7 or higher (`>= 8` heavyweight, `7–7.99` cruiserweight). Productive work that does not directly advance the anchor earns half the base (`0.5×` Lightweight, still at least 5 PTS). Those points count toward the balance and the daily target.
+
 Default anchor text for a new user is `Your main goal`.
 
 Vault:

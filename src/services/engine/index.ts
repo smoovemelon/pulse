@@ -1,4 +1,4 @@
-export { calculateActionPoints, localActionFallback } from './actionPoints'
+export { calculateActionPoints, evaluateAnchorAction, localActionFallback } from './actionPoints'
 export { auditDecay } from './decayAudit'
 export type { DecayAssessment } from './decayAudit'
 export { balanceAfterRemoval } from './history'

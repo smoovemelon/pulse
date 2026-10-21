@@ -4,7 +4,12 @@ export interface ActionJudgment {
   polished_title: string
   category: string
   effort_strain: number
-  anchor_alignment: number
+  isValidAnchorAction: boolean
+  directAlignmentScore: number
+  rejectionReason: string
+  basePoints: number
+  multiplier: number
+  finalPoints: number
   reasoning: string
 }
 
@@ -63,24 +68,36 @@ export async function callGemini<T>(payload: unknown, apiKey: string): Promise<G
 }
 
 export function buildJudgmentPayload(anchor: string, rawAction: string, duration: number, history: string) {
-  const systemPrompt = `You evaluate user actions in Altius.
-Evaluate effort strain (1-10) and alignment to their anchor ("${anchor}").
+  const systemPrompt = `You score one logged action against the user's anchor ("${anchor}"). Be strict about alignment. Still recognize productive effort.
+
+ANCHOR CREDIT
+- isValidAnchorAction is true only when this log is a direct, causal step toward the anchor. Hydration, light stretching, tidying, and other generic habits are false unless that habit IS the anchor.
+- directAlignmentScore is 0–10. Use 7–10 only for a direct advance. Use 4–6 when the work is related but not causal. Use 1–3 for productive effort that does not move the anchor. Do not inflate.
+- Vague logs ("worked out", "did some studying") stay at 3 or below unless they name a count, a weight, a distance, or a finished result.
+- rejectionReason is one candid sentence when the score is under 7 or the action is not a direct advance. Acknowledge the effort and say why it misses full anchor credit. Use an empty string when the action qualifies.
+
+POINTS
+The app recomputes the payout. Still fill these fields:
+- basePoints = round(effort_strain × 8 × (duration_minutes / 45)^0.45)
+- multiplier = 2.0 when the action is a direct advance and the score is at least 8; 1.5 when it is direct and the score is at least 7; otherwise 0.5
+- finalPoints = max(5, round(basePoints × multiplier))
+Never report 0. Productive work that misses the anchor still earns half.
 
 RECENT TRAINING CONTEXT:
 ${history || 'No previous history recorded yet.'}
-Evaluate whether this new entry represents progressive volume, healthy recovery, or repetitive point farming.
+Note progressive volume, recovery, or repetitive point farming in the reasoning. It does not raise alignment by itself.
 
-CRITICAL TITLE POLISHING RULE:
-- NEVER substitute or copy the user's discipline anchor as their action title!
+TITLE
+- NEVER copy the discipline anchor as the action title.
 - Reflect what the user ACTUALLY logged: "${rawAction}".
 - Convention: "[Duration/Metric] [Focus Area/Movement] [Partner/Context]"
 - Example: "Push day at the gym with Brandon" + 60m => "60-Min Push Session w/ Brandon".
 - NO filler words like "Completed", "Finished", or "Did". Title Case, max 42 chars.
 
-REASONING FORMAT RULE:
-- Provide exactly 1 punchy, natural sentence explaining the score.
-- When referencing the anchor ("${anchor}"), write natural prose with proper spaces (e.g., "directly supports your target of ${anchor}").
-- Never concatenate words or output awkward phrases like "anchor of[Goal]".`
+REASONING
+- Exactly 1 punchy sentence.
+- When you name the anchor ("${anchor}"), write it as normal prose with spaces.
+- Never concatenate words or output phrases like "anchor of[Goal]".`
 
   return {
     contents: [{ parts: [{ text: `Logged: "${rawAction}", Duration: ${duration} mins` }] }],
@@ -93,10 +110,26 @@ REASONING FORMAT RULE:
           polished_title: { type: 'STRING' },
           category: { type: 'STRING' },
           effort_strain: { type: 'NUMBER' },
-          anchor_alignment: { type: 'NUMBER' },
+          isValidAnchorAction: { type: 'BOOLEAN' },
+          directAlignmentScore: { type: 'NUMBER' },
+          rejectionReason: { type: 'STRING' },
+          basePoints: { type: 'NUMBER' },
+          multiplier: { type: 'NUMBER' },
+          finalPoints: { type: 'NUMBER' },
           reasoning: { type: 'STRING' },
         },
-        required: ['polished_title', 'category', 'effort_strain', 'anchor_alignment', 'reasoning'],
+        required: [
+          'polished_title',
+          'category',
+          'effort_strain',
+          'isValidAnchorAction',
+          'directAlignmentScore',
+          'rejectionReason',
+          'basePoints',
+          'multiplier',
+          'finalPoints',
+          'reasoning',
+        ],
       },
     },
   }

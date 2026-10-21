@@ -1,6 +1,7 @@
 export {
   balanceAfterRemoval,
   calculateActionPoints,
+  evaluateAnchorAction,
   calculateVaultValuation,
   currentStreak,
   earnedOn,

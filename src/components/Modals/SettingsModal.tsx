@@ -210,9 +210,9 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
 }
 
 const ALIGNMENT = [
-  { threshold: '≥ 8.0', multiplier: '2.0×', name: 'Heavyweight', chip: 'chip-emerald' },
-  { threshold: '≥ 4.0', multiplier: '1.5×', name: 'Cruiserweight', chip: 'chip-indigo' },
-  { threshold: '< 4.0', multiplier: '1.0×', name: 'Middleweight', chip: 'chip-zinc' },
+  { threshold: '≥ 8.0 direct', multiplier: '2.0×', name: 'Heavyweight', chip: 'chip-emerald' },
+  { threshold: '≥ 7.0 direct', multiplier: '1.5×', name: 'Cruiserweight', chip: 'chip-indigo' },
+  { threshold: 'Off anchor', multiplier: '0.5×', name: 'Lightweight', chip: 'chip-zinc' },
 ] as const
 
 function EconomyRules() {
@@ -223,7 +223,7 @@ function EconomyRules() {
         <p>
           Base = <Figure tone="earn">Strain (1–10) × 8 × (Duration / 45)<sup>0.45</sup></Figure>
         </p>
-        <p>Anchor alignment multiplies that base.</p>
+        <p>A direct advance of the anchor multiplies that base. Other productive work earns half and still counts for the day.</p>
         <ul className="flex flex-col gap-1">
           {ALIGNMENT.map((tier) => (
             <li key={tier.name} className="flex items-center justify-between gap-2">

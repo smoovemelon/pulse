@@ -3,7 +3,7 @@ export type FeedFilter = 'ALL' | 'HEAVY' | 'ALIGNED' | 'SPEND'
 export type VaultCategory = 'Gaming' | 'Items' | 'Dining' | 'Events'
 export type VaultFilter = 'ALL' | VaultCategory
 export type SpendCategory = VaultCategory | 'Decay Audit'
-export type WeightClass = 'Heavyweight (2.0x)' | 'Cruiserweight (1.5x)' | 'Middleweight (1.0x)'
+export type WeightClass = 'Heavyweight (2.0x)' | 'Cruiserweight (1.5x)' | 'Middleweight (1.0x)' | 'Lightweight (0.5x)'
 export type ThemeName = 'light' | 'dark'
 export type StreakState = 'STALLED' | 'SAFE' | 'SECURED'
 export type WeekMark = 'secured' | 'grace' | 'missed' | 'quiet' | 'today' | 'upcoming'
@@ -83,6 +83,7 @@ export interface ActionScore {
   readonly breakdown: string
   readonly title: string
   readonly reasoning: string
+  readonly partial: boolean
 }
 
 export interface VaultQuote {

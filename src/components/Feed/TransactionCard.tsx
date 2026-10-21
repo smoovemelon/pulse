@@ -18,6 +18,11 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
             >
               {tx.type}
             </span>
+            {tx.type === 'EARN' && (tx.multiplier ?? 1) < 1 && (
+              <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border chip-zinc">
+                Off anchor
+              </span>
+            )}
             <span className="text-[10px] text-faint font-bold">{tx.timestamp}</span>
           </div>
           <h4 className="text-sm font-extrabold text-ink mt-1.5 leading-snug tracking-tight break-words">{tx.title}</h4>

@@ -3,7 +3,7 @@ import { DEFAULT_ANCHOR, utcDateKey } from '../../lib/dates'
 import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
 import { DEMO_ACTION, DEMO_ANCHOR, DEMO_BOUNTY, DEMO_SPEND, enterDemo, exitDemo } from '../demo'
-import { balanceAfterRemoval, calculateActionPoints, currentStreak, earnedOn, lifetimeStats, validateVaultDraft } from '../economy'
+import { balanceAfterRemoval, calculateActionPoints, currentStreak, earnedOn, evaluateAnchorAction, lifetimeStats, localActionFallback, validateVaultDraft } from '../economy'
 import { applyStreakBonus, streakMultiplier, weekStrip } from '../engine'
 import { shouldIntroduce } from '../intro'
 import { clearIntroSeen, freshState, hasSeenIntro, markIntroSeen, readDemoSnapshot } from '../persistence'
@@ -68,6 +68,76 @@ describe('action evaluation', () => {
     expect(middle).toMatchObject({ basePoints: 80, multiplier: 1, points: 80, weightClass: 'Middleweight (1.0x)' })
     expect(score(10, 7.99, 45).multiplier).toBe(1.5)
     expect(score(10, 10, 45).points).toBe(160)
+  })
+
+  it('pays half credit for productive work that misses the anchor', () => {
+    const off = evaluateAnchorAction({
+      strain: 10,
+      alignment: 9,
+      valid: false,
+      duration: 45,
+      title: 'Hydration',
+      raw: 'Drank 2 glasses of water',
+      reasoning: 'Useful, but not the anchor.',
+      rejectionReason: 'Water does not move the anchor.',
+    })
+    const on = evaluateAnchorAction({
+      strain: 10,
+      alignment: 9,
+      valid: true,
+      duration: 45,
+      title: 'Problem sets',
+      raw: 'Finished 20 problem sets',
+      reasoning: 'Direct practice toward the anchor.',
+    })
+
+    expect(off.partial).toBe(true)
+    expect(off.multiplier).toBe(0.5)
+    expect(off.weightClass).toBe('Lightweight (0.5x)')
+    expect(off.points).toBe(40)
+    expect(off.points).toBeLessThan(on.points)
+    expect(on.partial).toBe(false)
+    expect(on.multiplier).toBe(2)
+    expect(on.points).toBe(160)
+  })
+
+  it('keeps a specific anchor hit at cruiserweight once alignment clears 7', () => {
+    const cruiser = evaluateAnchorAction({
+      strain: 10,
+      alignment: 7,
+      valid: true,
+      duration: 45,
+      title: 'Review',
+      raw: 'Reviewed 12 pages of notes',
+      reasoning: 'Close work on the anchor.',
+    })
+
+    expect(cruiser.multiplier).toBe(1.5)
+    expect(cruiser.points).toBe(120)
+    expect(cruiser.partial).toBe(false)
+  })
+
+  it('withholds the anchor bonus when the log names no concrete result', () => {
+    const vague = evaluateAnchorAction({
+      strain: 10,
+      alignment: 9,
+      valid: true,
+      duration: 45,
+      title: 'Workout',
+      raw: 'worked out',
+      reasoning: 'Too vague to confirm.',
+    })
+
+    expect(vague.partial).toBe(true)
+    expect(vague.multiplier).toBe(0.5)
+    expect(vague.points).toBe(40)
+  })
+
+  it('does not grant cruiserweight when the anchor cannot be checked', () => {
+    const offline = localActionFallback('Morning study block on problem sets', 45, 'offline')
+    expect(offline.multiplier).toBe(0.5)
+    expect(offline.partial).toBe(true)
+    expect(offline.points).toBeGreaterThan(0)
   })
 })
 

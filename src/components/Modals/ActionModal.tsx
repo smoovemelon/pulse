@@ -6,7 +6,7 @@ import { useSettings } from '../../hooks/useSettings'
 import { isNamedAnchor } from '../../lib/dates'
 import { buildJudgmentPayload, callGemini, polishReasoning, type ActionJudgment } from '../../lib/gemini'
 import { DEMO_ACTION } from '../../services/demo'
-import { calculateActionPoints, localActionFallback } from '../../services/engine'
+import { evaluateAnchorAction, localActionFallback } from '../../services/engine'
 import type { ActionScore } from '../../types'
 import { Button } from '../Common/Button'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
@@ -64,14 +64,16 @@ export function ActionModal({
       const payload = buildJudgmentPayload(anchor, rawAction, duration, history)
       const { data, model } = await callGemini<ActionJudgment>(payload, apiKey)
       if (!data?.reasoning) throw new Error('Empty response from model')
-      score = calculateActionPoints(
-        data.effort_strain,
-        data.anchor_alignment,
+      score = evaluateAnchorAction({
+        strain: data.effort_strain,
+        alignment: data.directAlignmentScore,
+        valid: data.isValidAnchorAction === true,
         duration,
-        data.polished_title,
-        rawAction,
-        polishReasoning(data.reasoning),
-      )
+        title: data.polished_title,
+        raw: rawAction,
+        reasoning: polishReasoning(data.reasoning),
+        rejectionReason: data.rejectionReason,
+      })
       notify(`AI Judged via ${model}`)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Offline fallback used'
@@ -152,7 +154,7 @@ export function ActionModal({
         />
         <div className="flex items-center gap-1 text-[10px] text-faint font-semibold px-1">
           <SparkleIcon className="w-3.5 h-3.5 shrink-0" />
-          <span>Context-aware AI rates strain against your recent history</span>
+          <span>Direct work toward the anchor earns more. Other productive logs still earn half.</span>
         </div>
       </div>
 
@@ -215,6 +217,9 @@ export function ActionModal({
             <span data-testid="verdict-points" className="text-3xl font-black text-emerald-400 font-num">+{verdict.points}</span>
             <span className="text-xs font-bold text-zinc-400 font-num">PTS</span>
           </div>
+          {verdict.partial && (
+            <span className="text-[10px] font-black uppercase tracking-wider text-zinc-300">Half credit · still counts today</span>
+          )}
           <div className="text-[10px] font-num text-zinc-400 border-t border-zinc-800 pt-2">{verdict.breakdown}</div>
           <p className="text-[11px] text-zinc-300 leading-relaxed">{verdict.reasoning}</p>
         </div>
