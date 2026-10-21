@@ -1,62 +1,60 @@
 import { DECAY_PENALTY, utcDateKey } from '../lib/dates'
-import type { DecayAlert, PulseState } from '../types'
-import { earnedOn } from './economy'
+import type { DecayAlert, PulseState, SpendTransaction } from '../types'
+import { auditDecay } from './engine'
 
 export interface AuditResult {
-  state: PulseState
-  changed: boolean
-  alert: DecayAlert | null
-  met: boolean
-  earned: number
+  readonly state: PulseState
+  readonly changed: boolean
+  readonly alert: DecayAlert | null
+  readonly met: boolean
+  readonly earned: number
 }
 
 export function runDecayAudit(state: PulseState, force = false): AuditResult {
   const today = utcDateKey()
   const last = localStorage.getItem('pulse_last_audit') || state.lastAuditDate
+  const assessment = auditDecay(last, state.transactions, state.dailyGoal, {
+    today,
+    force,
+    enabled: state.decayEnabled,
+  })
 
-  if (!state.decayEnabled && !force) {
+  if (!assessment.shouldApply) {
     return { state, changed: false, alert: null, met: false, earned: 0 }
   }
-  if (!(last < today || force)) {
-    return { state, changed: false, alert: null, met: false, earned: 0 }
-  }
 
-  const checkDate = force ? today : last
-  const earned = earnedOn(state.transactions, checkDate)
-  localStorage.setItem('pulse_last_audit', today)
+  localStorage.setItem('pulse_last_audit', assessment.today)
 
-  if (earned < state.dailyGoal) {
+  if (assessment.missed) {
+    const penalty: SpendTransaction = {
+      id: `tx-decay-${Date.now()}`,
+      type: 'SPEND',
+      title: 'Discipline Decay: Target Missed',
+      points: assessment.penalty || DECAY_PENALTY,
+      category: 'Decay Audit',
+      reasoning: `Momentum fell short of ${state.dailyGoal} PTS target. Accountability fee assessed.`,
+      timestamp: 'Today, Midnight Audit',
+      date: assessment.today,
+    }
     return {
       state: {
         ...state,
-        balance: Math.max(0, state.balance - DECAY_PENALTY),
-        lastAuditDate: today,
-        transactions: [
-          {
-            id: `tx-decay-${Date.now()}`,
-            type: 'SPEND',
-            title: 'Discipline Decay: Target Missed',
-            points: DECAY_PENALTY,
-            category: 'Decay Audit',
-            reasoning: `Momentum fell short of ${state.dailyGoal} PTS target. Accountability fee assessed.`,
-            timestamp: 'Today, Midnight Audit',
-            date: today,
-          },
-          ...state.transactions,
-        ],
+        balance: Math.max(0, state.balance - (assessment.penalty || DECAY_PENALTY)),
+        lastAuditDate: assessment.today,
+        transactions: [penalty, ...state.transactions],
       },
       changed: true,
-      alert: { earned },
+      alert: { earned: assessment.earned },
       met: false,
-      earned,
+      earned: assessment.earned,
     }
   }
 
   return {
-    state: { ...state, lastAuditDate: today },
+    state: { ...state, lastAuditDate: assessment.today },
     changed: true,
     alert: null,
     met: true,
-    earned,
+    earned: assessment.earned,
   }
 }

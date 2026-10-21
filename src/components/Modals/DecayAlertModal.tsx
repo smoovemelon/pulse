@@ -1,8 +1,9 @@
-import { AlertIcon } from './Icons'
-import { usePulse } from '../pulse/context'
+import { usePulseEconomy } from '../../hooks/usePulseEconomy'
+import { Button } from '../Common/Button'
+import { AlertIcon } from '../Icons'
 
-export function DecayModal() {
-  const { decayAlert, dismissDecay, state } = usePulse()
+export function DecayAlertModal() {
+  const { decayAlert, dismissDecay, dailyGoal } = usePulseEconomy()
   if (!decayAlert) return null
 
   return (
@@ -18,7 +19,7 @@ export function DecayModal() {
         <div className="depth-well rounded-2xl p-4 flex flex-col gap-2 text-left">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted font-bold">Daily Momentum Target</span>
-            <span className="font-num font-extrabold">{state.dailyGoal} PTS</span>
+            <span className="font-num font-extrabold">{dailyGoal} PTS</span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted font-bold">Checked Total</span>
@@ -32,14 +33,14 @@ export function DecayModal() {
         <p className="text-[11px] text-muted leading-relaxed">
           Daily target was not met before midnight. Points have decayed to protect the economy against inflation.
         </p>
-        <button
-          type="button"
+        <Button
+          tone="dark"
           data-testid="dismiss-decay"
           onClick={dismissDecay}
-          className="w-full py-3.5 rounded-2xl depth-button-dark text-xs font-black uppercase tracking-wider shadow-md active:scale-95"
+          className="w-full py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider shadow-md active:scale-95"
         >
           Acknowledge & Rebuild
-        </button>
+        </Button>
       </div>
     </div>
   )

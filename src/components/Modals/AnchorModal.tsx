@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { CloseButton, Modal } from './Modal'
-import { usePulse } from '../pulse/context'
+import { useSettings } from '../../hooks/useSettings'
+import { Button } from '../Common/Button'
+import { CloseButton, Modal } from '../Common/ModalSheet'
 
-export function AnchorModal({ onClose }: { onClose: () => void }) {
-  const { state, saveAnchor } = usePulse()
-  const [value, setValue] = useState(state.disciplineAnchor)
+export function AnchorModal({ onClose }: { readonly onClose: () => void }) {
+  const { anchor, saveAnchor } = useSettings()
+  const [value, setValue] = useState(anchor)
 
   return (
     <Modal align="center" labelledBy="anchor-heading">
@@ -19,15 +20,15 @@ export function AnchorModal({ onClose }: { onClose: () => void }) {
           onChange={(event) => setValue(event.target.value)}
           className="field w-full rounded-2xl p-3.5 text-xs focus:outline-none font-bold"
         />
-        <button
-          type="button"
+        <Button
+          tone="dark"
           onClick={() => {
             if (saveAnchor(value)) onClose()
           }}
-          className="w-full py-3 rounded-2xl depth-button-dark text-xs font-black shadow-md active:scale-95"
+          className="w-full py-3 rounded-2xl text-xs font-black shadow-md active:scale-95"
         >
           Save Anchor
-        </button>
+        </Button>
       </div>
     </Modal>
   )

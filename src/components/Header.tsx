@@ -1,8 +1,10 @@
+import { useSensory } from '../hooks/useSensory'
+import { useSettings } from '../hooks/useSettings'
 import { MoonIcon, PulseMark, SettingsIcon, SunIcon, VolumeOff, VolumeOn } from './Icons'
-import { usePulse } from '../pulse/context'
 
 export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
-  const { state, toggleSound, toggleTheme, feedback } = usePulse()
+  const { theme, toggleTheme } = useSettings()
+  const { soundEnabled, toggleSound, feedback } = useSensory()
 
   return (
     <header className="flex items-center justify-between">
@@ -17,10 +19,10 @@ export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
           type="button"
           onClick={toggleTheme}
           className="w-10 h-10 rounded-2xl depth-card flex items-center justify-center text-ink active:scale-95 transition-all"
-          aria-label={state.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
           data-testid="theme-toggle"
         >
-          {state.theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
         <button
           type="button"
@@ -29,7 +31,7 @@ export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
           aria-label="Toggle Sound"
           data-testid="sound-toggle"
         >
-          {state.soundEnabled ? <VolumeOn className="w-4 h-4 text-ink" /> : <VolumeOff className="w-4 h-4 text-faint" />}
+          {soundEnabled ? <VolumeOn className="w-4 h-4 text-ink" /> : <VolumeOff className="w-4 h-4 text-faint" />}
         </button>
         <button
           type="button"

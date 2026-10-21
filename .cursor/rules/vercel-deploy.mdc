@@ -1,0 +1,9 @@
+---
+description: Automatically build, verify, and deploy updates to Vercel production
+globs: ["src/**/*", "index.html", "vite.config.ts", "package.json"]
+---
+# Vercel Deployment Automation
+When you complete a requested feature, bug fix, or refactor:
+1. Verify Build: Run `npm run build` using the terminal tool. The build script runs the unit tests first (`vitest run`), then TypeScript and the Vite bundle. Stop if any test, type, or bundler error fails.
+2. Deploy to Production: Run `npx vercel --prod --yes` directly via the terminal tool to publish changes to the live production environment.
+3. Output Verification: Extract the live production URL from the Vercel CLI command output and present it directly to the user.

@@ -1,0 +1,30 @@
+export function VaultProgressBar({
+  percent,
+  formulaTag,
+  canAfford,
+  shortfall,
+}: {
+  readonly percent: number
+  readonly formulaTag: string
+  readonly canAfford: boolean
+  readonly shortfall: number
+}) {
+  return (
+    <div className="depth-well p-2.5 rounded-xl flex flex-col gap-1.5">
+      <div className="flex items-center justify-between text-[10px] font-bold gap-2">
+        <span className="text-muted uppercase tracking-wider">
+          Funded: {percent}% ({formulaTag})
+        </span>
+        <span className={canAfford ? 'text-emerald-600 font-black' : 'text-faint'}>
+          {canAfford ? '✓ Ready' : `Need ${shortfall} PTS`}
+        </span>
+      </div>
+      <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
+        <div
+          className={`h-full transition-all duration-500 ${canAfford ? 'bg-emerald-500' : 'bg-zinc-800'}`}
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+    </div>
+  )
+}

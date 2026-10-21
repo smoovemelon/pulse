@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
-import { calculateActionPoints, validateVaultDraft } from '../economy'
+import { calculateActionPoints, currentStreak, validateVaultDraft } from '../economy'
 
 const JUDGED = ['Session', 'Session', 'Logged work'] as const
 
@@ -160,5 +160,24 @@ describe('vault category validation', () => {
     expect(validateVaultDraft('Items', 80, 0)).toEqual({ ok: true })
     expect(validateVaultDraft('Dining', 0, 2)).toEqual({ ok: true })
     expect(validateVaultDraft('Events', 15, 3)).toEqual({ ok: true })
+  })
+})
+
+describe('current streak', () => {
+  const row = (date: string, points: number): Transaction => ({
+    id: `${date}-${points}`,
+    type: 'EARN',
+    title: 'Session',
+    points,
+    timestamp: date,
+    date,
+  })
+
+  it('counts consecutive days at or above 120 and defaults to 1 when today has activity', () => {
+    const today = '2026-10-21'
+    expect(currentStreak([row(today, 120), row('2026-10-20', 130), row('2026-10-19', 40)], today)).toBe(2)
+    expect(currentStreak([row(today, 30)], today)).toBe(1)
+    expect(currentStreak([row('2026-10-20', 120), row('2026-10-19', 120)], today)).toBe(2)
+    expect(currentStreak([row('2026-10-20', 40)], today)).toBe(0)
   })
 })

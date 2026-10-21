@@ -1,5 +1,5 @@
+import { useSensory } from '../hooks/useSensory'
 import { FeedIcon, PlusIcon, VaultIcon } from './Icons'
-import { usePulse } from '../pulse/context'
 
 export function Dock({
   tab,
@@ -10,7 +10,7 @@ export function Dock({
   onTab: (tab: 'feed' | 'vault') => void
   onAction: () => void
 }) {
-  const { feedback } = usePulse()
+  const { feedback } = useSensory()
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 flex justify-center px-4 pb-4 pt-2 pointer-events-none">

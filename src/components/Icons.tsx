@@ -180,9 +180,9 @@ export function UploadIcon({ className = 'w-3.5 h-3.5' }: IconProps) {
   )
 }
 
-export function ChevronIcon({ className = 'w-3.5 h-3.5', up = false }: IconProps & { up?: boolean }) {
+export function ChevronIcon({ className = '', up = false }: IconProps & { up?: boolean }) {
   return (
-    <Svg className={className}>
+    <Svg className={`w-3.5 h-3.5 shrink-0 ${className}`}>
       {up ? <polyline points="18 15 12 9 6 15" /> : <polyline points="6 9 12 15 18 9" />}
     </Svg>
   )

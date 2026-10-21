@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react'
-import { CloseIcon } from './Icons'
+import { CloseIcon } from '../Icons'
 
 export function Modal({
   align = 'end',
   labelledBy,
   children,
 }: {
-  align?: 'end' | 'center'
-  labelledBy: string
-  children: ReactNode
+  readonly align?: 'end' | 'center'
+  readonly labelledBy: string
+  readonly children: ReactNode
 }) {
   return (
     <div
@@ -28,8 +28,8 @@ export function Sheet({
   children,
   className = '',
 }: {
-  children: ReactNode
-  className?: string
+  readonly children: ReactNode
+  readonly className?: string
 }) {
   return (
     <div
@@ -40,7 +40,23 @@ export function Sheet({
   )
 }
 
-export function CloseButton({ onClick }: { onClick: () => void }) {
+export function ModalSheet({
+  labelledBy,
+  className = '',
+  children,
+}: {
+  readonly labelledBy: string
+  readonly className?: string
+  readonly children: ReactNode
+}) {
+  return (
+    <Modal labelledBy={labelledBy}>
+      <Sheet className={className}>{children}</Sheet>
+    </Modal>
+  )
+}
+
+export function CloseButton({ onClick }: { readonly onClick: () => void }) {
   return (
     <button
       type="button"

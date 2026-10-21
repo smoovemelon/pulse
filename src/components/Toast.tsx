@@ -1,8 +1,8 @@
+import { useNotice } from '../hooks/useNotice'
 import { InfoIcon } from './Icons'
-import { usePulse } from '../pulse/context'
 
 export function Toast() {
-  const { toast } = usePulse()
+  const { toast } = useNotice()
   if (!toast) return null
 
   return (
