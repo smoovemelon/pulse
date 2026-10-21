@@ -6,7 +6,16 @@ import { calculateVaultValuation } from '../../services/engine'
 import type { VaultCategory } from '../../types'
 import { Button } from '../Common/Button'
 
-const CATEGORIES: readonly VaultCategory[] = ['Items', 'Dining', 'Events', 'Gaming']
+const CATEGORIES: ReadonlyArray<{
+  readonly id: VaultCategory
+  readonly sub: string
+  readonly idle: string
+}> = [
+  { id: 'Items', sub: 'Price only', idle: 'bg-sky-50 text-sky-700' },
+  { id: 'Dining', sub: 'Needs time', idle: 'bg-amber-50 text-amber-700' },
+  { id: 'Events', sub: 'Needs time', idle: 'bg-emerald-50 text-emerald-700' },
+  { id: 'Gaming', sub: 'Time only', idle: 'bg-violet-50 text-violet-700' },
+]
 
 export function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
   const { appendSpend } = useLedger()
@@ -58,69 +67,85 @@ export function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
         />
       </div>
 
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-        {CATEGORIES.map((entry) => (
-          <Button
-            key={entry}
-            tone={category === entry ? 'pillActive' : 'pill'}
-            onClick={() => choose(entry)}
-            className="shrink-0 px-3 py-2 rounded-xl text-[10px] font-black uppercase"
-          >
-            {entry}
-          </Button>
-        ))}
+      <div className="grid grid-cols-2 gap-2">
+        {CATEGORIES.map((entry) => {
+          const active = entry.id === category
+          return (
+            <Button
+              key={entry.id}
+              tone={active ? 'pillActive' : 'pill'}
+              onClick={() => choose(entry.id)}
+              className="w-full py-2.5 px-2.5 rounded-xl text-[10px] font-black uppercase flex flex-col items-center justify-center gap-1"
+            >
+              <span>{entry.id}</span>
+              <span className={`text-[8px] font-extrabold font-num px-1.5 py-0.5 rounded-md whitespace-nowrap ${active ? 'cat-sub-active' : entry.idle}`}>
+                {entry.sub}
+              </span>
+            </Button>
+          )
+        })}
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="spend-usd" className="text-[9px] font-extrabold uppercase text-muted">
-            Price (USD $)
-          </label>
-          <input
-            id="spend-usd"
-            data-testid="spend-usd"
-            type="number"
-            step="any"
-            min="0"
-            disabled={priceDisabled}
-            value={priceDisabled ? '' : usd}
-            placeholder={priceDisabled ? 'N/A' : 'e.g. 5'}
-            onChange={(event) => setUsd(event.target.value)}
-            className="field w-full rounded-xl px-3 py-2 text-xs font-num font-extrabold focus:outline-none"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="spend-hrs" className="text-[9px] font-extrabold uppercase text-muted">
-            Duration (Hrs)
-          </label>
-          <input
-            id="spend-hrs"
-            data-testid="spend-hrs"
-            type="number"
-            step="0.5"
-            min="0"
-            disabled={hoursDisabled}
-            value={hoursDisabled ? '' : hrs}
-            placeholder={hoursDisabled ? 'N/A' : 'e.g. 1'}
-            onChange={(event) => setHrs(event.target.value)}
-            className="field w-full rounded-xl px-3 py-2 text-xs font-num font-extrabold focus:outline-none"
-          />
-        </div>
+      <div className={priceDisabled || hoursDisabled ? 'grid grid-cols-1' : 'grid grid-cols-2 gap-2.5'}>
+        {!priceDisabled && (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="spend-usd" className="text-[9px] font-extrabold uppercase text-muted">
+              Price (USD)
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-2.5 text-xs font-bold text-faint">$</span>
+              <input
+                id="spend-usd"
+                data-testid="spend-usd"
+                type="number"
+                step="any"
+                min="0"
+                value={usd}
+                placeholder={category === 'Items' ? 'e.g. 5' : 'Optional'}
+                onChange={(event) => setUsd(event.target.value)}
+                className="field w-full rounded-xl pl-6 pr-3 py-2 text-xs font-num font-extrabold focus:outline-none"
+              />
+            </div>
+          </div>
+        )}
+        {!hoursDisabled && (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="spend-hrs" className="text-[9px] font-extrabold uppercase text-muted">
+              Duration (Hrs)
+            </label>
+            <div className="relative">
+              <input
+                id="spend-hrs"
+                data-testid="spend-hrs"
+                type="number"
+                step="0.5"
+                min="0"
+                value={hrs}
+                placeholder="e.g. 1"
+                onChange={(event) => setHrs(event.target.value)}
+                className="field w-full rounded-xl px-3 py-2 pr-10 text-xs font-num font-extrabold focus:outline-none"
+              />
+              <span className="absolute right-3 top-2.5 text-[10px] font-bold text-faint font-num">hrs</span>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="depth-card rounded-2xl p-4 flex items-center justify-between">
-        <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">Comes off now</span>
-          <span className="text-[11px] font-bold text-body block">{quote.tag}</span>
-          {shortfall > 0 && (
-            <span className="text-[10px] font-bold text-rose-600 font-num block mt-1">Need {shortfall} more PTS</span>
-          )}
-        </div>
-        <div className="text-right">
-          <span data-testid="spend-cost" className="text-2xl font-extrabold text-rose-600 font-num">
-            {quote.cost > 0 ? `-${quote.cost.toLocaleString()}` : '0'}
+      <div className="depth-card rounded-2xl px-4 py-3.5">
+        <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block">{quote.tag}</span>
+        <div className="mt-1 flex items-center justify-between gap-3">
+          <span className="text-[11px] font-extrabold uppercase tracking-widest text-muted font-num whitespace-nowrap">
+            Balance {balance.toLocaleString()}
           </span>
-          <span className="text-xs font-extrabold text-faint font-num ml-0.5">PTS</span>
+          {shortfall > 0 && (
+            <span className="text-[11px] font-extrabold text-rose-600 font-num text-center">Need {shortfall} more</span>
+          )}
+          <span className="whitespace-nowrap text-right">
+            <span data-testid="spend-cost" className="text-2xl font-extrabold text-rose-600 font-num">
+              {quote.cost > 0 ? `-${quote.cost.toLocaleString()}` : '0'}
+            </span>
+            <span className="text-xs font-extrabold text-faint font-num ml-0.5">PTS</span>
+          </span>
         </div>
       </div>
 
