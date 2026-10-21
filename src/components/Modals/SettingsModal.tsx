@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { RELEASE_LABEL } from '../../release'
 import { usePulseEconomy } from '../../hooks/usePulseEconomy'
 import { useSensory } from '../../hooks/useSensory'
@@ -141,35 +141,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           <span className="text-xs font-extrabold tracking-tight text-ink leading-tight">Economic Formulas & Rules</span>
           <ChevronIcon className="text-muted" up={formulasOpen} />
         </button>
-        {formulasOpen && (
-          <div className="flex flex-col gap-2.5 text-xs text-body pt-2 border-t border-line">
-            <div>
-              <strong className="text-ink block mb-0.5">1. Action Points</strong>
-              <p className="text-[11px] leading-relaxed">
-                Base = Strain (1–10) × 8 × (Duration / 45)<sup>0.45</sup>.
-                <br />
-                Multipliers: Alignment ≥ 8.0 (2.0x Heavyweight), ≥ 4.0 (1.5x Cruiserweight), &lt; 4.0 (1.0x Middleweight).
-                Default anchor: Your main goal.
-              </p>
-            </div>
-            <div>
-              <strong className="text-ink block mb-0.5">2. Manual Vault Rules</strong>
-              <p className="text-[11px] leading-relaxed">
-                <strong>Gaming:</strong> time only, price locked at $0. Hours × 50 PTS. Duration must be above 0.
-                <br />
-                <strong>Items:</strong> price only, duration locked at 0. USD × 20 PTS. Price must be above $0.
-                <br />
-                <strong>Dining & Events:</strong> duration is required. (USD × 20) + (hours × 35), or hours × 50 when price is $0. A timed bounty floors at 25 PTS. Spend now uses these same prices and removes the points immediately.
-              </p>
-            </div>
-            <div>
-              <strong className="text-ink block mb-0.5">3. Point Sink / Anti-Inflation</strong>
-              <p className="text-[11px] leading-relaxed">
-                Daily target: 120 PTS. If earned momentum is below target at the date rollover, a 15 PTS decay fee enforces accountability.
-              </p>
-            </div>
-          </div>
-        )}
+        {formulasOpen && <EconomyRules />}
       </div>
       <div className="depth-well rounded-2xl px-4 py-3 flex flex-col gap-2">
         <div>
@@ -215,5 +187,117 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
         Pulse {RELEASE_LABEL}
       </p>
     </ModalSheet>
+  )
+}
+
+const ALIGNMENT = [
+  { threshold: '≥ 8.0', multiplier: '2.0×', name: 'Heavyweight', chip: 'chip-emerald' },
+  { threshold: '≥ 4.0', multiplier: '1.5×', name: 'Cruiserweight', chip: 'chip-indigo' },
+  { threshold: '< 4.0', multiplier: '1.0×', name: 'Middleweight', chip: 'chip-zinc' },
+] as const
+
+function EconomyRules() {
+  return (
+    <div className="flex flex-col gap-3.5 pt-2.5 border-t border-line text-[11px] leading-relaxed text-body">
+      <section className="flex flex-col gap-1.5">
+        <RuleTitle>1. Action Points</RuleTitle>
+        <p>
+          Base = <Figure tone="earn">Strain (1–10) × 8 × (Duration / 45)<sup>0.45</sup></Figure>
+        </p>
+        <p>Anchor alignment multiplies that base.</p>
+        <ul className="flex flex-col gap-1">
+          {ALIGNMENT.map((tier) => (
+            <li key={tier.name} className="flex items-center justify-between gap-2">
+              <span className="font-num font-bold text-muted">{tier.threshold}</span>
+              <span className="flex items-center gap-2">
+                <Tag chip={tier.chip}>{tier.name}</Tag>
+                <span className="font-num font-extrabold text-ink w-8 text-right">{tier.multiplier}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p>
+          Default anchor: <span className="font-extrabold text-ink">Your main goal</span>
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <RuleTitle>2. Manual Vault Rules</RuleTitle>
+        <Rule>
+          <Tag chip="chip-violet">Gaming</Tag>
+          <p>Time only. Price locked at <Figure>$0</Figure>. Duration must be above 0.</p>
+          <p><Figure tone="spend">Hours × 50 PTS</Figure></p>
+        </Rule>
+        <Rule>
+          <Tag chip="chip-sky">Items</Tag>
+          <p>Price only. Duration locked at <Figure>0</Figure> hrs. Price must be above $0.</p>
+          <p><Figure tone="spend">USD × 20 PTS</Figure></p>
+        </Rule>
+        <Rule>
+          <span className="flex flex-wrap gap-1">
+            <Tag chip="chip-amber">Dining</Tag>
+            <Tag chip="chip-emerald">Events</Tag>
+          </span>
+          <p>Duration is required. Price is optional.</p>
+          <p>
+            <Figure tone="spend">(USD × 20) + (hours × 35)</Figure>
+            {' when price is above $0.'}
+          </p>
+          <p>
+            <Figure tone="spend">Hours × 50 PTS</Figure>
+            {' when price is $0.'}
+          </p>
+          <p>
+            A timed bounty floors at <Figure tone="spend">25 PTS</Figure>.
+          </p>
+        </Rule>
+        <p>
+          <span className="font-extrabold text-rose-600 dark:text-rose-300">Spend now</span>
+          {' uses these same prices and removes the points immediately.'}
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-1.5">
+        <RuleTitle>3. Point Sink / Anti-Inflation</RuleTitle>
+        <Stat label="Daily target" value="120 PTS" tone="earn" />
+        <Stat label="Decay fee" value="−15 PTS" tone="spend" />
+        <p>If earned momentum is below target at the date rollover, the decay fee applies once.</p>
+      </section>
+    </div>
+  )
+}
+
+function RuleTitle({ children }: { readonly children: string }) {
+  return <p className="text-[11px] font-extrabold tracking-tight text-ink">{children}</p>
+}
+
+function Rule({ children }: { readonly children: ReactNode }) {
+  return <div className="flex flex-col gap-1 rounded-xl bg-card border border-line px-2.5 py-2">{children}</div>
+}
+
+function Tag({ chip, children }: { readonly chip: string; readonly children: string }) {
+  return (
+    <span className={`inline-flex w-fit items-center px-1.5 py-0.5 rounded-md border text-[10px] font-extrabold leading-none ${chip}`}>
+      {children}
+    </span>
+  )
+}
+
+function Figure({ tone = 'ink', children }: { readonly tone?: 'ink' | 'earn' | 'spend'; readonly children: ReactNode }) {
+  const color = tone === 'earn'
+    ? 'text-emerald-700 dark:text-emerald-300'
+    : tone === 'spend'
+      ? 'text-rose-600 dark:text-rose-300'
+      : 'text-ink'
+  return <span className={`font-num font-bold ${color}`}>{children}</span>
+}
+
+function Stat({ label, value, tone }: { readonly label: string; readonly value: string; readonly tone: 'earn' | 'spend' }) {
+  const color = tone === 'earn' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'
+  return (
+    <p className="flex items-center justify-between gap-3">
+      <span>{label}</span>
+      <span className={`font-num font-extrabold ${color}`}>{value}</span>
+    </p>
   )
 }
