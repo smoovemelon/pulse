@@ -20,6 +20,8 @@ const KEYS = {
   apiKey: 'pulse_gemini_key',
   theme: 'pulse_theme',
   profile: 'pulse_profile',
+  demo: 'pulse_demo',
+  demoSnapshot: 'pulse_demo_snapshot',
 } as const
 
 const FRESH_PROFILE = 'fresh-1'
@@ -143,6 +145,7 @@ export function freshState(): PulseState {
     disciplineAnchor: DEFAULT_ANCHOR,
     dailyGoal: DAILY_GOAL,
     theme: 'light',
+    demoMode: false,
     transactions: [],
     vaultItems: [],
   }
@@ -198,6 +201,7 @@ export function loadState(): PulseState {
     disciplineAnchor: readAnchor(),
     dailyGoal: DAILY_GOAL,
     theme: readStoredTheme(),
+    demoMode: localStorage.getItem(KEYS.demo) === 'true',
     transactions: storedTx === null ? [] : (parseTransactions(readUnknown(KEYS.txs)) ?? []),
     vaultItems: storedVault === null ? [] : (parseVaultItems(readUnknown(KEYS.vault)) ?? []),
   }
@@ -212,8 +216,49 @@ export function saveState(state: PulseState) {
   localStorage.setItem(KEYS.decay, String(state.decayEnabled))
   localStorage.setItem(KEYS.audit, state.lastAuditDate)
   localStorage.setItem(KEYS.theme, state.theme)
+  if (state.demoMode) localStorage.setItem(KEYS.demo, 'true')
+  else localStorage.removeItem(KEYS.demo)
   if (state.apiKey) localStorage.setItem(KEYS.apiKey, state.apiKey)
   else localStorage.removeItem(KEYS.apiKey)
+}
+
+export function saveDemoSnapshot(state: PulseState) {
+  localStorage.setItem(KEYS.demoSnapshot, JSON.stringify({ ...state, demoMode: false }))
+}
+
+export function readDemoSnapshot(): PulseState | null {
+  const raw = localStorage.getItem(KEYS.demoSnapshot)
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw) as unknown
+    if (!isRecord(parsed)) return null
+    const transactions = parseTransactions(parsed.transactions)
+    const vaultItems = parseVaultItems(parsed.vaultItems)
+    const balance = finiteNumber(parsed.balance)
+    if (!transactions || !vaultItems || balance === undefined) return null
+    return {
+      balance,
+      soundEnabled: parsed.soundEnabled !== false,
+      decayEnabled: parsed.decayEnabled !== false,
+      lastAuditDate: typeof parsed.lastAuditDate === 'string' ? parsed.lastAuditDate : utcDateKey(),
+      apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey : '',
+      disciplineAnchor:
+        typeof parsed.disciplineAnchor === 'string' && parsed.disciplineAnchor.trim()
+          ? parsed.disciplineAnchor.trim()
+          : DEFAULT_ANCHOR,
+      dailyGoal: DAILY_GOAL,
+      theme: parsed.theme === 'dark' ? 'dark' : 'light',
+      demoMode: false,
+      transactions,
+      vaultItems,
+    }
+  } catch {
+    return null
+  }
+}
+
+export function clearDemoSnapshot() {
+  localStorage.removeItem(KEYS.demoSnapshot)
 }
 
 export function exportBackup(state: PulseState) {

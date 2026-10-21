@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { callGemini } from '../lib/gemini'
-import { exportBackup as downloadBackup, freshState, mergeBackup } from '../services/persistence'
+import { enterDemo, exitDemo } from '../services/demo'
+import { clearDemoSnapshot, exportBackup as downloadBackup, freshState, mergeBackup } from '../services/persistence'
 import { useCore } from './core'
 import { useSlices } from './slices'
 
@@ -14,9 +15,11 @@ export interface SettingsApi {
   saveAnchor: (value: string) => boolean
   toggleTheme: () => void
   checkKey: (candidate?: string) => Promise<void>
+  readonly demoMode: boolean
   exportBackup: () => void
   importBackup: (file: File) => Promise<boolean>
   startFresh: () => void
+  toggleDemo: () => void
 }
 
 export function useSettingsController(): SettingsApi {
@@ -87,13 +90,27 @@ export function useSettingsController(): SettingsApi {
   }, [feedback, notify, read])
 
   const startFresh = useCallback(() => {
-    commit(freshState())
+    const current = read()
+    if (!current.demoMode) clearDemoSnapshot()
+    commit({ ...freshState(), demoMode: current.demoMode })
     setDecayAlert(null)
     setKeyBadge('No Key Entered')
     setKeyBadgeClass('chip-amber')
     feedback('click')
     notify('Fresh start. Balance, ledger, and vault are clear.')
-  }, [commit, feedback, notify, setDecayAlert])
+  }, [commit, feedback, notify, read, setDecayAlert])
+
+  const toggleDemo = useCallback(() => {
+    const current = read()
+    feedback('click')
+    if (current.demoMode) {
+      commit(exitDemo(current))
+      notify('Demo mode off. Your data is back.')
+      return
+    }
+    commit(enterDemo(current))
+    notify('Demo mode on. Sample values are filled in.')
+  }, [commit, feedback, notify, read])
 
   const importBackup = useCallback(
     async (file: File) => {
@@ -122,9 +139,11 @@ export function useSettingsController(): SettingsApi {
     saveAnchor,
     toggleTheme,
     checkKey,
+    demoMode: state.demoMode,
     exportBackup,
     importBackup,
     startFresh,
+    toggleDemo,
   }
 }
 

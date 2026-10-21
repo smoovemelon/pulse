@@ -56,6 +56,7 @@ export interface PulseState {
   readonly disciplineAnchor: string
   readonly dailyGoal: number
   readonly theme: ThemeName
+  readonly demoMode: boolean
   readonly transactions: readonly Transaction[]
   readonly vaultItems: readonly VaultItem[]
 }

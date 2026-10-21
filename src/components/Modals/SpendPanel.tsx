@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { useLedger } from '../../hooks/useLedger'
 import { usePulseEconomy } from '../../hooks/usePulseEconomy'
 import { useSensory } from '../../hooks/useSensory'
+import { useSettings } from '../../hooks/useSettings'
+import { DEMO_SPEND } from '../../services/demo'
 import { calculateVaultValuation } from '../../services/engine'
 import type { VaultCategory } from '../../types'
 import { Button } from '../Common/Button'
@@ -11,10 +13,11 @@ export function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
   const { appendSpend } = useLedger()
   const { balance } = usePulseEconomy()
   const { feedback } = useSensory()
-  const [title, setTitle] = useState('')
-  const [category, setCategory] = useState<VaultCategory>('Items')
-  const [usd, setUsd] = useState('')
-  const [hrs, setHrs] = useState('')
+  const { demoMode } = useSettings()
+  const [title, setTitle] = useState(demoMode ? DEMO_SPEND.title : '')
+  const [category, setCategory] = useState<VaultCategory>(demoMode ? DEMO_SPEND.category : 'Items')
+  const [usd, setUsd] = useState(demoMode ? DEMO_SPEND.usd : '')
+  const [hrs, setHrs] = useState(demoMode ? DEMO_SPEND.hrs : '')
 
   const priceDisabled = category === 'Gaming'
   const hoursDisabled = category === 'Items'

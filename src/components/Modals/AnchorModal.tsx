@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { DEFAULT_ANCHOR } from '../../lib/dates'
 import { useSettings } from '../../hooks/useSettings'
+import { DEMO_ANCHOR } from '../../services/demo'
 import { Button } from '../Common/Button'
 import { CloseButton, Modal } from '../Common/ModalSheet'
 
 export function AnchorModal({ onClose }: { readonly onClose: () => void }) {
-  const { anchor, saveAnchor } = useSettings()
-  const [value, setValue] = useState(anchor === DEFAULT_ANCHOR ? '' : anchor)
+  const { anchor, demoMode, saveAnchor } = useSettings()
+  const [value, setValue] = useState(anchor === DEFAULT_ANCHOR ? (demoMode ? DEMO_ANCHOR : '') : anchor)
 
   return (
     <Modal align="center" labelledBy="anchor-heading">

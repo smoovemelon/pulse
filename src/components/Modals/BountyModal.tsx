@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { usePulseEconomy } from '../../hooks/usePulseEconomy'
 import { useSensory } from '../../hooks/useSensory'
+import { useSettings } from '../../hooks/useSettings'
 import { useVault } from '../../hooks/useVault'
+import { DEMO_BOUNTY } from '../../services/demo'
 import { calculateVaultValuation } from '../../services/engine'
 import type { VaultCategory, VaultItem } from '../../types'
 import { Button } from '../Common/Button'
@@ -16,11 +18,13 @@ function asCategory(value: string | undefined): VaultCategory {
 export function BountyModal({ item, onClose }: { readonly item: VaultItem | null; readonly onClose: () => void }) {
   const { feedback } = useSensory()
   const { balance } = usePulseEconomy()
+  const { demoMode } = useSettings()
   const { saveBounty } = useVault()
-  const [title, setTitle] = useState(item?.title ?? '')
-  const [category, setCategory] = useState<VaultCategory>(asCategory(item?.category))
-  const [usd, setUsd] = useState(item?.usd ? String(item.usd) : '')
-  const [hrs, setHrs] = useState(item?.hrs ? String(item.hrs) : '')
+  const seeded = !item && demoMode
+  const [title, setTitle] = useState(item?.title ?? (seeded ? DEMO_BOUNTY.title : ''))
+  const [category, setCategory] = useState<VaultCategory>(item ? asCategory(item.category) : seeded ? DEMO_BOUNTY.category : 'Items')
+  const [usd, setUsd] = useState(item?.usd ? String(item.usd) : seeded ? DEMO_BOUNTY.usd : '')
+  const [hrs, setHrs] = useState(item?.hrs ? String(item.hrs) : seeded ? DEMO_BOUNTY.hrs : '')
 
   const priceDisabled = category === 'Gaming'
   const hoursDisabled = category === 'Items'

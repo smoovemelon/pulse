@@ -8,7 +8,7 @@ import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
-  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh } = useSettings()
+  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo } = useSettings()
   const { decayEnabled, toggleDecay, runAudit } = usePulseEconomy()
   const { feedback } = useSensory()
   const [key, setKey] = useState(apiKey)
@@ -146,6 +146,25 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       <div className="depth-well rounded-2xl px-4 py-3 flex flex-col gap-2">
         <div>
           <span className="text-xs font-extrabold tracking-tight text-ink block">Developer</span>
+          <span className="text-[10px] text-muted">Sample data for quick testing, or a clean device.</span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <span className="text-xs font-extrabold tracking-tight text-ink block">Demo mode</span>
+            <span className="text-[10px] text-muted">Fills the ledger, vault, and forms. Turning this off restores your data.</span>
+          </div>
+          <Button
+            tone="card"
+            data-testid="demo-mode"
+            onClick={toggleDemo}
+            className={`px-2.5 py-1 rounded-lg text-[10px] font-black shrink-0 ${
+              demoMode ? 'text-emerald-700 border-emerald-200' : 'text-muted'
+            }`}
+          >
+            {demoMode ? 'On' : 'Off'}
+          </Button>
+        </div>
+        <div>
           <span className="text-[10px] text-muted">Start over as a new user. This clears the balance, ledger, and vault on this device.</span>
         </div>
         {freshArmed ? (

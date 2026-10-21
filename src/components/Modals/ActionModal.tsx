@@ -5,6 +5,7 @@ import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { isNamedAnchor } from '../../lib/dates'
 import { buildJudgmentPayload, callGemini, polishReasoning, type ActionJudgment } from '../../lib/gemini'
+import { DEMO_ACTION } from '../../services/demo'
 import { calculateActionPoints, localActionFallback } from '../../services/engine'
 import type { ActionScore } from '../../types'
 import { Button } from '../Common/Button'
@@ -25,10 +26,10 @@ export function ActionModal({
   const { entries, appendEarn } = useLedger()
   const { notify } = useNotice()
   const { feedback } = useSensory()
-  const { anchor, apiKey } = useSettings()
+  const { anchor, apiKey, demoMode } = useSettings()
   const named = isNamedAnchor(anchor)
-  const [text, setText] = useState('')
-  const [duration, setDuration] = useState(60)
+  const [text, setText] = useState(demoMode ? DEMO_ACTION.text : '')
+  const [duration, setDuration] = useState(demoMode ? DEMO_ACTION.duration : 60)
   const [pending, setPending] = useState(false)
   const [verdict, setVerdict] = useState<ActionScore | null>(null)
   const [mode, setMode] = useState<'earn' | 'spend'>('earn')

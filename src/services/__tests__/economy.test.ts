@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { DEFAULT_ANCHOR } from '../../lib/dates'
+import { DEFAULT_ANCHOR, utcDateKey } from '../../lib/dates'
 import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
+import { DEMO_ACTION, DEMO_ANCHOR, DEMO_BOUNTY, DEMO_SPEND, enterDemo, exitDemo } from '../demo'
 import { balanceAfterRemoval, calculateActionPoints, currentStreak, earnedOn, lifetimeStats, validateVaultDraft } from '../economy'
+import { freshState, readDemoSnapshot } from '../persistence'
 
 const JUDGED = ['Session', 'Session', 'Logged work'] as const
 
@@ -31,6 +33,7 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     disciplineAnchor: DEFAULT_ANCHOR,
     dailyGoal: 120,
     theme: 'light',
+    demoMode: false,
     transactions: [],
     vaultItems: [],
     ...partial,
@@ -218,5 +221,90 @@ describe('current streak', () => {
     expect(currentStreak([row(today, 30)], today)).toBe(1)
     expect(currentStreak([row('2026-10-20', 120), row('2026-10-19', 120)], today)).toBe(2)
     expect(currentStreak([row('2026-10-20', 40)], today)).toBe(0)
+  })
+})
+
+describe('demo mode', () => {
+  beforeEach(() => {
+    const bag = new Map<string, string>()
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => bag.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        bag.set(key, value)
+      },
+      removeItem: (key: string) => {
+        bag.delete(key)
+      },
+      clear: () => {
+        bag.clear()
+      },
+    })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('fills sample data and restores the previous ledger', () => {
+    const current = {
+      ...freshState(),
+      balance: 12,
+      apiKey: 'kept-key',
+      theme: 'dark' as const,
+      disciplineAnchor: 'Ship the lab',
+      vaultItems: [
+        {
+          id: 'real',
+          title: 'Tea',
+          cost: 40,
+          category: 'Items' as const,
+          usd: 2,
+          hrs: 0,
+          formulaTag: '$2 @ 20 PTS/$',
+        },
+      ],
+    }
+    const demo = enterDemo(current)
+    const today = utcDateKey()
+
+    expect(demo.demoMode).toBe(true)
+    expect(demo.apiKey).toBe('kept-key')
+    expect(demo.theme).toBe('dark')
+    expect(demo.disciplineAnchor).toBe(DEMO_ANCHOR)
+    expect(earnedOn(demo.transactions, today)).toBeGreaterThanOrEqual(120)
+    expect(currentStreak(demo.transactions, today)).toBeGreaterThanOrEqual(2)
+    expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Heavyweight'))).toBe(true)
+    expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Cruiserweight'))).toBe(true)
+    expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Middleweight'))).toBe(true)
+    expect(demo.transactions.some((tx) => tx.type === 'SPEND')).toBe(true)
+    expect(demo.vaultItems.map((item) => item.category).sort()).toEqual(['Dining', 'Events', 'Gaming', 'Items'])
+    const net = demo.transactions.reduce((sum, tx) => sum + (tx.type === 'EARN' ? tx.points : -tx.points), 0)
+    expect(demo.balance).toBe(net)
+    const coffee = demo.vaultItems.find((item) => item.title === 'Coffee')
+    const lunch = demo.vaultItems.find((item) => item.title === 'Lunch')
+    const show = demo.vaultItems.find((item) => item.title === 'Show ticket')
+    expect(coffee && demo.balance >= coffee.cost).toBe(true)
+    expect(lunch && demo.balance < lunch.cost).toBe(true)
+    expect(show && demo.balance < show.cost).toBe(true)
+
+    const again = enterDemo({ ...demo, balance: 1 })
+    expect(readDemoSnapshot()?.balance).toBe(12)
+
+    const back = exitDemo({ ...again, theme: 'light', apiKey: '' })
+    expect(back.demoMode).toBe(false)
+    expect(back.balance).toBe(12)
+    expect(back.disciplineAnchor).toBe('Ship the lab')
+    expect(back.vaultItems).toEqual(current.vaultItems)
+    expect(back.theme).toBe('dark')
+    expect(back.apiKey).toBe('kept-key')
+    expect(readDemoSnapshot()).toBeNull()
+  })
+
+  it('offers ready-to-submit form values', () => {
+    expect(DEMO_ACTION.text.trim().length).toBeGreaterThan(0)
+    expect(DEMO_ACTION.duration).toBe(45)
+    expect(validateVaultDraft(DEMO_SPEND.category, Number(DEMO_SPEND.usd), Number(DEMO_SPEND.hrs) || 0)).toEqual({ ok: true })
+    expect(validateVaultDraft(DEMO_BOUNTY.category, Number(DEMO_BOUNTY.usd), Number(DEMO_BOUNTY.hrs))).toEqual({ ok: true })
+    expect(DEMO_ANCHOR).not.toBe(DEFAULT_ANCHOR)
   })
 })
