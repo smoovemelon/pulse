@@ -39,7 +39,7 @@ function Shell() {
   }, [])
 
   return (
-    <div className="min-h-dvh bg-canvas text-ink pb-[calc(7.5rem+env(safe-area-inset-bottom))]">
+    <div className="min-h-dvh bg-canvas text-ink pb-[calc(7.5rem+env(safe-area-max-inset-bottom,0px))]">
       <Toast />
       <div className="w-full max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4">
         <Header onOpenSettings={() => setModal('settings')} />

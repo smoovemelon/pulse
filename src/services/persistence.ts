@@ -157,12 +157,16 @@ export function canvasThemeColor(theme: ThemeName = readStoredTheme()) {
 
 export function applyDocumentTheme(theme: ThemeName = readStoredTheme()) {
   const color = canvasThemeColor(theme)
+  const scheme = theme === 'dark' ? 'only dark' : 'only light'
   const root = document.documentElement
   root.dataset.theme = theme
   root.style.backgroundColor = color
+  root.style.colorScheme = scheme
   document.body.style.backgroundColor = color
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color)
-  document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', theme)
+  document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+    meta.setAttribute('content', color)
+  })
+  document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', scheme)
 }
 
 export function loadState(): PulseState {
