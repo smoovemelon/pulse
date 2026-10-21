@@ -8,6 +8,7 @@ import { ActionModal } from './components/Modals/ActionModal'
 import { AnchorModal } from './components/Modals/AnchorModal'
 import { BountyModal } from './components/Modals/BountyModal'
 import { DecayAlertModal } from './components/Modals/DecayAlertModal'
+import { SpendModal } from './components/Modals/SpendPanel'
 import { SettingsModal } from './components/Modals/SettingsModal'
 import { Toast } from './components/Toast'
 import { Vault } from './components/Vault/Vault'
@@ -17,7 +18,7 @@ import { usePulseEconomy } from './hooks/usePulseEconomy'
 import { shouldIntroduce } from './services/intro'
 import type { VaultItem } from './types'
 
-type OpenModal = 'action' | 'settings' | 'anchor' | 'vault' | null
+type OpenModal = 'action' | 'settings' | 'anchor' | 'vault' | 'spend' | null
 
 function Shell() {
   const { state } = useCore()
@@ -68,20 +69,23 @@ function Shell() {
             setIntroOpen(true)
           }}
         />
-        <Dashboard
-          onEditAnchor={() => {
-            setResumeAction(false)
-            setModal('anchor')
-          }}
-        />
         {tab === 'feed' ? (
-          <Feed />
+          <>
+            <Dashboard
+              onEditAnchor={() => {
+                setResumeAction(false)
+                setModal('anchor')
+              }}
+            />
+            <Feed />
+          </>
         ) : (
           <Vault
             onAdd={() => {
               setEditing(null)
               setModal('vault')
             }}
+            onSpend={() => setModal('spend')}
             onEdit={(item) => {
               setEditing(item)
               setModal('vault')
@@ -113,6 +117,7 @@ function Shell() {
         />
       )}
       {modal === 'vault' && <BountyModal item={editing} onClose={() => setModal(null)} />}
+      {modal === 'spend' && <SpendModal onClose={() => setModal(null)} />}
       <DecayAlertModal />
       {introOpen && <IntroTour onClose={() => setIntroOpen(false)} />}
     </div>

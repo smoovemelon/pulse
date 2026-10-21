@@ -7,9 +7,27 @@ import { DEMO_SPEND } from '../../services/demo'
 import { calculateVaultValuation } from '../../services/engine'
 import type { VaultCategory } from '../../types'
 import { Button } from '../Common/Button'
+import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { CategoryPicker } from '../Common/CategoryPicker'
 
-export function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
+export function SpendModal({ onClose }: { readonly onClose: () => void }) {
+  return (
+    <ModalSheet labelledBy="spend-heading">
+      <div className="flex justify-between items-center">
+        <div>
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">Vault</span>
+          <h3 id="spend-heading" className="text-base heading-athletic text-ink">
+            Spend Points
+          </h3>
+        </div>
+        <CloseButton onClick={onClose} />
+      </div>
+      <SpendPanel onSpent={onClose} />
+    </ModalSheet>
+  )
+}
+
+function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
   const { appendSpend } = useLedger()
   const { balance } = usePulseEconomy()
   const { feedback } = useSensory()
