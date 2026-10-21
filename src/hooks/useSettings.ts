@@ -13,6 +13,8 @@ export interface SettingsApi {
   readonly keyBadgeClass: string
   saveApiKey: (value: string) => void
   saveAnchor: (value: string) => boolean
+  readonly username: string
+  saveUsername: (value: string, options?: { readonly quiet?: boolean }) => boolean
   toggleTheme: () => void
   checkKey: (candidate?: string) => Promise<void>
   readonly demoMode: boolean
@@ -75,6 +77,18 @@ export function useSettingsController(): SettingsApi {
     [commit, feedback, notify, read],
   )
 
+  const saveUsername = useCallback(
+    (value: string, options?: { readonly quiet?: boolean }) => {
+      const trimmed = value.trim()
+      if (!trimmed) return false
+      feedback('click')
+      commit({ ...read(), username: trimmed, isOnboarded: true })
+      if (!options?.quiet) notify('Display name updated')
+      return true
+    },
+    [commit, feedback, notify, read],
+  )
+
   const toggleTheme = useCallback(() => {
     feedback('click')
     commit({
@@ -93,7 +107,12 @@ export function useSettingsController(): SettingsApi {
     const current = read()
     if (!current.demoMode) clearDemoSnapshot()
     clearIntroSeen()
-    commit({ ...freshState(), demoMode: current.demoMode })
+    commit({
+      ...freshState(),
+      demoMode: current.demoMode,
+      username: current.username,
+      isOnboarded: current.isOnboarded,
+    })
     setDecayAlert(null)
     setKeyBadge('No Key Entered')
     setKeyBadgeClass('chip-amber')
@@ -138,6 +157,8 @@ export function useSettingsController(): SettingsApi {
     keyBadgeClass,
     saveApiKey,
     saveAnchor,
+    username: state.username,
+    saveUsername,
     toggleTheme,
     checkKey,
     demoMode: state.demoMode,

@@ -61,6 +61,8 @@ export interface PulseState {
   readonly demoMode: boolean
   readonly streakCount: number
   readonly streakState: StreakState
+  readonly username: string
+  readonly isOnboarded: boolean
   readonly transactions: readonly Transaction[]
   readonly vaultItems: readonly VaultItem[]
 }

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_ANCHOR, utcDateKey } from '../../lib/dates'
+import { greetingDate, greetingLine } from '../../lib/greeting'
 import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
 import { DEMO_ACTION, DEMO_ANCHOR, DEMO_BOUNTY, DEMO_SPEND, enterDemo, exitDemo } from '../demo'
@@ -38,6 +39,8 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     demoMode: false,
     streakCount: 0,
     streakState: 'STALLED',
+    username: '',
+    isOnboarded: false,
     transactions: [],
     vaultItems: [],
     ...partial,
@@ -499,5 +502,21 @@ describe('intro', () => {
     })).toBe(false)
     expect(shouldIntroduce({ ...freshState(), disciplineAnchor: 'Be a studious student.' })).toBe(false)
     expect(shouldIntroduce(freshState())).toBe(true)
+  })
+})
+
+describe('greeting', () => {
+  it('names the part of day and lowercases the handle', () => {
+    expect(greetingLine(5, '')).toBe('good morning.')
+    expect(greetingLine(11, 'Adrinn')).toBe('good morning, adrinn.')
+    expect(greetingLine(12, 'adrinn')).toBe('good afternoon, adrinn.')
+    expect(greetingLine(16, '  Adrinn  ')).toBe('good afternoon, adrinn.')
+    expect(greetingLine(17, '')).toBe('good evening.')
+    expect(greetingLine(4, 'adrinn')).toBe('good evening, adrinn.')
+    expect(greetingLine(0, '')).toBe('good evening.')
+  })
+
+  it('writes the date as a weekday, a padded day, and the month', () => {
+    expect(greetingDate(new Date(2026, 9, 21))).toBe('Wednesday, 21 October.')
   })
 })

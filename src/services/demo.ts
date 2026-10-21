@@ -169,5 +169,10 @@ export function exitDemo(current: PulseState): PulseState {
       vaultItems: [],
     }
   }
-  return { ...saved, demoMode: false }
+  return {
+    ...saved,
+    demoMode: false,
+    username: saved.username || current.username,
+    isOnboarded: saved.isOnboarded || current.isOnboarded,
+  }
 }

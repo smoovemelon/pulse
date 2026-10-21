@@ -26,6 +26,8 @@ const KEYS = {
   intro: 'pulse_intro',
   streakCount: 'pulse_streak_count',
   streakState: 'pulse_streak_state',
+  username: 'pulse_username',
+  onboarded: 'pulse_onboarded',
 } as const
 
 const FRESH_PROFILE = 'fresh-1'
@@ -152,6 +154,8 @@ export function freshState(): PulseState {
     demoMode: false,
     streakCount: 0,
     streakState: 'STALLED',
+    username: '',
+    isOnboarded: false,
     transactions: [],
     vaultItems: [],
   }
@@ -217,6 +221,8 @@ export function loadState(): PulseState {
     demoMode: localStorage.getItem(KEYS.demo) === 'true',
     streakCount: streak.streakCount,
     streakState: streak.streakState,
+    username: localStorage.getItem(KEYS.username) ?? '',
+    isOnboarded: localStorage.getItem(KEYS.onboarded) === 'true',
     transactions,
     vaultItems: storedVault === null ? [] : (parseVaultItems(readUnknown(KEYS.vault)) ?? []),
   }
@@ -232,6 +238,8 @@ export function saveState(state: PulseState) {
   localStorage.setItem(KEYS.audit, state.lastAuditDate)
   localStorage.setItem(KEYS.streakCount, String(state.streakCount))
   localStorage.setItem(KEYS.streakState, state.streakState)
+  localStorage.setItem(KEYS.username, state.username)
+  localStorage.setItem(KEYS.onboarded, String(state.isOnboarded))
   localStorage.setItem(KEYS.theme, state.theme)
   if (state.demoMode) localStorage.setItem(KEYS.demo, 'true')
   else localStorage.removeItem(KEYS.demo)
@@ -269,6 +277,8 @@ export function readDemoSnapshot(): PulseState | null {
       demoMode: false,
       streakCount: streak.streakCount,
       streakState: streak.streakState,
+      username: typeof parsed.username === 'string' ? parsed.username : '',
+      isOnboarded: parsed.isOnboarded === true,
       transactions,
       vaultItems,
     }
@@ -305,6 +315,8 @@ export function exportBackup(state: PulseState) {
       decayEnabled: state.decayEnabled,
       transactions: state.transactions,
       vaultItems: state.vaultItems,
+      username: state.username,
+      isOnboarded: state.isOnboarded,
     },
   }
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
@@ -337,5 +349,7 @@ export function mergeBackup(current: PulseState, parsed: unknown): PulseState {
     vaultItems: vaultItems ?? current.vaultItems,
     decayEnabled: typeof source.decayEnabled === 'boolean' ? source.decayEnabled : current.decayEnabled,
     soundEnabled: typeof source.soundEnabled === 'boolean' ? source.soundEnabled : current.soundEnabled,
+    username: typeof source.username === 'string' ? source.username : current.username,
+    isOnboarded: typeof source.isOnboarded === 'boolean' ? source.isOnboarded : current.isOnboarded,
   }
 }

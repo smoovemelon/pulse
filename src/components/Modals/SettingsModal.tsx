@@ -8,10 +8,11 @@ import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
-  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo } = useSettings()
+  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo, username, saveUsername } = useSettings()
   const { decayEnabled, toggleDecay, runAudit } = usePulseEconomy()
   const { feedback } = useSensory()
   const [key, setKey] = useState(apiKey)
+  const [name, setName] = useState(username)
   const [formulasOpen, setFormulasOpen] = useState(false)
   const [freshArmed, setFreshArmed] = useState(false)
 
@@ -19,6 +20,10 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
     setKey(apiKey)
     void checkKey(apiKey)
   }, [apiKey, checkKey])
+
+  useEffect(() => {
+    setName(username)
+  }, [username])
 
   return (
     <ModalSheet labelledBy="settings-heading" className="max-h-[88vh]">
@@ -33,6 +38,30 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           </span>
           <CloseButton onClick={onClose} />
         </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="display-name" className="text-[10px] font-extrabold uppercase tracking-widest text-muted">
+          Display Name
+        </label>
+        <input
+          id="display-name"
+          data-testid="display-name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="e.g. adrinn"
+          className="field w-full rounded-2xl p-3.5 text-xs font-bold focus:outline-none"
+          autoComplete="nickname"
+        />
+        <Button
+          tone="dark"
+          data-testid="save-display-name"
+          disabled={!name.trim() || name.trim() === username}
+          onClick={() => saveUsername(name)}
+          className="action-btn disabled:opacity-40"
+        >
+          Save name
+        </Button>
       </div>
 
       <div className="flex flex-col gap-1.5">
