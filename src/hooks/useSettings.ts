@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { callGemini } from '../lib/gemini'
 import { enterDemo, exitDemo } from '../services/demo'
-import { clearDemoSnapshot, clearIntroSeen, exportBackup as downloadBackup, freshState, mergeBackup } from '../services/persistence'
+import { clearDemoSnapshot, clearIntroSeen, exportBackup as downloadBackup, freshState, mergeBackup, restoreStorageBackup } from '../services/persistence'
 import { useCore } from './core'
 import { useSlices } from './slices'
 
@@ -136,7 +136,8 @@ export function useSettingsController(): SettingsApi {
     async (file: File) => {
       try {
         const parsed = JSON.parse(await file.text()) as unknown
-        commit(mergeBackup(read(), parsed))
+        const restored = restoreStorageBackup(parsed)
+        commit(restored ?? mergeBackup(read(), parsed))
         feedback('earn')
         notify('Data restored from backup file')
         return true

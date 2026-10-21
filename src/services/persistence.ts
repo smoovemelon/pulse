@@ -299,30 +299,131 @@ export function clearIntroSeen() {
   localStorage.removeItem(KEYS.intro)
 }
 
-export function exportBackup(state: PulseState) {
-  const backup = {
-    app: 'Altius',
-    version: '1.3.0',
-    exported_at: new Date().toISOString(),
-    state: {
-      balance: state.balance,
-      anchor: state.disciplineAnchor,
-      soundEnabled: state.soundEnabled,
-      transactions: state.transactions,
-      vaultItems: state.vaultItems,
-      username: state.username,
-      isOnboarded: state.isOnboarded,
-    },
+const APP_STORAGE_KEYS = [...Object.values(KEYS), 'pulse_streak_closed'] as const
+
+const REQUIRED_BACKUP_KEYS = [
+  KEYS.balance,
+  KEYS.txs,
+  KEYS.vault,
+  KEYS.anchor,
+  KEYS.streakCount,
+  KEYS.streakState,
+  KEYS.username,
+  KEYS.onboarded,
+  KEYS.profile,
+] as const
+
+const STREAK_STATES = ['STALLED', 'SAFE', 'SECURED'] as const
+
+function isAppStorageKey(key: string): boolean {
+  return (APP_STORAGE_KEYS as readonly string[]).includes(key)
+}
+
+function collectAppStorage(): Record<string, string> {
+  const storage: Record<string, string> = {}
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index)
+    if (!key || !isAppStorageKey(key)) continue
+    const value = localStorage.getItem(key)
+    if (value !== null) storage[key] = value
   }
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+  return storage
+}
+
+export function serializeBackup(state: PulseState): string {
+  const storage: Record<string, string> = {
+    ...collectAppStorage(),
+    [KEYS.balance]: String(state.balance),
+    [KEYS.txs]: JSON.stringify(state.transactions),
+    [KEYS.vault]: JSON.stringify(state.vaultItems),
+    [KEYS.anchor]: state.disciplineAnchor,
+    [KEYS.sound]: String(state.soundEnabled),
+    [KEYS.audit]: state.lastAuditDate,
+    [KEYS.streakCount]: String(state.streakCount),
+    [KEYS.streakState]: state.streakState,
+    [KEYS.username]: state.username,
+    [KEYS.onboarded]: String(state.isOnboarded),
+    [KEYS.theme]: state.theme,
+    [KEYS.profile]: FRESH_PROFILE,
+  }
+  if (state.demoMode) storage[KEYS.demo] = 'true'
+  else delete storage[KEYS.demo]
+  if (state.apiKey) storage[KEYS.apiKey] = state.apiKey
+  else delete storage[KEYS.apiKey]
+
+  return JSON.stringify(
+    {
+      app: 'Altius',
+      version: '1.4.0',
+      exported_at: new Date().toISOString(),
+      storage,
+    },
+    null,
+    2,
+  )
+}
+
+export function exportBackup(state: PulseState) {
+  const blob = new Blob([serializeBackup(state)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `altius_backup_${utcDateKey()}.json`
+  link.download = 'altius-backup.json'
   document.body.appendChild(link)
   link.click()
   link.remove()
   URL.revokeObjectURL(url)
+}
+
+function assertStorageBackup(parsed: unknown): Record<string, string> {
+  if (!isRecord(parsed) || !isRecord(parsed.storage)) throw new Error('Invalid backup JSON file')
+  const storage: Record<string, string> = {}
+  for (const [key, value] of Object.entries(parsed.storage)) {
+    if (!isAppStorageKey(key) || typeof value !== 'string') throw new Error('Invalid backup JSON file')
+    storage[key] = value
+  }
+  for (const key of REQUIRED_BACKUP_KEYS) {
+    if (typeof storage[key] !== 'string') throw new Error('Invalid backup JSON file')
+  }
+  const profile = storage[KEYS.profile] ?? ''
+  const balance = storage[KEYS.balance] ?? ''
+  const anchor = storage[KEYS.anchor] ?? ''
+  const streakState = storage[KEYS.streakState] ?? ''
+  const onboarded = storage[KEYS.onboarded] ?? ''
+  const streakCount = storage[KEYS.streakCount] ?? ''
+  if (profile !== FRESH_PROFILE) throw new Error('Invalid backup JSON file')
+  if (!Number.isFinite(Number(balance))) throw new Error('Invalid backup JSON file')
+  if (!anchor.trim()) throw new Error('Invalid backup JSON file')
+  if (!(STREAK_STATES as readonly string[]).includes(streakState)) throw new Error('Invalid backup JSON file')
+  if (onboarded !== 'true' && onboarded !== 'false') throw new Error('Invalid backup JSON file')
+  if (!Number.isFinite(Number(streakCount))) throw new Error('Invalid backup JSON file')
+
+  let transactions: unknown
+  let vaultItems: unknown
+  try {
+    transactions = JSON.parse(storage[KEYS.txs] ?? '')
+    vaultItems = JSON.parse(storage[KEYS.vault] ?? '')
+  } catch {
+    throw new Error('Invalid backup JSON file')
+  }
+  if (!parseTransactions(transactions) || !parseVaultItems(vaultItems)) throw new Error('Invalid backup JSON file')
+  return storage
+}
+
+export function restoreStorageBackup(parsed: unknown): PulseState | null {
+  if (!isRecord(parsed) || !('storage' in parsed)) return null
+  const storage = assertStorageBackup(parsed)
+  const previous = collectAppStorage()
+  try {
+    for (const key of APP_STORAGE_KEYS) localStorage.removeItem(key)
+    for (const [key, value] of Object.entries(storage)) localStorage.setItem(key, value)
+    localStorage.setItem(KEYS.profile, FRESH_PROFILE)
+    return loadState()
+  } catch (error) {
+    for (const key of APP_STORAGE_KEYS) localStorage.removeItem(key)
+    for (const [key, value] of Object.entries(previous)) localStorage.setItem(key, value)
+    throw error
+  }
 }
 
 export function mergeBackup(current: PulseState, parsed: unknown): PulseState {

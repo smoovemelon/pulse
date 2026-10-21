@@ -100,7 +100,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       </div>
 
       <div className="depth-well rounded-2xl p-4 flex flex-col gap-2.5">
-        <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted block">Backup</span>
+        <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted block">Data & Backups</span>
         <div className="grid grid-cols-2 gap-2">
           <Button
             tone="card"
@@ -117,7 +117,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
             <input
               data-testid="import-backup"
               type="file"
-              accept=".json,application/json"
+              accept=".json"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0]
