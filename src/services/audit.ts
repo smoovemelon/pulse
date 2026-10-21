@@ -1,6 +1,6 @@
 import { DECAY_PENALTY, utcDateKey } from '../lib/dates'
 import type { DecayAlert, PulseState, SpendTransaction } from '../types'
-import { auditDecay } from './engine'
+import { advanceStreak, auditDecay } from './engine'
 
 export interface AuditResult {
   readonly state: PulseState
@@ -25,20 +25,29 @@ export function runDecayAudit(state: PulseState, force = false): AuditResult {
 
   localStorage.setItem('pulse_last_audit', assessment.today)
 
-  if (assessment.missed) {
+  const checkDate = force ? assessment.today : last
+  const alreadyClosed = localStorage.getItem('pulse_streak_closed') === checkDate
+  const nextStreak = alreadyClosed
+    ? { streakCount: state.streakCount, streakState: state.streakState }
+    : advanceStreak(state.streakCount, assessment.earned, state.dailyGoal)
+  if (!alreadyClosed) localStorage.setItem('pulse_streak_closed', checkDate)
+
+  const charge = !alreadyClosed && assessment.penalty > 0
+  if (charge) {
     const penalty: SpendTransaction = {
       id: `tx-decay-${Date.now()}`,
       type: 'SPEND',
       title: 'Discipline Decay: Target Missed',
       points: assessment.penalty || DECAY_PENALTY,
       category: 'Decay Audit',
-      reasoning: `Momentum fell short of ${state.dailyGoal} PTS target. Accountability fee assessed.`,
+      reasoning: `The day closed under 60 PTS. Streak reset and accountability fee assessed.`,
       timestamp: 'Today, Midnight Audit',
       date: assessment.today,
     }
     return {
       state: {
         ...state,
+        ...nextStreak,
         balance: Math.max(0, state.balance - (assessment.penalty || DECAY_PENALTY)),
         lastAuditDate: assessment.today,
         transactions: [penalty, ...state.transactions],
@@ -51,10 +60,10 @@ export function runDecayAudit(state: PulseState, force = false): AuditResult {
   }
 
   return {
-    state: { ...state, lastAuditDate: assessment.today },
+    state: { ...state, ...nextStreak, lastAuditDate: assessment.today },
     changed: true,
     alert: null,
-    met: true,
+    met: assessment.met,
     earned: assessment.earned,
   }
 }

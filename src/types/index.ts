@@ -9,6 +9,7 @@ export type {
   LifetimeStats,
   PulseState,
   SpendCategory,
+  StreakState,
   SpendDraft,
   SpendTransaction,
   ThemeName,
@@ -19,5 +20,6 @@ export type {
   VaultItem,
   VaultQuote,
   VaultValidation,
+  WeekDay,
   WeightClass,
 } from './pulse'

@@ -1,6 +1,7 @@
-import { DECAY_PENALTY, utcDateKey } from '../../lib/dates'
-import type { Transaction } from '../../types'
+import { DECAY_PENALTY, GRACE_FLOOR, utcDateKey } from '../../lib/dates'
+import type { StreakState, Transaction } from '../../types'
 import { earnedOn } from './momentum'
+import { streakTier } from './streak'
 
 export interface DecayAssessment {
   readonly today: string
@@ -9,6 +10,7 @@ export interface DecayAssessment {
   readonly penalty: number
   readonly shouldApply: boolean
   readonly met: boolean
+  readonly tier: StreakState
 }
 
 export function auditDecay(
@@ -20,21 +22,23 @@ export function auditDecay(
   const today = options?.today ?? utcDateKey()
   const force = options?.force ?? false
   const enabled = options?.enabled ?? true
-  const shouldApply = (enabled || force) && (lastAuditDate < today || force)
+  const shouldApply = lastAuditDate < today || force
 
   if (!shouldApply) {
-    return { today, earned: 0, missed: false, penalty: 0, shouldApply: false, met: false }
+    return { today, earned: 0, missed: false, penalty: 0, shouldApply: false, met: false, tier: 'STALLED' }
   }
 
   const checkDate = force ? today : lastAuditDate
   const earned = earnedOn(transactions, checkDate)
-  const missed = earned < dailyGoal
+  const tier = streakTier(earned, dailyGoal)
+  const missed = earned < GRACE_FLOOR
   return {
     today,
     earned,
     missed,
-    penalty: missed ? DECAY_PENALTY : 0,
+    penalty: missed && (enabled || force) ? DECAY_PENALTY : 0,
     shouldApply: true,
-    met: !missed,
+    met: tier === 'SECURED',
+    tier,
   }
 }

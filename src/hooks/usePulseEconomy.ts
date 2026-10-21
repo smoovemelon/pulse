@@ -1,8 +1,8 @@
 import { useCallback, useEffect } from 'react'
 import { utcDateKey } from '../lib/dates'
 import { runDecayAudit } from '../services/audit'
-import { currentStreak, earnedOn, lifetimeStats } from '../services/engine'
-import type { DecayAlert } from '../types'
+import { earnedOn, lifetimeStats, streakMultiplier, streakStatusMessage, streakTier, weekStrip } from '../services/engine'
+import type { DecayAlert, StreakState, WeekDay } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
 
@@ -12,6 +12,10 @@ export interface EconomyApi {
   readonly todayEarned: number
   readonly momentumPct: number
   readonly streak: number
+  readonly streakMultiplier: number
+  readonly streakState: StreakState
+  readonly streakStatus: string
+  readonly week: readonly WeekDay[]
   readonly lifetimeEarned: number
   readonly lifetimeSpent: number
   readonly decayEnabled: boolean
@@ -31,7 +35,7 @@ export function useEconomyController(): EconomyApi {
       if (result.alert) {
         setDecayAlert(result.alert)
         feedback('spend')
-        notify('Discipline Decay Applied: -15 PTS (Short of Daily Goal)')
+        notify('Discipline Decay Applied: -15 PTS (Day closed under 60)')
       } else if (force && result.met) {
         notify(`Daily goal achieved (${result.earned}/${result.state.dailyGoal} PTS). No decay assessed!`)
       }
@@ -50,15 +54,21 @@ export function useEconomyController(): EconomyApi {
     notify(next.decayEnabled ? 'Discipline decay enabled' : 'Discipline decay disabled')
   }, [commit, feedback, notify, read])
 
-  const todayEarned = earnedOn(state.transactions, utcDateKey())
+  const today = utcDateKey()
+  const todayEarned = earnedOn(state.transactions, today)
   const totals = lifetimeStats(state.transactions)
+  const multiplier = streakMultiplier(state.streakCount)
 
   return {
     balance: state.balance,
     dailyGoal: state.dailyGoal,
     todayEarned,
     momentumPct: Math.min(100, Math.round((todayEarned / state.dailyGoal) * 100)),
-    streak: currentStreak(state.transactions, utcDateKey(), state.dailyGoal),
+    streak: state.streakCount,
+    streakMultiplier: multiplier,
+    streakState: streakTier(todayEarned, state.dailyGoal),
+    streakStatus: streakStatusMessage(todayEarned, multiplier, state.dailyGoal),
+    week: weekStrip(state.transactions, today, state.dailyGoal),
     lifetimeEarned: totals.earned,
     lifetimeSpent: totals.spent,
     decayEnabled: state.decayEnabled,

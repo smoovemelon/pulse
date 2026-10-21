@@ -39,7 +39,16 @@ Vault:
 - Items: price only. Duration locked at `0` hrs. `USD × 20` PTS. Price must be `> $0`.
 - Dining and Events: duration is required (`> 0` hrs). Price is optional. `(USD × 20) + (hours × 35)` when price `> 0`; `hours × 50` when price is `$0`. Timed quotes floor at 25 PTS.
 
-Anti-inflation: daily momentum target is 120 PTS earned. If that target is missed past midnight, assess −15 PTS once for that missed day.
+Anti-inflation: daily momentum target is 120 PTS earned. A day that closes at 60–119 PTS holds the streak and charges nothing. A day that closes under 60 PTS resets the streak and assesses −15 PTS once.
+
+Streak bonus, applied to action points when they are added to the balance:
+
+- 0–2 days → 1.0×
+- 3–6 days → 1.1×
+- 7–13 days → 1.2×
+- 14+ days → 1.3× cap
+
+A closed day at or above 120 PTS adds one to the streak. The anchor weight class is unchanged and is applied before this bonus.
 
 ## UI
 

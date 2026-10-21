@@ -4,6 +4,7 @@ import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
 import { DEMO_ACTION, DEMO_ANCHOR, DEMO_BOUNTY, DEMO_SPEND, enterDemo, exitDemo } from '../demo'
 import { balanceAfterRemoval, calculateActionPoints, currentStreak, earnedOn, lifetimeStats, validateVaultDraft } from '../economy'
+import { applyStreakBonus, streakMultiplier, weekStrip } from '../engine'
 import { shouldIntroduce } from '../intro'
 import { clearIntroSeen, freshState, hasSeenIntro, markIntroSeen, readDemoSnapshot } from '../persistence'
 
@@ -35,6 +36,8 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     dailyGoal: 120,
     theme: 'light',
     demoMode: false,
+    streakCount: 0,
+    streakState: 'STALLED',
     transactions: [],
     vaultItems: [],
     ...partial,
@@ -92,27 +95,79 @@ describe('midnight decay', () => {
     vi.unstubAllGlobals()
   })
 
-  it('charges 15 PTS when the missed day earned under 120', () => {
+  it('holds the streak without a fee when the missed day lands in the grace band', () => {
     const result = runDecayAudit(
       ledger({
         balance: 200,
+        streakCount: 4,
         transactions: [earn('2026-10-20', 119)],
       }),
     )
 
     expect(result.met).toBe(false)
-    expect(result.alert).toEqual({ earned: 119 })
+    expect(result.alert).toBeNull()
     expect(result.earned).toBe(119)
-    expect(result.state.balance).toBe(185)
+    expect(result.state.balance).toBe(200)
+    expect(result.state.streakCount).toBe(4)
+    expect(result.state.streakState).toBe('SAFE')
     expect(result.state.lastAuditDate).toBe('2026-10-21')
+    expect(result.state.transactions.every((tx) => tx.category !== 'Decay Audit')).toBe(true)
+    expect(localStorage.getItem('pulse_last_audit')).toBe('2026-10-21')
+  })
+
+  it('resets the streak and charges 15 PTS when the day closes under 60', () => {
+    const result = runDecayAudit(
+      ledger({
+        balance: 200,
+        streakCount: 4,
+        streakState: 'SECURED',
+        transactions: [earn('2026-10-20', 59)],
+      }),
+    )
+
+    expect(result.met).toBe(false)
+    expect(result.alert).toEqual({ earned: 59 })
+    expect(result.state.balance).toBe(185)
+    expect(result.state.streakCount).toBe(0)
+    expect(result.state.streakState).toBe('STALLED')
     expect(result.state.transactions[0]).toMatchObject({
       type: 'SPEND',
       title: 'Discipline Decay: Target Missed',
       points: 15,
       category: 'Decay Audit',
-      date: '2026-10-21',
     })
-    expect(localStorage.getItem('pulse_last_audit')).toBe('2026-10-21')
+  })
+
+  it('adds a secured day and leaves the balance when the day clears 120', () => {
+    const result = runDecayAudit(
+      ledger({
+        balance: 200,
+        streakCount: 2,
+        transactions: [earn('2026-10-20', 120)],
+      }),
+    )
+
+    expect(result.met).toBe(true)
+    expect(result.alert).toBeNull()
+    expect(result.state.balance).toBe(200)
+    expect(result.state.streakCount).toBe(3)
+    expect(result.state.streakState).toBe('SECURED')
+  })
+
+  it('does not apply the same closed day twice', () => {
+    const first = runDecayAudit(
+      ledger({
+        streakCount: 1,
+        transactions: [earn('2026-10-21', 130)],
+      }),
+      true,
+    )
+    const second = runDecayAudit(first.state, true)
+
+    expect(first.state.streakCount).toBe(2)
+    expect(second.state.streakCount).toBe(2)
+    expect(second.state.balance).toBe(first.state.balance)
+    expect(second.alert).toBeNull()
   })
 
   it('leaves the balance unchanged when momentum reaches 120', () => {
@@ -203,6 +258,33 @@ describe('vault category validation', () => {
     expect(validateVaultDraft('Items', 80, 0)).toEqual({ ok: true })
     expect(validateVaultDraft('Dining', 0, 2)).toEqual({ ok: true })
     expect(validateVaultDraft('Events', 15, 3)).toEqual({ ok: true })
+  })
+})
+
+describe('streak multiplier', () => {
+  it('steps from 1.0x through 1.3x and rounds the bonus onto the points', () => {
+    expect(streakMultiplier(0)).toBe(1)
+    expect(streakMultiplier(2)).toBe(1)
+    expect(streakMultiplier(3)).toBe(1.1)
+    expect(streakMultiplier(6)).toBe(1.1)
+    expect(streakMultiplier(7)).toBe(1.2)
+    expect(streakMultiplier(13)).toBe(1.2)
+    expect(streakMultiplier(14)).toBe(1.3)
+    expect(streakMultiplier(40)).toBe(1.3)
+    expect(applyStreakBonus(100, 2)).toBe(100)
+    expect(applyStreakBonus(100, 3)).toBe(110)
+    expect(applyStreakBonus(84, 7)).toBe(101)
+    expect(applyStreakBonus(100, 14)).toBe(130)
+  })
+
+  it('marks the Monday-start week from secured, grace, today, and later days', () => {
+    const days = weekStrip(
+      [earn('2026-10-19', 120), earn('2026-10-20', 80), earn('2026-10-21', 30)],
+      '2026-10-21',
+    )
+    expect(days.map((day) => day.label)).toEqual(['M', 'T', 'W', 'T', 'F', 'S', 'S'])
+    expect(days.map((day) => day.mark)).toEqual(['secured', 'grace', 'today', 'upcoming', 'upcoming', 'upcoming', 'upcoming'])
+    expect(days[2]?.earned).toBe(30)
   })
 })
 

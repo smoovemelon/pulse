@@ -107,7 +107,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <span className="text-xs font-extrabold tracking-tight text-ink block">Discipline Decay</span>
-            <span className="text-[10px] text-muted">-15 PTS tax if daily target isn't met</span>
+            <span className="text-[10px] text-muted">-15 PTS if a day closes under 60 PTS</span>
           </div>
           <Button
             tone="card"
@@ -279,8 +279,10 @@ function EconomyRules() {
       <section className="flex flex-col gap-1.5">
         <RuleTitle>3. Point Sink / Anti-Inflation</RuleTitle>
         <Stat label="Daily target" value="120 PTS" tone="earn" />
+        <Stat label="Grace floor" value="60 PTS" tone="earn" />
         <Stat label="Decay fee" value="−15 PTS" tone="spend" />
-        <p>If earned momentum is below target at the date rollover, the decay fee applies once.</p>
+        <p>60–119 PTS at midnight holds the streak. Under 60 PTS resets it and charges the decay fee once. 120 PTS adds a day.</p>
+        <p>The streak bonus multiplies action points as they hit the balance: 1.0× through 2 days, 1.1× at 3, 1.2× at 7, and 1.3× from 14 on.</p>
       </section>
     </div>
   )

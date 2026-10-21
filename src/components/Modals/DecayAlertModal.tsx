@@ -31,7 +31,7 @@ export function DecayAlertModal() {
           </div>
         </div>
         <p className="text-[11px] text-muted leading-relaxed">
-          Daily target was not met before midnight. Points have decayed to protect the economy against inflation.
+          The day closed under 60 PTS. The streak reset, and 15 points were removed.
         </p>
         <Button
           tone="dark"

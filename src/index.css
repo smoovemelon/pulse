@@ -318,9 +318,24 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
   }
 }
 
+@keyframes streakPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(249 115 22 / 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgb(249 115 22 / 0);
+  }
+}
+
+.streak-today-ring {
+  animation: streakPulse 1.6s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .intro-step,
-  .intro-arc {
+  .intro-arc,
+  .streak-today-ring {
     animation: none;
   }
 

@@ -5,6 +5,8 @@ export type VaultFilter = 'ALL' | VaultCategory
 export type SpendCategory = VaultCategory | 'Decay Audit'
 export type WeightClass = 'Heavyweight (2.0x)' | 'Cruiserweight (1.5x)' | 'Middleweight (1.0x)'
 export type ThemeName = 'light' | 'dark'
+export type StreakState = 'STALLED' | 'SAFE' | 'SECURED'
+export type WeekMark = 'secured' | 'grace' | 'missed' | 'quiet' | 'today' | 'upcoming'
 export type FeedbackKind = 'click' | 'earn' | 'spend' | 'error'
 
 interface TransactionBase {
@@ -57,8 +59,17 @@ export interface PulseState {
   readonly dailyGoal: number
   readonly theme: ThemeName
   readonly demoMode: boolean
+  readonly streakCount: number
+  readonly streakState: StreakState
   readonly transactions: readonly Transaction[]
   readonly vaultItems: readonly VaultItem[]
+}
+
+export interface WeekDay {
+  readonly date: string
+  readonly label: string
+  readonly mark: WeekMark
+  readonly earned: number
 }
 
 export interface ActionScore {

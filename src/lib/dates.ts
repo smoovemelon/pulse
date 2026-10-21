@@ -3,6 +3,7 @@ export function utcDateKey(date = new Date()): string {
 }
 
 export const DAILY_GOAL = 120
+export const GRACE_FLOOR = 60
 export const DECAY_PENALTY = 15
 export const DEFAULT_ANCHOR = 'Your main goal'
 

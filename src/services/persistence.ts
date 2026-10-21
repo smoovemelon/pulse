@@ -1,4 +1,5 @@
 import { DAILY_GOAL, DEFAULT_ANCHOR, utcDateKey } from '../lib/dates'
+import { resolveStreak } from './engine'
 import type {
   PulseState,
   SpendCategory,
@@ -23,6 +24,8 @@ const KEYS = {
   demo: 'pulse_demo',
   demoSnapshot: 'pulse_demo_snapshot',
   intro: 'pulse_intro',
+  streakCount: 'pulse_streak_count',
+  streakState: 'pulse_streak_state',
 } as const
 
 const FRESH_PROFILE = 'fresh-1'
@@ -147,6 +150,8 @@ export function freshState(): PulseState {
     dailyGoal: DAILY_GOAL,
     theme: 'light',
     demoMode: false,
+    streakCount: 0,
+    streakState: 'STALLED',
     transactions: [],
     vaultItems: [],
   }
@@ -192,6 +197,13 @@ export function loadState(): PulseState {
   const balance = balanceRaw === null || Number.isNaN(Number(balanceRaw)) ? 0 : Number(balanceRaw)
   const storedTx = localStorage.getItem(KEYS.txs)
   const storedVault = localStorage.getItem(KEYS.vault)
+  const transactions = storedTx === null ? [] : (parseTransactions(readUnknown(KEYS.txs)) ?? [])
+  const storedCount = localStorage.getItem(KEYS.streakCount)
+  const streak = resolveStreak(
+    storedCount === null ? undefined : Number(storedCount),
+    localStorage.getItem(KEYS.streakState),
+    transactions,
+  )
 
   return {
     balance,
@@ -203,7 +215,9 @@ export function loadState(): PulseState {
     dailyGoal: DAILY_GOAL,
     theme: readStoredTheme(),
     demoMode: localStorage.getItem(KEYS.demo) === 'true',
-    transactions: storedTx === null ? [] : (parseTransactions(readUnknown(KEYS.txs)) ?? []),
+    streakCount: streak.streakCount,
+    streakState: streak.streakState,
+    transactions,
     vaultItems: storedVault === null ? [] : (parseVaultItems(readUnknown(KEYS.vault)) ?? []),
   }
 }
@@ -216,6 +230,8 @@ export function saveState(state: PulseState) {
   localStorage.setItem(KEYS.sound, String(state.soundEnabled))
   localStorage.setItem(KEYS.decay, String(state.decayEnabled))
   localStorage.setItem(KEYS.audit, state.lastAuditDate)
+  localStorage.setItem(KEYS.streakCount, String(state.streakCount))
+  localStorage.setItem(KEYS.streakState, state.streakState)
   localStorage.setItem(KEYS.theme, state.theme)
   if (state.demoMode) localStorage.setItem(KEYS.demo, 'true')
   else localStorage.removeItem(KEYS.demo)
@@ -237,6 +253,7 @@ export function readDemoSnapshot(): PulseState | null {
     const vaultItems = parseVaultItems(parsed.vaultItems)
     const balance = finiteNumber(parsed.balance)
     if (!transactions || !vaultItems || balance === undefined) return null
+    const streak = resolveStreak(finiteNumber(parsed.streakCount), parsed.streakState, transactions)
     return {
       balance,
       soundEnabled: parsed.soundEnabled !== false,
@@ -250,6 +267,8 @@ export function readDemoSnapshot(): PulseState | null {
       dailyGoal: DAILY_GOAL,
       theme: parsed.theme === 'dark' ? 'dark' : 'light',
       demoMode: false,
+      streakCount: streak.streakCount,
+      streakState: streak.streakState,
       transactions,
       vaultItems,
     }

@@ -25,7 +25,7 @@ const STEPS: readonly { readonly kicker: string; readonly title: string; readonl
   {
     kicker: 'Daily line',
     title: 'Fill the ring',
-    body: 'The ring tracks points earned today toward 120. Meet that and the streak holds. Miss it past midnight and the ledger charges 15 points once.',
+    body: 'The ring tracks points earned today toward 120. Reach 60 to hold the streak, and 120 to add a day. Close under 60 and the ledger charges 15 points and the streak resets.',
     mark: <GoalMark />,
   },
   {

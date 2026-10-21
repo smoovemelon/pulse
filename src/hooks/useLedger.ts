@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { celebrate } from '../lib/confetti'
 import { utcDateKey } from '../lib/dates'
-import { balanceAfterRemoval, calculateVaultValuation, validateVaultDraft } from '../services/engine'
+import { applyStreakBonus, balanceAfterRemoval, calculateVaultValuation, streakMultiplier, validateVaultDraft } from '../services/engine'
 import type { EarnDraft, FeedFilter, SpendDraft, Transaction } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -38,12 +38,17 @@ export function useLedgerController(): LedgerApi {
   const appendEarn = useCallback(
     (tx: EarnDraft) => {
       const current = read()
+      const bonus = streakMultiplier(current.streakCount)
+      const points = applyStreakBonus(tx.points, current.streakCount)
+      const breakdown = tx.formula_breakdown && bonus !== 1 ? `${tx.formula_breakdown} × ${bonus}x streak` : tx.formula_breakdown
       commit({
         ...current,
-        balance: current.balance + tx.points,
+        balance: current.balance + points,
         transactions: [
           {
             ...tx,
+            points,
+            formula_breakdown: breakdown,
             id: `tx-${Date.now()}`,
             type: 'EARN',
             timestamp: 'Today, Just now',
@@ -54,7 +59,7 @@ export function useLedgerController(): LedgerApi {
       })
       feedback('earn')
       celebrate()
-      notify(`+${tx.points} PTS: "${tx.title}"`)
+      notify(`+${points} PTS: "${tx.title}"`)
     },
     [commit, feedback, notify, read],
   )
