@@ -11,6 +11,7 @@ import { Button } from '../Common/Button'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { weightClassStyles } from '../Feed/weightStyles'
 import { ClockIcon, MinusIcon, PlusIcon, SparkleIcon } from '../Icons'
+import { SpendPanel } from './SpendPanel'
 
 const CHIPS = [15, 30, 45, 60, 90]
 
@@ -30,6 +31,7 @@ export function ActionModal({
   const [duration, setDuration] = useState(60)
   const [pending, setPending] = useState(false)
   const [verdict, setVerdict] = useState<ActionScore | null>(null)
+  const [mode, setMode] = useState<'earn' | 'spend'>('earn')
 
   const setMinutes = (next: number) => {
     feedback('click')
@@ -96,12 +98,44 @@ export function ActionModal({
     <ModalSheet labelledBy="action-heading">
       <div className="flex justify-between items-center">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">Discipline Assessment</span>
-          <h3 id="action-heading" className="text-base heading-athletic text-ink">Log & Judge Action</h3>
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">
+            {mode === 'earn' ? 'Discipline Assessment' : 'Immediate Spend'}
+          </span>
+          <h3 id="action-heading" className="text-base heading-athletic text-ink">
+            {mode === 'earn' ? 'Log & Judge Action' : 'Spend Points'}
+          </h3>
         </div>
         <CloseButton onClick={onClose} />
       </div>
 
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          tone={mode === 'earn' ? 'pillActive' : 'pill'}
+          onClick={() => {
+            feedback('click')
+            setMode('earn')
+          }}
+          className="py-2 rounded-xl text-[11px] font-extrabold"
+        >
+          Earn
+        </Button>
+        <Button
+          tone={mode === 'spend' ? 'pillActive' : 'pill'}
+          data-testid="mode-spend"
+          onClick={() => {
+            feedback('click')
+            setMode('spend')
+          }}
+          className="py-2 rounded-xl text-[11px] font-extrabold"
+        >
+          Spend
+        </Button>
+      </div>
+
+      {mode === 'spend' ? (
+        <SpendPanel onSpent={onClose} />
+      ) : (
+        <>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="input-action-text" className="text-[10px] font-extrabold uppercase tracking-widest text-muted">
           What did you accomplish?
@@ -205,6 +239,8 @@ export function ActionModal({
         <SparkleIcon className="w-4 h-4" />
         <span>{pending ? 'Evaluating Action...' : named ? 'Submit for Judgment' : 'Set anchor'}</span>
       </Button>
+        </>
+      )}
     </ModalSheet>
   )
 }

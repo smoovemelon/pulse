@@ -99,6 +99,13 @@ export interface EarnDraft {
   readonly reasoning?: string
 }
 
+export interface SpendDraft {
+  readonly title: string
+  readonly category: VaultCategory
+  readonly usd: number
+  readonly hrs: number
+}
+
 export interface DecayAlert {
   readonly earned: number
 }

@@ -9,6 +9,7 @@ export type {
   LifetimeStats,
   PulseState,
   SpendCategory,
+  SpendDraft,
   SpendTransaction,
   ThemeName,
   Transaction,

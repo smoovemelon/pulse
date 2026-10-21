@@ -156,7 +156,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
                 <br />
                 <strong>Items:</strong> price only, duration locked at 0. USD × 20 PTS. Price must be above $0.
                 <br />
-                <strong>Dining & Events:</strong> duration is required. (USD × 20) + (hours × 35), or hours × 50 when price is $0. A timed bounty floors at 25 PTS.
+                <strong>Dining & Events:</strong> duration is required. (USD × 20) + (hours × 35), or hours × 50 when price is $0. A timed bounty floors at 25 PTS. Spend now uses these same prices and removes the points immediately.
               </p>
             </div>
             <div>
