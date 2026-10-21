@@ -28,7 +28,8 @@
   --line: #e4e4e7;
   --field: #fafafa;
   --dock: rgb(255 255 255 / 0.92);
-  --safe-area-max-inset-bottom: env(safe-area-max-inset-bottom, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --dock-bottom-gap: max(1rem, calc(var(--safe-area-inset-bottom) - 0.5rem));
   color-scheme: only light;
 }
 
@@ -90,6 +91,10 @@ html[data-theme='dark'] body::before {
   background-color: #09090b;
 }
 
+.dock-clearance {
+  padding-bottom: calc(6.5rem + var(--dock-bottom-gap));
+}
+
 .dock-bar {
   position: fixed;
   z-index: 40;
@@ -98,21 +103,8 @@ html[data-theme='dark'] body::before {
   display: flex;
   justify-content: center;
   pointer-events: none;
-  padding: 0.5rem 1rem calc(1rem + var(--safe-area-max-inset-bottom));
-  bottom: calc(env(safe-area-inset-bottom, 0px) - var(--safe-area-max-inset-bottom));
-  background-image: linear-gradient(
-    to top,
-    #f4f4f5 var(--safe-area-max-inset-bottom),
-    transparent var(--safe-area-max-inset-bottom)
-  );
-}
-
-html[data-theme='dark'] .dock-bar {
-  background-image: linear-gradient(
-    to top,
-    #09090b var(--safe-area-max-inset-bottom),
-    transparent var(--safe-area-max-inset-bottom)
-  );
+  padding: 0.5rem 1rem var(--dock-bottom-gap);
+  bottom: 0;
 }
 
 input,
