@@ -52,7 +52,6 @@ export interface VaultItem {
 export interface PulseState {
   readonly balance: number
   readonly soundEnabled: boolean
-  readonly decayEnabled: boolean
   readonly lastAuditDate: string
   readonly apiKey: string
   readonly disciplineAnchor: string

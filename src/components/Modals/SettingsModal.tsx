@@ -15,13 +15,8 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
   const [freshArmed, setFreshArmed] = useState(false)
 
   useEffect(() => {
-    setKey(apiKey)
     void checkKey(apiKey)
   }, [apiKey, checkKey])
-
-  useEffect(() => {
-    setName(username)
-  }, [username])
 
   return (
     <ModalSheet labelledBy="settings-heading" className="max-h-[88vh]">
@@ -92,7 +87,14 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           <CheckIcon className="w-3.5 h-3.5 text-emerald-600" />
           Test Key Ping
         </Button>
-        <Button tone="dark" onClick={() => saveApiKey(key)} className="action-btn">
+        <Button
+          tone="dark"
+          onClick={() => {
+            saveApiKey(key)
+            setKey(key.trim())
+          }}
+          className="action-btn"
+        >
           Save Key
         </Button>
       </div>

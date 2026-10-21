@@ -30,7 +30,6 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
   return {
     balance: 200,
     soundEnabled: true,
-    decayEnabled: true,
     lastAuditDate: '2026-10-20',
     apiKey: '',
     disciplineAnchor: DEFAULT_ANCHOR,

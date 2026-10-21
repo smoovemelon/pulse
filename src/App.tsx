@@ -31,7 +31,7 @@ function Shell() {
   const [modal, setModal] = useState<OpenModal>(null)
   const [resumeAction, setResumeAction] = useState(false)
   const [editing, setEditing] = useState<VaultItem | null>(null)
-  const [introOpen, setIntroOpen] = useState(false)
+  const [introOpen, setIntroOpen] = useState(() => shouldIntroduce(state) && state.isOnboarded && state.username.trim() !== '')
 
   const closeModal = () => {
     setResumeAction(false)
@@ -40,10 +40,6 @@ function Shell() {
 
   const sheetOpen = modal !== null || decayAlert !== null || introOpen || identityOpen
 
-  useEffect(() => {
-    if (identityOpen) return
-    if (shouldIntroduce(state)) setIntroOpen(true)
-  }, [identityOpen, state])
   useEffect(() => {
     document.body.style.overflow = sheetOpen ? 'hidden' : ''
     return () => {
@@ -130,6 +126,7 @@ function Shell() {
           onConfirm={(username) => {
             saveUsername(username, { quiet: true })
             navigator.vibrate?.(20)
+            if (shouldIntroduce(state)) setIntroOpen(true)
           }}
         />
       )}

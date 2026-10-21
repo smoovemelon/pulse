@@ -16,7 +16,6 @@ const KEYS = {
   vault: 'pulse_vault',
   anchor: 'pulse_anchor',
   sound: 'pulse_sound',
-  decay: 'pulse_decay',
   audit: 'pulse_last_audit',
   apiKey: 'pulse_gemini_key',
   theme: 'pulse_theme',
@@ -145,7 +144,6 @@ export function freshState(): PulseState {
   return {
     balance: 0,
     soundEnabled: true,
-    decayEnabled: true,
     lastAuditDate: utcDateKey(),
     apiKey: '',
     disciplineAnchor: DEFAULT_ANCHOR,
@@ -212,7 +210,6 @@ export function loadState(): PulseState {
   return {
     balance,
     soundEnabled: localStorage.getItem(KEYS.sound) !== 'false',
-    decayEnabled: true,
     lastAuditDate: localStorage.getItem(KEYS.audit) || utcDateKey(),
     apiKey: localStorage.getItem(KEYS.apiKey) || '',
     disciplineAnchor: readAnchor(),
@@ -234,7 +231,7 @@ export function saveState(state: PulseState) {
   localStorage.setItem(KEYS.vault, JSON.stringify(state.vaultItems))
   localStorage.setItem(KEYS.anchor, state.disciplineAnchor)
   localStorage.setItem(KEYS.sound, String(state.soundEnabled))
-  localStorage.setItem(KEYS.decay, String(state.decayEnabled))
+  localStorage.removeItem('pulse_decay')
   localStorage.setItem(KEYS.audit, state.lastAuditDate)
   localStorage.setItem(KEYS.streakCount, String(state.streakCount))
   localStorage.setItem(KEYS.streakState, state.streakState)
@@ -265,7 +262,6 @@ export function readDemoSnapshot(): PulseState | null {
     return {
       balance,
       soundEnabled: parsed.soundEnabled !== false,
-      decayEnabled: true,
       lastAuditDate: typeof parsed.lastAuditDate === 'string' ? parsed.lastAuditDate : utcDateKey(),
       apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey : '',
       disciplineAnchor:
@@ -312,7 +308,6 @@ export function exportBackup(state: PulseState) {
       balance: state.balance,
       anchor: state.disciplineAnchor,
       soundEnabled: state.soundEnabled,
-      decayEnabled: state.decayEnabled,
       transactions: state.transactions,
       vaultItems: state.vaultItems,
       username: state.username,
@@ -347,7 +342,6 @@ export function mergeBackup(current: PulseState, parsed: unknown): PulseState {
       typeof source.anchor === 'string' && source.anchor.trim() ? source.anchor.trim() : current.disciplineAnchor,
     transactions: transactions ?? current.transactions,
     vaultItems: vaultItems ?? current.vaultItems,
-    decayEnabled: true,
     soundEnabled: typeof source.soundEnabled === 'boolean' ? source.soundEnabled : current.soundEnabled,
     username: typeof source.username === 'string' ? source.username : current.username,
     isOnboarded: typeof source.isOnboarded === 'boolean' ? source.isOnboarded : current.isOnboarded,

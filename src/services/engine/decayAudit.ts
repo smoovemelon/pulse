@@ -17,11 +17,10 @@ export function auditDecay(
   lastAuditDate: string,
   transactions: readonly Transaction[],
   dailyGoal: number,
-  options?: { readonly today?: string; readonly force?: boolean; readonly enabled?: boolean },
+  options?: { readonly today?: string; readonly force?: boolean },
 ): DecayAssessment {
   const today = options?.today ?? utcDateKey()
   const force = options?.force ?? false
-  const enabled = options?.enabled ?? true
   const shouldApply = lastAuditDate < today || force
 
   if (!shouldApply) {
@@ -36,7 +35,7 @@ export function auditDecay(
     today,
     earned,
     missed,
-    penalty: missed && (enabled || force) ? DECAY_PENALTY : 0,
+    penalty: missed ? DECAY_PENALTY : 0,
     shouldApply: true,
     met: tier === 'SECURED',
     tier,

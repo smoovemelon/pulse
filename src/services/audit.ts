@@ -16,7 +16,6 @@ export function runDecayAudit(state: PulseState, force = false): AuditResult {
   const assessment = auditDecay(last, state.transactions, state.dailyGoal, {
     today,
     force,
-    enabled: state.decayEnabled,
   })
 
   if (!assessment.shouldApply) {
