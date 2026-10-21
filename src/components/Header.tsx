@@ -17,7 +17,7 @@ export function Header({ onOpenSettings, onOpenIntro }: { onOpenSettings: () => 
   return (
     <header className="flex items-center justify-between gap-3">
       <div className="min-w-0">
-        <h1 data-testid="greeting" className="text-[1.35rem] font-semibold leading-none tracking-tight text-ink">
+        <h1 data-testid="greeting" className="text-[1.35rem] font-extrabold leading-none tracking-tight text-ink">
           {greetingLine(now.getHours(), username)}
         </h1>
         <p data-testid="greeting-date" className="mt-1.5 text-[13px] font-medium leading-none text-muted">
