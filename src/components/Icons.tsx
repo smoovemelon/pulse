@@ -288,12 +288,11 @@ export function EventsIcon({ className = 'w-4 h-4' }: IconProps) {
 export function FoodIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>
-      <path d="M5.2 3v5" />
-      <path d="M8.8 3v5" />
-      <path d="M5.2 8h3.6" />
-      <path d="M7 8v13" />
-      <path d="M13.2 4.2h6.4v7.2a2.4 2.4 0 0 1-2.4 2.4h-1.6a2.4 2.4 0 0 1-2.4-2.4z" />
-      <path d="M13.8 7.6h5.2" />
+      <path d="M7 3v6" />
+      <path d="M12 3v6" />
+      <path d="M17 3v6" />
+      <path d="M7 9h10" />
+      <path d="M12 9v12" />
     </Svg>
   )
 }

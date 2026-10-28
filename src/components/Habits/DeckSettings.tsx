@@ -10,7 +10,16 @@ export function DeckSettings() {
   const [decks, setDecks] = useState<HabitDeck[]>(() => habits.decks.map((deck) => ({ ...deck, habits: deck.habits.map((habit) => ({ ...habit })) })))
   const [deck1, setDeck1] = useState(habits.pacing.pendingConfig?.deck1Cutoff ?? habits.pacing.deck1Cutoff)
   const [deck2, setDeck2] = useState(habits.pacing.pendingConfig?.deck2Cutoff ?? habits.pacing.deck2Cutoff)
+  const [judging, setJudging] = useState(false)
   const blocked = habits.habitDay.completedIds.length > 0 || habits.warnings.length > 0
+
+  const judge = async () => {
+    setJudging(true)
+    const scored = await habits.saveDecks(decks)
+    setJudging(false)
+    if (!scored) return
+    setDecks(scored.map((deck) => ({ ...deck, habits: deck.habits.map((habit) => ({ ...habit })) })))
+  }
 
   const updateTitle = (deckIndex: number, habitIndex: number, title: string) => {
     setDecks((current) => current.map((deck, index) => index === deckIndex
@@ -28,13 +37,17 @@ export function DeckSettings() {
             className="field w-full rounded-xl px-3 py-2 text-xs font-extrabold"
           />
           {deck.habits.map((habit, habitIndex) => (
-            <input
-              key={habit.id}
-              value={habit.title}
-              maxLength={60}
-              onChange={(event) => updateTitle(deckIndex, habitIndex, event.target.value)}
-              className="field w-full rounded-xl px-3 py-2 text-xs font-bold"
-            />
+            <div key={habit.id} className="flex items-center gap-2">
+              <input
+                value={habit.title}
+                maxLength={60}
+                onChange={(event) => updateTitle(deckIndex, habitIndex, event.target.value)}
+                className="field min-w-0 flex-1 rounded-xl px-3 py-2 text-xs font-bold"
+              />
+              <span className="w-10 shrink-0 text-right font-num text-xs font-extrabold text-ink">
+                {habit.points > 0 ? habit.points : '—'}
+              </span>
+            </div>
           ))}
           <div className="flex gap-2">
             <Button
@@ -56,10 +69,13 @@ export function DeckSettings() {
           </div>
         </div>
       ))}
-      <Button tone="dark" disabled={blocked} onClick={() => void habits.saveDecks(decks)} className="action-btn disabled:opacity-40">
-        {blocked ? 'Decks locked today' : 'Save decks'}
+      <Button tone="dark" disabled={blocked || judging} onClick={() => void judge()} className="action-btn disabled:opacity-40">
+        {judging ? 'Judging habits' : blocked ? 'Decks locked today' : 'Judge habits'}
       </Button>
-      {habits.habitsNeedScore && <p className="text-[10px] font-bold text-faint">Scores are on-device until a Gemini key can rate them.</p>}
+      <p className="text-[10px] font-bold leading-relaxed text-faint">
+        Judge habits scores every card and writes a point value on each habit.
+        {habits.habitsNeedScore ? ' Scores stay on-device until a Gemini key can rate them.' : ''}
+      </p>
       <span className="eyebrow eyebrow-muted">Pacing cutoffs</span>
       <div className="grid grid-cols-2 gap-2">
         <TimePop label={habits.decks[0]?.name ?? 'Deck 1'} value={deck1} onChange={setDeck1} />

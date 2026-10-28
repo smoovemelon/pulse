@@ -119,7 +119,7 @@ export function useHabitsController() {
       if (current.habitDay.completedIds.length > 0 || current.warnings.length > 0) {
         feedback('error')
         notify('Finish today or use a PTO shield before editing decks')
-        return false
+        return null
       }
       const cleaned = decks.map((deck) => ({
         ...deck,
@@ -130,7 +130,7 @@ export function useHabitsController() {
       if (invalid) {
         feedback('error')
         notify(invalid)
-        return false
+        return null
       }
       const habits = cleaned.flatMap((deck) => deck.habits.map((habit) => ({ id: habit.id, title: habit.title })))
       let rated = cleaned
@@ -158,14 +158,15 @@ export function useHabitsController() {
           offline = true
         }
       }
+      const scored = distributeHabitPoints(rated)
       commit({
         ...read(),
-        decks: distributeHabitPoints(rated),
+        decks: scored,
         habitsNeedScore: offline,
       })
       feedback('click')
-      notify(offline ? 'Decks saved with on-device scores' : 'Decks rescored')
-      return true
+      notify(offline ? 'Each habit was judged on-device' : 'Each habit has a judged point value')
+      return scored
     },
     [commit, feedback, notify, read],
   )

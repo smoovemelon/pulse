@@ -48,6 +48,11 @@ html[data-theme='dark'] {
   background-color: #09090b;
 }
 
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 html,
 body,
 #root {
@@ -104,6 +109,16 @@ html[data-theme='dark'] body::before {
   pointer-events: none;
   padding: 0.5rem 1rem var(--dock-bottom-gap);
   bottom: 0;
+}
+
+.dock-tab:focus-visible {
+  outline: none;
+}
+
+.dock-tab:focus-visible .dock-tab-mark {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 14px;
 }
 
 input,

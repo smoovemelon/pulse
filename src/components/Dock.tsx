@@ -102,12 +102,14 @@ function DockTabButton({
       type="button"
       data-testid={testId}
       onClick={onClick}
-      className={`press focus-ring flex w-full flex-col items-center justify-center rounded-2xl py-2 font-black ${
+      className={`dock-tab press flex w-full flex-col items-center justify-center rounded-2xl py-2 font-black ${
         active ? 'text-ink' : 'text-faint'
       }`}
     >
-      {children}
-      <span className="max-w-full truncate text-[8px] font-extrabold uppercase tracking-wide">{label}</span>
+      <span className="dock-tab-mark flex flex-col items-center">
+        {children}
+        <span className="max-w-full truncate text-[8px] font-extrabold uppercase tracking-wide">{label}</span>
+      </span>
     </button>
   )
 }
