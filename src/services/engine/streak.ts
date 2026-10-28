@@ -31,8 +31,8 @@ export function applyStreakBonus(points: number, _days: number): number {
 
 export function streakStatusMessage(todayPts: number, goal = DAILY_GOAL, fee = 15): string {
   const grace = graceFloor(goal)
-  if (todayPts >= goal) return `${goal} PTS forge target hit.`
-  if (todayPts >= grace) return `Grace floor held. Earn ${goal - todayPts} PTS to grow the forge streak.`
+  if (todayPts >= goal) return `${goal} PTS output target hit.`
+  if (todayPts >= grace) return `Grace floor held. Earn ${goal - todayPts} PTS to grow the output streak.`
   return `Earn ${grace - todayPts} PTS to prevent decay (-${fee} PTS).`
 }
 

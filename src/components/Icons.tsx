@@ -77,6 +77,45 @@ export function AnchorIcon({ className = 'w-4 h-4' }: IconProps) {
   )
 }
 
+export function MorningIcon({ className = 'w-4 h-4' }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 4.2v1.8" />
+      <path d="M12 18v1.8" />
+      <path d="M4.2 12h1.8" />
+      <path d="M18 12h1.8" />
+      <path d="M6.4 6.4l1.3 1.3" />
+      <path d="M16.3 16.3l1.3 1.3" />
+      <path d="M17.6 6.4l-1.3 1.3" />
+      <path d="M7.7 16.3l-1.3 1.3" />
+    </Svg>
+  )
+}
+
+export function MiddayIcon({ className = 'w-4 h-4' }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="12" cy="11" r="3" />
+      <path d="M12 4.5v1.6" />
+      <path d="M5.2 11h1.6" />
+      <path d="M17.2 11h1.6" />
+      <path d="M6.8 6l1.2 1.2" />
+      <path d="M16 6l-1.2 1.2" />
+      <path d="M5 18.5h14" />
+    </Svg>
+  )
+}
+
+export function EveningIcon({ className = 'w-4 h-4' }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M16.2 14.2A6.2 6.2 0 0 1 9.6 6.4 6.4 6.4 0 1 0 16.2 14.2z" />
+      <path d="M16.5 5.2l.4 1.5 1.5.4-1.5.4-.4 1.5-.4-1.5-1.5-.4 1.5-.4z" />
+    </Svg>
+  )
+}
+
 export function CloseIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>

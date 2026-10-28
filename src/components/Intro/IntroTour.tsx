@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { isNamedAnchor } from '../../lib/dates'
 import { pushEntry } from '../../lib/backStack'
+import { useSettings } from '../../hooks/useSettings'
 import { markIntroSeen } from '../../services/persistence'
 import { Button } from '../Common/Button'
 import { Eyebrow } from '../Common/primitives'
@@ -11,6 +13,7 @@ const STEPS: readonly {
   readonly title: string
   readonly body: string
   readonly target?: TourTarget
+  readonly requireAnchor?: boolean
 }[] = [
   {
     kicker: 'Get started',
@@ -26,7 +29,7 @@ const STEPS: readonly {
   {
     kicker: 'Today',
     title: 'One day card',
-    body: 'Forge fills left from the center of the pill, toward today’s target. Foundation fills right as the three decks finish. The week marks and the discount sit on this card. Forge grows at the target, holds from half up, and resets under half. Foundation grows when every deck is done. Streaks change prices. They do not multiply points.',
+    body: 'Output fills left from the center of the pill, toward today’s target. Foundation fills right as the three decks finish. The week marks and the discount sit on this card. Output grows at the target, holds from half up, and resets under half. Foundation grows when every deck is done. Streaks change prices. They do not multiply points.',
     target: 'day',
   },
   {
@@ -48,9 +51,11 @@ const STEPS: readonly {
     target: 'bounty',
   },
   {
-    kicker: 'Ready',
-    title: 'Start with the anchor',
-    body: 'Name the goal on the balance card, log one action, and keep the day card in view. The question mark in the header opens this guide again.',
+    kicker: 'Anchor',
+    title: 'Name your anchor',
+    body: 'Write the goal in your own words. Judged logs are scored against it. Set anchor saves it on the balance card and closes the guide.',
+    target: 'balance',
+    requireAnchor: true,
   },
 ]
 
@@ -71,7 +76,9 @@ export function IntroTour({
   readonly onClose: () => void
   readonly onTarget?: (target: TourTarget | undefined) => void
 }) {
+  const { anchor, saveAnchor } = useSettings()
   const [step, setStep] = useState(0)
+  const [draft, setDraft] = useState('')
   const [spot, setSpot] = useState<Spot | null>(null)
   const stepRef = useRef(0)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -82,12 +89,18 @@ export function IntroTour({
   onTargetRef.current = onTarget
   const current = STEPS[step]
   const last = step === STEPS.length - 1
+  const anchorReady = isNamedAnchor(draft)
 
   const finish = () => {
     markIntroSeen()
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })
     onCloseRef.current()
+  }
+
+  const dismiss = () => {
+    if (STEPS[stepRef.current]?.requireAnchor) return
+    finish()
   }
 
   useEffect(() => {
@@ -110,6 +123,7 @@ export function IntroTour({
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
+      if (STEPS[stepRef.current]?.requireAnchor) return
       markIntroSeen()
       onCloseRef.current()
     }
@@ -166,6 +180,11 @@ export function IntroTour({
     }
   }, [step])
 
+  useEffect(() => {
+    if (!STEPS[step]?.requireAnchor) return
+    setDraft(isNamedAnchor(anchor) ? anchor : '')
+  }, [anchor, step])
+
   const advance = () => {
     const leaving = stepRef.current
     const release = pushEntry(() => {
@@ -195,7 +214,7 @@ export function IntroTour({
       aria-modal="true"
       aria-labelledby="intro-heading"
       onClick={(event) => {
-        if (event.target === event.currentTarget) finish()
+        if (event.target === event.currentTarget) dismiss()
       }}
     >
       {spot ? (
@@ -213,7 +232,7 @@ export function IntroTour({
           }}
         />
       ) : (
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={finish} />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={dismiss} />
       )}
 
       <div
@@ -230,14 +249,16 @@ export function IntroTour({
           <span className="font-num text-[10px] font-extrabold tracking-widest text-faint">
             {step + 1} / {STEPS.length}
           </span>
-          <button
-            type="button"
-            data-testid="intro-skip"
-            onClick={finish}
-            className="press focus-ring text-[11px] font-extrabold uppercase tracking-wider text-muted"
-          >
-            Skip
-          </button>
+          {!current.requireAnchor && (
+            <button
+              type="button"
+              data-testid="intro-skip"
+              onClick={finish}
+              className="press focus-ring text-[11px] font-extrabold uppercase tracking-wider text-muted"
+            >
+              Skip
+            </button>
+          )}
         </div>
 
         <div key={step} className="intro-step flex flex-col items-center gap-4 overflow-y-auto text-center sheet-scroll">
@@ -251,6 +272,18 @@ export function IntroTour({
             <h3 id="intro-heading" className="heading-athletic text-xl text-ink">{current.title}</h3>
           </div>
           <p className="w-full text-sm font-semibold leading-relaxed text-body">{current.body}</p>
+          {current.requireAnchor && (
+            <label className="flex w-full flex-col gap-1.5 text-left">
+              <span className="eyebrow eyebrow-muted">Your goal</span>
+              <input
+                data-testid="intro-anchor"
+                value={draft}
+                placeholder="Name the goal"
+                onChange={(event) => setDraft(event.target.value)}
+                className="field w-full rounded-2xl p-3.5 text-xs font-bold"
+              />
+            </label>
+          )}
         </div>
 
         <div className="flex items-center justify-center gap-1.5" aria-hidden="true">
@@ -276,13 +309,21 @@ export function IntroTour({
           <Button
             tone="dark"
             data-testid="intro-next"
+            disabled={current.requireAnchor && !anchorReady}
             onClick={() => {
+              if (current.requireAnchor) {
+                const trimmed = draft.trim()
+                if (!isNamedAnchor(trimmed)) return
+                if (trimmed !== anchor.trim() && !saveAnchor(trimmed)) return
+                finish()
+                return
+              }
               if (last) finish()
               else advance()
             }}
-            className="flex-1 rounded-2xl py-3.5 text-xs font-extrabold uppercase tracking-wider"
+            className="flex-1 rounded-2xl py-3.5 text-xs font-extrabold uppercase tracking-wider disabled:opacity-40"
           >
-            {last ? 'Get started' : 'Next'}
+            {current.requireAnchor ? 'Set anchor' : last ? 'Get started' : 'Next'}
           </Button>
         </div>
       </div>

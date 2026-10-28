@@ -64,7 +64,7 @@ export function Stats() {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="h-px w-3 bg-faint" />
-            Forge target
+            Output target
           </span>
         </div>
       </Surface>

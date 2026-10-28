@@ -246,10 +246,10 @@ function EconomyRules() {
 
       <section className="flex flex-col gap-1.5">
         <RuleTitle>3. Point Sink / Anti-Inflation</RuleTitle>
-        <Stat label="Forge baseline" value="120 PTS" tone="earn" />
+        <Stat label="Output baseline" value="120 PTS" tone="earn" />
         <Stat label="Grace floor" value="50% of target" tone="earn" />
         <Stat label="Decay fee" value="−15 / −20 PTS" tone="spend" />
-        <p>The forge target is the median judged day of the last 7 active days, held between 80 and 180. A day at the target grows the forge streak. The grace band holds it. Under the grace floor resets it. Tier 2 and above charges 20 points. Judged logs are not multiplied by a streak.</p>
+        <p>The output target is the median judged day of the last 7 active days, held between 80 and 180. A day at the target grows the output streak. The grace band holds it. Under the grace floor resets it. Tier 2 and above charges 20 points. Judged logs are not multiplied by a streak.</p>
       </section>
     </div>
   )
