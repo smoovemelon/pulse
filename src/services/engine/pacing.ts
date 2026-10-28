@@ -1,5 +1,5 @@
 import { localDateKey, shiftDateKey } from '../../lib/dates'
-import type { HabitDeck, PacingScheduleConfig, PulseState, WarningId } from '../../types'
+import type { HabitDay, HabitDeck, PacingScheduleConfig, PulseState, WarningId } from '../../types'
 import { forgeTarget } from './forge'
 import { economyPreset } from './vaultValuation'
 import { allDecksComplete, deckComplete, defaultDecks, emptyHabitDay, unfinishedHabits } from './habits'
@@ -12,6 +12,7 @@ export function disciplineDefaults(now = new Date()) {
   return {
     decks: defaultDecks(),
     habitDay: emptyHabitDay(localDateKey(now)),
+    joinedAt: now.toISOString(),
     pacing: defaultPacing(now),
     warnings: [] as PulseState['warnings'],
     ptoTokens: 1,
@@ -120,6 +121,43 @@ export function proposePacing(
       pendingConfig: { deck1Cutoff, deck2Cutoff, effectiveDate: shiftDateKey(today, 1) },
     },
   }
+}
+
+const ESTABLISHED_JOIN = '1970-01-01T00:00:00.000Z'
+
+export function resolveJoinedAt(
+  state: Pick<PulseState, 'joinedAt' | 'lastAuditDate' | 'transactions' | 'forgeStreak' | 'chainStreak' | 'habitDay' | 'lastChainCompletedDate' | 'lastForgeCompletedDate'>,
+  now = new Date(),
+): string {
+  if (state.joinedAt) return state.joinedAt
+  const today = localDateKey(now)
+  const usedBefore = state.lastAuditDate < today
+    || state.transactions.length > 0
+    || state.forgeStreak > 0
+    || state.chainStreak > 0
+    || state.habitDay.completedIds.length > 0
+    || state.habitDay.date < today
+    || Boolean(state.lastChainCompletedDate)
+    || Boolean(state.lastForgeCompletedDate)
+  return usedBefore ? ESTABLISHED_JOIN : now.toISOString()
+}
+
+export function excusedJoinWarnings(joinedAt: string, pacing: PacingScheduleConfig): WarningId[] {
+  const joined = new Date(joinedAt)
+  if (Number.isNaN(joined.getTime())) return []
+  const excused: WarningId[] = []
+  if (pastCutoff(pacing.deck1Cutoff, joined)) excused.push('deck1')
+  if (pastCutoff(pacing.deck2Cutoff, joined)) excused.push('deck2')
+  if (minutesUntilCutoff(pacing.auditCutoff, joined) < 120) excused.push('deck3')
+  return excused
+}
+
+function excuseJoinDay(habitDay: HabitDay, joinedAt: string, pacing: PacingScheduleConfig): HabitDay {
+  const joined = new Date(joinedAt)
+  if (Number.isNaN(joined.getTime()) || habitDay.date !== localDateKey(joined)) return habitDay
+  const missing = excusedJoinWarnings(joinedAt, pacing).filter((id) => !habitDay.clearedWarnings.includes(id))
+  if (missing.length === 0) return habitDay
+  return { ...habitDay, clearedWarnings: [...habitDay.clearedWarnings, ...missing] }
 }
 
 export function dueWarnings(
@@ -253,11 +291,16 @@ export function syncLiveDiscipline(state: PulseState, now = new Date()): PulseSt
   const today = localDateKey(now)
   const pacing = { ...applyPendingPacing(state.pacing, today), auditCutoff: perkTier(state.chainStreak, state.forgeStreak).auditCutoff }
   const waitingOnAudit = state.habitDay.date < today && state.lastAuditDate <= state.habitDay.date
-  const habitDay = state.habitDay.date === today || waitingOnAudit
-    ? state.habitDay
-    : { date: today, completedIds: [] as string[], clearedWarnings: [] as WarningId[], shielded: false }
-  if (habitDay.date !== today) return { ...state, pacing, habitDay }
+  const joinedAt = resolveJoinedAt(state, now)
+  const habitDay = excuseJoinDay(
+    state.habitDay.date === today || waitingOnAudit
+      ? state.habitDay
+      : { date: today, completedIds: [] as string[], clearedWarnings: [] as WarningId[], shielded: false },
+    joinedAt,
+    pacing,
+  )
+  if (habitDay.date !== today) return { ...state, joinedAt, pacing, habitDay }
   const earned = earnedOn(state.transactions, today)
   const warnings = dueWarnings(state.decks, habitDay.completedIds, habitDay.clearedWarnings, pacing, earned, forgeTarget(state.transactions, today), now)
-  return { ...state, pacing, habitDay, warnings }
+  return { ...state, joinedAt, pacing, habitDay, warnings }
 }

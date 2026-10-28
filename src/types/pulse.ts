@@ -86,6 +86,7 @@ export interface PulseState {
   readonly vaultItems: readonly VaultItem[]
   readonly decks: readonly HabitDeck[]
   readonly habitDay: HabitDay
+  readonly joinedAt: string
   readonly pacing: PacingScheduleConfig
   readonly warnings: readonly WarningId[]
   readonly ptoTokens: number

@@ -32,10 +32,11 @@ export function useHabitsController() {
     const tick = () => {
       const current = read()
       const next = syncLiveDiscipline(current)
-      const sameDay = next.habitDay.date === current.habitDay.date && next.habitDay.completedIds.length === current.habitDay.completedIds.length
+      const sameDay = next.habitDay.date === current.habitDay.date && next.habitDay.completedIds.length === current.habitDay.completedIds.length && next.habitDay.clearedWarnings.join() === current.habitDay.clearedWarnings.join()
       const sameWarnings = next.warnings.join() === current.warnings.join()
+      const sameJoin = next.joinedAt === current.joinedAt
       const samePacing = next.pacing.deck1Cutoff === current.pacing.deck1Cutoff && next.pacing.deck2Cutoff === current.pacing.deck2Cutoff && next.pacing.auditCutoff === current.pacing.auditCutoff && !next.pacing.pendingConfig === !current.pacing.pendingConfig
-      if (!sameDay || !sameWarnings || !samePacing) commit(next)
+      if (!sameDay || !sameWarnings || !samePacing || !sameJoin) commit(next)
     }
     tick()
     const id = window.setInterval(tick, 30_000)

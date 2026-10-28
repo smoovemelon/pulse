@@ -6,7 +6,8 @@ import { progressWindow } from '../engine/progress'
 import { applyDifficulty, migrateLegacyVault } from '../engine/vaultValuation'
 import { distributeHabitPoints, nextOpenHabit } from '../engine/habits'
 import { scoreJudgment } from '../engine/judging'
-import { closedDayWarnings, cooldownRemaining, defaultPacing, proposePacing, settleDiscipline } from '../engine/pacing'
+import { closedDayWarnings, cooldownRemaining, defaultPacing, proposePacing, settleDiscipline, syncLiveDiscipline } from '../engine/pacing'
+import { emptyHabitDay } from '../engine/habits'
 import { disciplineDefaults } from '../engine/pacing'
 import { freshState } from '../persistence'
 
@@ -51,6 +52,41 @@ describe('pacing locks', () => {
     expect(proposePacing(saved.pacing, '15:00', '21:00', [], now, today).ok).toBe(false)
     expect(proposePacing(pacing, '14:00', '20:00', ['deck1'], now, today).ok).toBe(false)
     expect(cooldownRemaining(saved.pacing, now)).toBeGreaterThan(0)
+  })
+
+  it('skips cutoffs that already passed on the day a profile starts', () => {
+    const day = '2026-10-28'
+    const afternoon = new Date(2026, 9, 28, 14, 30)
+    const evening = new Date(2026, 9, 28, 20, 15)
+    const late = new Date(2026, 9, 28, 23, 10)
+    const started = {
+      ...freshState(),
+      joinedAt: afternoon.toISOString(),
+      habitDay: emptyHabitDay(day),
+      warnings: ['deck1' as const],
+    }
+
+    const midday = syncLiveDiscipline(started, afternoon)
+    expect(midday.warnings).toEqual([])
+    expect(midday.habitDay.clearedWarnings).toEqual(['deck1'])
+
+    const afterSecond = syncLiveDiscipline(started, evening)
+    expect(afterSecond.warnings).toEqual(['deck2'])
+    expect(afterSecond.habitDay.clearedWarnings).toEqual(['deck1'])
+
+    const morning = syncLiveDiscipline({ ...started, joinedAt: new Date(2026, 9, 28, 9, 0).toISOString() }, afternoon)
+    expect(morning.warnings).toEqual(['deck1'])
+
+    const night = syncLiveDiscipline({ ...started, joinedAt: late.toISOString() }, late)
+    expect(night.warnings).toEqual([])
+    expect(night.habitDay.clearedWarnings).toEqual(['deck1', 'deck2', 'deck3'])
+    expect(closedDayWarnings(night.decks, [], night.habitDay.clearedWarnings, 0, 120)).toEqual([])
+
+    const nextDay = syncLiveDiscipline(
+      { ...started, lastAuditDate: '2026-10-29', habitDay: emptyHabitDay('2026-10-29'), warnings: [] },
+      new Date(2026, 9, 29, 15, 0),
+    )
+    expect(nextDay.warnings).toContain('deck1')
   })
 
   it('eliminates both streaks when three warnings survive the day', () => {

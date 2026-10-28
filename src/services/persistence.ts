@@ -39,6 +39,7 @@ function disciplineSlice(state: PulseState) {
   return {
     decks: state.decks,
     habitDay: state.habitDay,
+    joinedAt: state.joinedAt,
     pacing: state.pacing,
     warnings: state.warnings,
     ptoTokens: state.ptoTokens,
@@ -62,6 +63,7 @@ function readDiscipline(value: unknown) {
     ...(parsed as Partial<ReturnType<typeof disciplineDefaults>>),
     decks: parsed.decks as PulseState['decks'],
     difficultyLocked: parsed.difficultyLocked === true,
+    joinedAt: typeof parsed.joinedAt === 'string' ? parsed.joinedAt : '',
   }
 }
 
