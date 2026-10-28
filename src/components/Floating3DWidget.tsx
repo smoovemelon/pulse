@@ -56,9 +56,11 @@ export function Floating3DWidget({
           className="float-3d-bob"
           style={{ ['--float-intensity' as string]: reduced ? 0 : lift, ['--spin-speed' as string]: spin }}
         >
-          <div className="float-3d-spin">
-            <img src={cat} alt="" draggable={false} className="float-3d-face" />
-            <img src={cat} alt="" draggable={false} className="float-3d-face float-3d-back" />
+          <div className="float-3d-stage">
+            <div className="float-3d-spin">
+              <img src={cat} alt="" draggable={false} className="float-3d-face" />
+              <img src={cat} alt="" draggable={false} className="float-3d-face float-3d-back" />
+            </div>
           </div>
         </div>
       </div>

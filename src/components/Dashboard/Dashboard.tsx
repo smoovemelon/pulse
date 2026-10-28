@@ -15,8 +15,8 @@ export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void 
   return (
     <>
     <div className="relative">
-    <Floating3DWidget className="absolute -top-3 right-1 z-10" size={78} speed={0.9} intensity={0.85} hoverPause tilt />
-    <section className="depth-card rounded-[28px] p-5 flex flex-col gap-4 relative overflow-hidden">
+    <Floating3DWidget className="absolute -top-4 left-1/2 z-10 -translate-x-1/2" size={168} speed={0.75} intensity={1.2} hoverPause tilt />
+    <section className="depth-card rounded-[28px] px-5 pt-48 pb-5 flex flex-col gap-4 relative overflow-hidden">
       <div className="absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br from-zinc-200/40 to-transparent rounded-full blur-2xl pointer-events-none" />
       <div className="relative">
         <BalanceDisplay balance={economy.balance} />
