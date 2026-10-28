@@ -1,1 +1,1 @@
-export const RELEASE_LABEL = 'v1.0.44-prod'
+export const RELEASE_LABEL = 'v1.0.45-prod'

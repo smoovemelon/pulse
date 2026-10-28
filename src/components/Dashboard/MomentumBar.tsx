@@ -17,6 +17,7 @@ export function SplitCapsule({
 }) {
   const forge = Math.max(0, Math.min(100, goal <= 0 ? 0 : (earned / goal) * 100))
   const chain = Math.max(0, Math.min(100, (decksComplete / 3) * 100))
+  const streakDays = Math.min(forgeStreak, chainStreak)
 
   return (
     <div data-testid="split-capsule" className="flex flex-col gap-2.5">
@@ -45,16 +46,12 @@ export function SplitCapsule({
           <span className="absolute inset-y-0 right-1/2 bg-orange-500" style={{ width: `${forge / 2}%` }} />
           <span className="absolute inset-y-0 left-1/2 bg-blue-500" style={{ width: `${chain / 2}%` }} />
         </div>
-        <div data-testid="streak-chip" className="grid grid-cols-3 gap-2 border-t border-line pt-2.5 text-center">
+        <div data-testid="streak-chip" className="grid grid-cols-2 gap-2 border-t border-line pt-2.5">
           <div>
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Forge</span>
-            <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{forgeStreak}d</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Streak</span>
+            <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{streakDays}d</span>
           </div>
-          <div>
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Chain</span>
-            <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{chainStreak}d</span>
-          </div>
-          <div>
+          <div className="text-right">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Tier {tier}</span>
             <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{discountPercent}% off</span>
           </div>
