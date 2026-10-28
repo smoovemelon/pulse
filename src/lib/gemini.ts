@@ -70,16 +70,16 @@ export function buildJudgmentPayload(anchor: string, rawAction: string, duration
 
 ANCHOR CREDIT
 - isValidAnchorAction is true only when this log is a direct, causal step toward the anchor. Hydration, light stretching, tidying, and other generic habits are false unless that habit IS the anchor.
-- directAlignmentScore is 0–10. Use 8–10 for a strong direct advance. Use 7–7.99 for a solid direct advance. Use 4–6.99 for a direct advance that does not earn the anchor bonus. Use 1–3 when the effort does not move the anchor. Do not inflate.
+- directAlignmentScore is 0–10. Use 8–10 for a strong direct advance. Use 6–7.99 for a solid direct advance. Use 4–5.99 for a direct advance at baseline. Use 1–3 when the effort does not move the anchor. Do not inflate.
 - Vague logs ("worked out", "did some studying") stay at 3 or below unless they name a count, a weight, a distance, or a finished result.
-- rejectionReason is one candid sentence when the action is not a direct advance. Acknowledge the effort. Use an empty string when the action is a direct advance, including a modest one under 7.
+- rejectionReason is one candid sentence when the action is not a direct advance or the score is under 4. Acknowledge the effort. Use an empty string when the action is a direct advance scored at 4 or higher.
 
 POINTS
 The app recomputes the payout. Still fill these fields:
 - basePoints = round(effort_strain × 8 × (duration_minutes / 45)^0.45)
-- multiplier = 2.0 when the action is a direct advance and the score is at least 8; 1.5 when it is direct and the score is at least 7; 1.0 when it is direct and the score is under 7; otherwise 0.5
+- multiplier = 2.0 when the action is a direct advance and the score is at least 8; 1.5 when it is direct and the score is at least 6; 1.0 when it is direct and the score is at least 4; otherwise 0.5
 - finalPoints = max(5, round(basePoints × multiplier))
-Never report 0. Productive work that misses the anchor still earns half. A direct log under 7 earns the full base.
+Never report 0. A direct log from 4 up to 6 earns the full base. Under 4, or a log that misses the anchor, earns half.
 
 RECENT TRAINING CONTEXT:
 ${history || 'No previous history recorded yet.'}

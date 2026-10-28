@@ -117,7 +117,7 @@ function demoTransactions(): readonly Transaction[] {
       'demo-earn-stretch',
       'Short stretch',
       3,
-      2,
+      5,
       20,
       2,
       '2 days ago, 6:00 PM',

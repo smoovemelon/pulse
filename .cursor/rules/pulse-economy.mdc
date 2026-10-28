@@ -23,15 +23,18 @@ const pts = hours * 50
 export function quoteVault(category: VaultCategory, usd: number, hrs: number): VaultQuote
 ```
 
-## Economy (do not change these numbers)
+## Economy (do not invent numbers)
+
+These are the current numbers. Use them when a prompt does not state a different figure. A specific user prompt that sets a different number replaces the one below.
 
 Action points: `Base = Strain (1–10) × 8 × (Duration_min / 45)^0.45`, then round. Anchor alignment multiplies the base:
 
 - `>= 8.0` → 2.0× Heavyweight
-- `>= 4.0` → 1.5× Cruiserweight
-- `< 4.0` → 1.0× Middleweight
+- `>= 6.0` and `< 8.0` → 1.5× Cruiserweight
+- `>= 4.0` and `< 6.0` → 1.0× Middleweight
+- `< 4.0`, a vague log, or a log that does not directly advance the anchor → 0.5× Lightweight, still at least 5 PTS
 
-The judge pays heavyweight or cruiserweight only for a direct, specific advance scored at 7 or higher (`>= 8` heavyweight, `7–7.99` cruiserweight). A direct, specific log scored under 7 pays the full base at Middleweight `1.0×`, still at least 5 PTS. Productive work that does not directly advance the anchor, a vague log, or a score made without an anchor check earns half the base (`0.5×` Lightweight, still at least 5 PTS). Those points count toward the balance and the daily target.
+A direct, specific log needs alignment of at least 4 to earn Middleweight or higher. Those points count toward the balance and the daily target. An offline score, with no anchor check, pays Middleweight `1.0×` at strain 6.
 
 Default anchor text for a new user is `Your main goal`.
 

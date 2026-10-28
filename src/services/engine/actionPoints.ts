@@ -14,14 +14,17 @@ export function calculateActionPoints(
   const durationFactor = Math.pow(duration / 45, 0.45)
   const basePoints = Math.round(strain * 8 * durationFactor)
 
-  let multiplier = 1
-  let weightClass: WeightClass = 'Middleweight (1.0x)'
+  let multiplier = 0.5
+  let weightClass: WeightClass = 'Lightweight (0.5x)'
   if (alignment >= 8) {
     multiplier = 2
     weightClass = 'Heavyweight (2.0x)'
-  } else if (alignment >= 4) {
+  } else if (alignment >= 6) {
     multiplier = 1.5
     weightClass = 'Cruiserweight (1.5x)'
+  } else if (alignment >= 4) {
+    multiplier = 1
+    weightClass = 'Middleweight (1.0x)'
   }
 
   const points = Math.max(5, Math.round(basePoints * multiplier))
@@ -44,8 +47,7 @@ export function calculateActionPoints(
   }
 }
 
-const CRUISER_FLOOR = 7
-const HEAVY_FLOOR = 8
+const MIDDLE_FLOOR = 4
 const OFF_ANCHOR_MULTIPLIER = 0.5
 
 function sessionTitle(rawAction: string, duration: number): string {
@@ -77,30 +79,17 @@ export function evaluateAnchorAction(input: {
 }): ActionScore {
   const reported = Math.max(0, Math.min(10, Number(input.alignment) || 0))
   const specific = !lacksConcreteProof(input.raw)
-  if (input.valid && specific && reported >= CRUISER_FLOOR) {
-    const scored = reported >= HEAVY_FLOOR ? reported : Math.max(reported, CRUISER_FLOOR)
-    return calculateActionPoints(input.strain, scored, input.duration, input.title, input.raw, input.reasoning)
-  }
-
-  if (input.valid && specific) {
-    const base = calculateActionPoints(input.strain, 1, input.duration, input.title, input.raw, input.reasoning)
-    return {
-      ...base,
-      alignment: reported,
-      multiplier: 1,
-      weightClass: 'Middleweight (1.0x)',
-      partial: false,
-      points: Math.max(5, base.basePoints),
-      breakdown: `Base: ${base.basePoints} (Strain ${base.strain.toFixed(1)} @ ${base.duration}m) × 1x (Middleweight)`,
-      reasoning: input.reasoning,
-    }
+  if (input.valid && specific && reported >= MIDDLE_FLOOR) {
+    return calculateActionPoints(input.strain, reported, input.duration, input.title, input.raw, input.reasoning)
   }
 
   const critique =
     input.rejectionReason?.trim() ||
     (!specific
       ? 'Name a count, a weight, a distance, or a finished result to earn more than half credit.'
-      : 'This is productive, but it does not directly move the anchor, so it earns half credit.')
+      : reported < MIDDLE_FLOOR
+        ? 'Alignment is under 4, so this earns half credit.'
+        : 'This is productive, but it does not directly move the anchor, so it earns half credit.')
   const base = calculateActionPoints(input.strain, 1, input.duration, input.title, input.raw, critique)
   const points = Math.max(5, Math.round(base.basePoints * OFF_ANCHOR_MULTIPLIER))
   return {
@@ -117,14 +106,12 @@ export function evaluateAnchorAction(input: {
 
 export function localActionFallback(rawAction: string, duration: number, message: string): ActionScore {
   const note = message && message.length < 80 ? ` ${message}` : ''
-  return evaluateAnchorAction({
-    strain: 6,
-    alignment: 3,
-    valid: false,
+  return calculateActionPoints(
+    6,
+    5,
     duration,
-    title: sessionTitle(rawAction, duration),
-    raw: rawAction,
-    reasoning: '',
-    rejectionReason: `Scored without an anchor check, so this stays at half credit.${note}`,
-  })
+    sessionTitle(rawAction, duration),
+    rawAction,
+    `Scored without an anchor check.${note}`,
+  )
 }

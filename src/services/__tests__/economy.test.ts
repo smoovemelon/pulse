@@ -48,9 +48,9 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
 
 describe('action evaluation', () => {
   it('scales a middleweight session from 15m through 45m to 90m', () => {
-    const short = score(8, 2, 15)
-    const baseline = score(8, 2, 45)
-    const long = score(8, 2, 90)
+    const short = score(8, 5, 15)
+    const baseline = score(8, 5, 45)
+    const long = score(8, 5, 90)
 
     expect(short).toMatchObject({ duration: 15, basePoints: 39, multiplier: 1, points: 39, weightClass: 'Middleweight (1.0x)' })
     expect(baseline).toMatchObject({ duration: 45, basePoints: 64, multiplier: 1, points: 64 })
@@ -62,12 +62,13 @@ describe('action evaluation', () => {
 
   it('applies heavyweight, cruiserweight, and middleweight multipliers at a 45m baseline', () => {
     const heavy = score(10, 8, 45)
-    const cruiser = score(10, 4, 45)
-    const middle = score(10, 3.99, 45)
+    const cruiser = score(10, 6, 45)
+    const middle = score(10, 4, 45)
 
     expect(heavy).toMatchObject({ basePoints: 80, multiplier: 2, points: 160, weightClass: 'Heavyweight (2.0x)' })
     expect(cruiser).toMatchObject({ basePoints: 80, multiplier: 1.5, points: 120, weightClass: 'Cruiserweight (1.5x)' })
     expect(middle).toMatchObject({ basePoints: 80, multiplier: 1, points: 80, weightClass: 'Middleweight (1.0x)' })
+    expect(score(10, 3.99, 45)).toMatchObject({ multiplier: 0.5, points: 40, weightClass: 'Lightweight (0.5x)' })
     expect(score(10, 7.99, 45).multiplier).toBe(1.5)
     expect(score(10, 10, 45).points).toBe(160)
   })
@@ -135,6 +136,31 @@ describe('action evaluation', () => {
     expect(middle.weightClass).toBe('Middleweight (1.0x)')
     expect(middle.points).toBe(80)
     expect(middle.alignment).toBe(5)
+
+    const cruiserBand = evaluateAnchorAction({
+      strain: 10,
+      alignment: 6,
+      valid: true,
+      duration: 45,
+      title: 'Review',
+      raw: 'Reviewed 12 pages of notes',
+      reasoning: 'Solid direct work.',
+    })
+    expect(cruiserBand.multiplier).toBe(1.5)
+    expect(cruiserBand.weightClass).toBe('Cruiserweight (1.5x)')
+
+    const under = evaluateAnchorAction({
+      strain: 10,
+      alignment: 3.5,
+      valid: true,
+      duration: 45,
+      title: 'Notes',
+      raw: 'Reviewed 4 pages of notes',
+      reasoning: 'Too light to clear the line.',
+    })
+    expect(under.multiplier).toBe(0.5)
+    expect(under.weightClass).toBe('Lightweight (0.5x)')
+    expect(under.partial).toBe(true)
   })
 
   it('withholds the anchor bonus when the log names no concrete result', () => {
@@ -155,8 +181,9 @@ describe('action evaluation', () => {
 
   it('does not grant cruiserweight when the anchor cannot be checked', () => {
     const offline = localActionFallback('Morning study block on problem sets', 45, 'offline')
-    expect(offline.multiplier).toBe(0.5)
-    expect(offline.partial).toBe(true)
+    expect(offline.multiplier).toBe(1)
+    expect(offline.partial).toBe(false)
+    expect(offline.weightClass).toBe('Middleweight (1.0x)')
     expect(offline.strain).toBe(6)
     expect(offline.title).toBe('Morning study block on problem sets')
     expect(offline.title).not.toContain('Brandon')
