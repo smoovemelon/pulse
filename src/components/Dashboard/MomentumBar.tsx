@@ -20,7 +20,7 @@ export function SplitCapsule({
   return (
     <div data-testid="split-capsule" className="flex flex-col gap-2.5">
       <div
-        className="flex items-stretch overflow-hidden rounded-full border border-zinc-300 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950"
+        className="depth-well flex items-stretch overflow-hidden rounded-full"
         role="img"
         aria-label={`Forge ${earned} of ${goal} points. Chain ${decksComplete} of 3 decks.`}
       >
@@ -34,10 +34,10 @@ export function SplitCapsule({
           </div>
           <div className="relative h-8 w-full overflow-hidden rounded-l-full bg-zinc-300 dark:bg-zinc-800">
             <span className="absolute inset-y-0 left-0 bg-orange-500" style={{ width: `${width}%` }} />
-            <span className="absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-zinc-100 dark:bg-zinc-950" aria-hidden="true" />
+            <span className="absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-well" aria-hidden="true" />
           </div>
         </div>
-        <div className="w-px shrink-0 self-stretch bg-zinc-300 dark:bg-zinc-700" />
+        <div className="w-px shrink-0 self-stretch bg-line" />
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 py-2.5 pr-3 pl-2.5">
           <div className="flex items-center justify-between gap-2 pl-1">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Chain</span>
@@ -53,7 +53,7 @@ export function SplitCapsule({
                 className={`h-8 min-w-0 flex-1 rounded-[7px] ${index < decksComplete ? 'bg-blue-500' : 'bg-zinc-300 dark:bg-zinc-800'}`}
               />
             ))}
-            <span className="h-8 w-3 shrink-0 rounded-r-full bg-zinc-100 dark:bg-zinc-950" />
+            <span className="h-8 w-3 shrink-0 rounded-r-full bg-well" />
           </div>
         </div>
       </div>

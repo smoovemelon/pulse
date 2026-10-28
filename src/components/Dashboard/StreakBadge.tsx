@@ -16,7 +16,7 @@ export function StreakBadge({
   const statusClass = state === 'SECURED' ? 'text-ink' : 'text-muted'
 
   return (
-    <section className="depth-card rounded-[28px] p-4 text-ink" aria-label="Streak">
+    <div className="text-ink" role="region" aria-label="Streak">
       <div className="flex items-end justify-between gap-1.5">
         {week.map((day) => (
           <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
@@ -28,7 +28,7 @@ export function StreakBadge({
       <p data-testid="streak-status" className={`mt-4 text-[11px] font-semibold leading-relaxed ${statusClass}`}>
         {status}
       </p>
-    </section>
+    </div>
   )
 }
 
