@@ -4,7 +4,6 @@ import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { Button } from '../Common/Button'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
-import { DeckSettings } from '../Habits/DeckSettings'
 import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
@@ -118,8 +117,6 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           {economy.timeMultiplier} PTS/hr · {economy.cashMultiplier} PTS/$
         </p>
       </div>
-
-      <DeckSettings />
 
       <div className="depth-well rounded-2xl p-4 flex flex-col gap-2.5">
         <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted block">Data & Backups</span>

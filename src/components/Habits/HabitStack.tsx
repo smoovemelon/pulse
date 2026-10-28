@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { useHabits } from '../../hooks/useHabits'
 import { deckComplete, nextOpenHabit } from '../../services/engine'
 import { Button } from '../Common/Button'
+import { DeckSettings } from './DeckSettings'
 
 export function HabitStack() {
   const habits = useHabits()
+  const [editing, setEditing] = useState(false)
   const open = nextOpenHabit(habits.decks, habits.habitDay.completedIds)
   const locked = habits.cooldownMs > 0
   const hours = Math.ceil(habits.cooldownMs / 3600000)
@@ -11,13 +14,23 @@ export function HabitStack() {
   return (
     <section className="depth-card rounded-[28px] p-4 flex flex-col gap-3" data-testid="habit-stack">
       <div className="flex items-center justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">The Chain</span>
           <p className="text-sm font-extrabold text-ink">{habits.chainStreak} day chain · {habits.ptoTokens} PTO</p>
         </div>
-        <Button tone="card" onClick={habits.usePto} className="rounded-xl px-3 py-2 text-[11px] font-extrabold">
-          Use PTO
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            tone="card"
+            aria-expanded={editing}
+            onClick={() => setEditing((open) => !open)}
+            className="rounded-xl px-3 py-2 text-[11px] font-extrabold"
+          >
+            {editing ? 'Done' : 'Edit'}
+          </Button>
+          <Button tone="card" onClick={habits.usePto} className="rounded-xl px-3 py-2 text-[11px] font-extrabold">
+            Use PTO
+          </Button>
+        </div>
       </div>
       {habits.warnings.length > 0 && (
         <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700">
@@ -27,7 +40,7 @@ export function HabitStack() {
       {habits.habitDay.shielded && (
         <p className="text-[11px] font-bold text-muted">Today is shielded.</p>
       )}
-      {habits.decks.map((deck, index) => {
+      {editing ? <DeckSettings /> : habits.decks.map((deck, index) => {
         const done = deckComplete(deck, habits.habitDay.completedIds)
         const deckLocked = index > 0 && !deckComplete(habits.decks[index - 1], habits.habitDay.completedIds)
         return (

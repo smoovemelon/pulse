@@ -18,8 +18,7 @@ export function DeckSettings() {
   }
 
   return (
-    <div className="depth-well rounded-2xl p-4 flex flex-col gap-3">
-      <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Habit decks</span>
+    <div className="flex flex-col gap-3">
       {decks.map((deck, deckIndex) => (
         <div key={deck.id} className="flex flex-col gap-1.5">
           <input
