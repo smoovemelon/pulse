@@ -96,13 +96,15 @@ export function MorningIcon({ className = 'w-4 h-4' }: IconProps) {
 export function MiddayIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>
-      <circle cx="12" cy="11" r="3" />
-      <path d="M12 4.5v1.6" />
-      <path d="M5.2 11h1.6" />
-      <path d="M17.2 11h1.6" />
-      <path d="M6.8 6l1.2 1.2" />
-      <path d="M16 6l-1.2 1.2" />
-      <path d="M5 18.5h14" />
+      <circle cx="12" cy="12" r="2.7" />
+      <path d="M12 2.6v2.3" />
+      <path d="M12 19.1v2.3" />
+      <path d="M2.6 12h2.3" />
+      <path d="M19.1 12h2.3" />
+      <path d="M5.2 5.2l1.6 1.6" />
+      <path d="M17.2 17.2l1.6 1.6" />
+      <path d="M18.8 5.2l-1.6 1.6" />
+      <path d="M6.8 17.2l-1.6 1.6" />
     </Svg>
   )
 }
