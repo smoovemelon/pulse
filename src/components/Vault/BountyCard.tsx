@@ -35,7 +35,7 @@ export function BountyCard({
             <CategoryIcon kind={visual.kind} />
           </div>
           <div className="min-w-0">
-            <Eyebrow>{item.category}</Eyebrow>
+            <Eyebrow>{visual.label}</Eyebrow>
             <h4 className="text-sm font-extrabold tracking-tight text-ink mt-1.5 break-words">{item.title}</h4>
           </div>
         </div>

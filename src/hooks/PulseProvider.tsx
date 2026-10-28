@@ -27,9 +27,9 @@ function BindSlices({ children }: { children: ReactNode }) {
       vault,
       sensory,
       settings,
-      notice: { toast: core.toast, notify: core.notify },
+      notice: { toast: core.toast, notify: core.notify, dismiss: core.dismissToast },
     }),
-    [core.notify, core.toast, economy, habits, ledger, sensory, settings, vault],
+    [core.dismissToast, core.notify, core.toast, economy, habits, ledger, sensory, settings, vault],
   )
   return <SliceContext.Provider value={slices}>{children}</SliceContext.Provider>
 }
@@ -50,10 +50,15 @@ export function PulseProvider({ children }: { children: ReactNode }) {
 
   const read = useCallback(() => stateRef.current, [])
 
+  const dismissToast = useCallback(() => {
+    if (toastTimer.current) window.clearTimeout(toastTimer.current)
+    setToast(null)
+  }, [])
+
   const notify = useCallback((message: string) => {
     setToast(message)
     if (toastTimer.current) window.clearTimeout(toastTimer.current)
-    toastTimer.current = window.setTimeout(() => setToast(null), 3200)
+    toastTimer.current = window.setTimeout(() => setToast(null), 4200)
   }, [])
 
   const feedback = useCallback((type: FeedbackKind) => {
@@ -65,8 +70,8 @@ export function PulseProvider({ children }: { children: ReactNode }) {
   }, [state.theme])
 
   const core = useMemo<PulseCore>(
-    () => ({ state, read, commit, notify, toast, decayAlert, setDecayAlert, feedback }),
-    [commit, decayAlert, feedback, notify, read, state, toast],
+    () => ({ state, read, commit, notify, dismissToast, toast, decayAlert, setDecayAlert, feedback }),
+    [commit, decayAlert, dismissToast, feedback, notify, read, state, toast],
   )
 
   return (

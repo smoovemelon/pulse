@@ -12,14 +12,14 @@ export const DEMO_ACTION = {
 
 export const DEMO_SPEND = {
   title: 'Coffee',
-  category: 'gear' as const,
+  category: 'items' as const,
   measurementType: 'money' as const,
   amount: '5',
 }
 
 export const DEMO_BOUNTY = {
   title: 'Dinner out',
-  category: 'dining' as const,
+  category: 'food' as const,
   measurementType: 'money' as const,
   amount: '18',
 }
@@ -79,7 +79,7 @@ function demoTransactions(): readonly Transaction[] {
       type: 'SPEND',
       title: 'Coffee',
       points: coffee.cost,
-      category: 'gear',
+      category: 'items',
       formula_breakdown: coffee.tag,
       timestamp: 'Today, 8:05 AM',
       date: daysBefore(0),
@@ -129,10 +129,10 @@ function demoTransactions(): readonly Transaction[] {
 
 function demoVault(): readonly VaultItem[] {
   return [
-    bounty('demo-vault-coffee', 'Coffee', 'gear', 'money', 5),
+    bounty('demo-vault-coffee', 'Coffee', 'items', 'money', 5),
     bounty('demo-vault-queue', 'Ranked queue', 'gaming', 'time', 60),
-    bounty('demo-vault-lunch', 'Lunch', 'dining', 'money', 20),
-    bounty('demo-vault-show', 'Show ticket', 'outings', 'money', 80),
+    bounty('demo-vault-lunch', 'Lunch', 'food', 'money', 20),
+    bounty('demo-vault-show', 'Show ticket', 'events', 'money', 80),
   ]
 }
 

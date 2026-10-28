@@ -3,13 +3,10 @@ import type { VaultFilter } from '../../types'
 
 const FILTERS: ReadonlyArray<readonly [VaultFilter, string]> = [
   ['ALL', 'All'],
-  ['gaming', 'Game'],
-  ['streaming', 'Stream'],
-  ['social', 'Social'],
-  ['dining', 'Dining'],
-  ['gear', 'Gear'],
-  ['outings', 'Out'],
-  ['custom', 'Custom'],
+  ['gaming', 'Gaming'],
+  ['food', 'Food/Drink'],
+  ['items', 'Items'],
+  ['events', 'Events'],
 ]
 
 export function VaultFilters({

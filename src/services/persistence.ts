@@ -1,5 +1,5 @@
 import { DAILY_GOAL, DEFAULT_ANCHOR, localDateKey } from '../lib/dates'
-import { disciplineDefaults, migrateLegacyVault, resolveStreak } from './engine'
+import { canonicalVaultCategory, disciplineDefaults, migrateLegacyVault, resolveStreak } from './engine'
 import type {
   EconomyConfig,
   PulseState,
@@ -61,6 +61,7 @@ function readDiscipline(value: unknown) {
     ...fallback,
     ...(parsed as Partial<ReturnType<typeof disciplineDefaults>>),
     decks: parsed.decks as PulseState['decks'],
+    difficultyLocked: parsed.difficultyLocked === true,
   }
 }
 
@@ -81,7 +82,8 @@ function readUnknownValue(raw: string): unknown {
 }
 
 const WEIGHT_CLASSES = ['Heavyweight (2.0x)', 'Cruiserweight (1.5x)', 'Middleweight (1.0x)', 'Lightweight (1.0x)', 'Lightweight (0.5x)'] as const
-const VAULT_CATEGORIES = ['gaming', 'streaming', 'social', 'dining', 'gear', 'outings', 'custom'] as const
+const VAULT_CATEGORIES = ['gaming', 'food', 'items', 'events'] as const
+const RETIRED_VAULT = ['streaming', 'social', 'dining', 'gear', 'outings', 'custom'] as const
 const LEGACY_SPEND = ['Gaming', 'Items', 'Dining', 'Events'] as const
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -97,7 +99,10 @@ function isVaultCategory(value: unknown): value is VaultCategory {
 }
 
 function isSpendCategory(value: unknown): value is SpendCategory {
-  return isVaultCategory(value) || (LEGACY_SPEND as readonly string[]).includes(String(value)) || value === 'Decay Audit'
+  return isVaultCategory(value)
+    || (RETIRED_VAULT as readonly string[]).includes(String(value))
+    || (LEGACY_SPEND as readonly string[]).includes(String(value))
+    || value === 'Decay Audit'
 }
 
 function isMeasurement(value: unknown): value is VaultMeasurement {
@@ -167,11 +172,12 @@ export function parseTransactions(value: unknown): readonly Transaction[] | null
 export function parseVaultItem(value: unknown): VaultItem | null {
   if (!isRecord(value)) return null
   if (typeof value.id !== 'string' || typeof value.title !== 'string') return null
-  if (isVaultCategory(value.category) && isMeasurement(value.measurementType) && finiteNumber(value.baseCost) !== undefined) {
+  const category = typeof value.category === 'string' ? canonicalVaultCategory(value.category) : null
+  if (category && isMeasurement(value.measurementType) && finiteNumber(value.baseCost) !== undefined) {
     return {
       id: value.id,
       title: value.title,
-      category: value.category,
+      category,
       measurementType: value.measurementType,
       durationMinutes: finiteNumber(value.durationMinutes),
       priceDollars: finiteNumber(value.priceDollars),

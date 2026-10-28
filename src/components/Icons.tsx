@@ -285,9 +285,30 @@ export function EventsIcon({ className = 'w-4 h-4' }: IconProps) {
   )
 }
 
-export function CategoryIcon({ kind, className = 'w-4 h-4' }: IconProps & { kind: 'gaming' | 'items' | 'dining' | 'events' }) {
+export function FoodIcon({ className = 'w-4 h-4' }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M5 3v6a3 3 0 0 0 6 0V3" />
+      <path d="M8 3v18" />
+      <path d="M14 4h4.2a2.2 2.2 0 0 1 2.2 2.2V9a3.2 3.2 0 0 1-3.2 3.2H14" />
+      <path d="M14 4v8.2" />
+    </Svg>
+  )
+}
+
+export function FoundationIcon({ className = 'w-5 h-5' }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 8h16" />
+      <path d="M6 12h12" />
+      <path d="M8 16h8" />
+    </Svg>
+  )
+}
+
+export function CategoryIcon({ kind, className = 'w-4 h-4' }: IconProps & { kind: 'gaming' | 'food' | 'items' | 'events' }) {
   if (kind === 'gaming') return <GamingIcon className={className} />
-  if (kind === 'dining') return <DiningIcon className={className} />
+  if (kind === 'food') return <FoodIcon className={className} />
   if (kind === 'events') return <EventsIcon className={className} />
   return <ItemsIcon className={className} />
 }

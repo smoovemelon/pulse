@@ -8,18 +8,19 @@ import { DeckSettings } from './DeckSettings'
 export function HabitStack() {
   const habits = useHabits()
   const [editing, setEditing] = useState(false)
+  const [ptoConfirm, setPtoConfirm] = useState(false)
   const open = nextOpenHabit(habits.decks, habits.habitDay.completedIds)
   const locked = habits.cooldownMs > 0
   const hours = Math.ceil(habits.cooldownMs / 3600000)
 
   return (
-    <Surface data-tour="chain" data-testid="habit-stack" className="flex flex-col gap-3 p-4">
+    <Surface data-testid="habit-stack" className="flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <Eyebrow>The Chain</Eyebrow>
-          <p className="text-sm font-extrabold text-ink">{habits.chainStreak} day chain · {habits.ptoTokens} PTO</p>
+          <Eyebrow>Foundation</Eyebrow>
+          <p className="text-sm font-extrabold text-ink">{habits.chainStreak} day foundation · {habits.ptoTokens} PTO</p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
           <Button
             tone="card"
             aria-expanded={editing}
@@ -28,9 +29,27 @@ export function HabitStack() {
           >
             {editing ? 'Done' : 'Edit'}
           </Button>
-          <Button tone="card" onClick={habits.usePto} className="rounded-xl px-3 py-2 text-[11px] font-extrabold">
-            Use PTO
-          </Button>
+          {ptoConfirm ? (
+            <>
+              <Button tone="card" onClick={() => setPtoConfirm(false)} className="rounded-xl px-3 py-2 text-[11px] font-extrabold">
+                Cancel
+              </Button>
+              <Button
+                tone="dark"
+                onClick={() => {
+                  setPtoConfirm(false)
+                  habits.usePto()
+                }}
+                className="rounded-xl px-3 py-2 text-[11px] font-extrabold"
+              >
+                Confirm
+              </Button>
+            </>
+          ) : (
+            <Button tone="card" onClick={() => setPtoConfirm(true)} className="rounded-xl px-3 py-2 text-[11px] font-extrabold">
+              Use PTO
+            </Button>
+          )}
         </div>
       </div>
       {habits.warnings.length > 0 && (

@@ -1,13 +1,16 @@
+import type { ReactNode } from 'react'
 import { useSensory } from '../hooks/useSensory'
-import { FeedIcon, PlusIcon, VaultIcon } from './Icons'
+import { FeedIcon, FoundationIcon, PlusIcon, VaultIcon } from './Icons'
+
+export type DockTab = 'feed' | 'foundation' | 'vault'
 
 export function Dock({
   tab,
   onTab,
   onAction,
 }: {
-  tab: 'feed' | 'vault'
-  onTab: (tab: 'feed' | 'vault') => void
+  tab: DockTab
+  onTab: (tab: DockTab) => void
   onAction: () => void
 }) {
   const { feedback } = useSensory()
@@ -15,23 +18,32 @@ export function Dock({
   return (
     <nav className="dock-bar">
       <div
-        className="w-full max-w-[430px] rounded-[32px] p-2 border border-line shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14)] flex items-center justify-between pointer-events-auto relative"
+        className="pointer-events-auto relative grid w-full max-w-[430px] grid-cols-[1fr_1fr_76px_1fr] items-center rounded-[32px] border border-line p-2 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14)]"
         style={{ background: 'var(--dock)', backdropFilter: 'blur(24px)' }}
       >
-        <button
-          type="button"
+        <DockTabButton
+          label="Feed"
+          active={tab === 'feed'}
           onClick={() => {
             feedback('click')
             onTab('feed')
           }}
-          className={`press focus-ring flex flex-1 flex-col items-center justify-center rounded-2xl py-2 font-black ${
-            tab === 'feed' ? 'text-ink' : 'text-faint'
-          }`}
         >
-          <FeedIcon className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] uppercase tracking-wider font-extrabold">Feed</span>
-        </button>
-        <div className="relative -top-3.5 flex justify-center items-center px-2">
+          <FeedIcon className="mb-0.5 h-5 w-5" />
+        </DockTabButton>
+        <DockTabButton
+          label="Foundation"
+          testId="nav-foundation"
+          tour="foundation"
+          active={tab === 'foundation'}
+          onClick={() => {
+            feedback('click')
+            onTab('foundation')
+          }}
+        >
+          <FoundationIcon className="mb-0.5 h-5 w-5" />
+        </DockTabButton>
+        <div className="relative -top-3.5 flex items-center justify-center">
           <button
             type="button"
             data-testid="open-action"
@@ -43,25 +55,53 @@ export function Dock({
             className="focus-ring flex h-[72px] w-[72px] items-center justify-center rounded-full border text-3xl font-light shadow-[0_12px_28px_rgba(0,0,0,0.35)] depth-button-dark transition-transform active:scale-90"
             aria-label="Log action"
           >
-            <PlusIcon className="w-7 h-7" />
+            <PlusIcon className="h-7 w-7" />
           </button>
         </div>
-        <button
-          type="button"
-          data-testid="nav-vault"
-          data-tour="vault"
+        <DockTabButton
+          label="Vault"
+          testId="nav-vault"
+          tour="vault"
+          active={tab === 'vault'}
           onClick={() => {
             feedback('click')
             onTab('vault')
           }}
-          className={`press focus-ring flex flex-1 flex-col items-center justify-center rounded-2xl py-2 font-black ${
-            tab === 'vault' ? 'text-ink' : 'text-faint'
-          }`}
         >
-          <VaultIcon className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] uppercase tracking-wider font-extrabold">Vault</span>
-        </button>
+          <VaultIcon className="mb-0.5 h-5 w-5" />
+        </DockTabButton>
       </div>
     </nav>
+  )
+}
+
+function DockTabButton({
+  label,
+  active,
+  onClick,
+  testId,
+  tour,
+  children,
+}: {
+  readonly label: string
+  readonly active: boolean
+  readonly onClick: () => void
+  readonly testId?: string
+  readonly tour?: string
+  readonly children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      data-testid={testId}
+      data-tour={tour}
+      onClick={onClick}
+      className={`press focus-ring flex flex-col items-center justify-center rounded-2xl py-2 font-black ${
+        active ? 'text-ink' : 'text-faint'
+      }`}
+    >
+      {children}
+      <span className="text-[9px] font-extrabold uppercase tracking-wider">{label}</span>
+    </button>
   )
 }

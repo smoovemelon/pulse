@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Dashboard } from './components/Dashboard/Dashboard'
 import { HabitStack } from './components/Habits/HabitStack'
-import { Dock } from './components/Dock'
+import { Dock, type DockTab } from './components/Dock'
 import { Feed } from './components/Feed/Feed'
 import { Header } from './components/Header'
 import { IntroTour } from './components/Intro/IntroTour'
@@ -29,7 +29,7 @@ function Shell() {
   const { decayAlert, dismissDecay } = usePulseEconomy()
   const { saveUsername } = useSettings()
   const identityOpen = !state.isOnboarded || state.username.trim() === ''
-  const [tab, setTab] = useState<'feed' | 'vault'>('feed')
+  const [tab, setTab] = useState<DockTab>('feed')
   const [modal, setModal] = useState<OpenModal>(null)
   const [resumeAction, setResumeAction] = useState(false)
   const [editing, setEditing] = useState<VaultItem | null>(null)
@@ -43,7 +43,7 @@ function Shell() {
   const resumeRef = useRef(resumeAction)
   resumeRef.current = resumeAction
 
-  useBackLayer(tab === 'vault', () => setTab('feed'))
+  useBackLayer(tab !== 'feed', () => setTab('feed'))
   useBackLayer(modal === 'action' || resumeAction, () => {
     setResumeAction(false)
     setModal(null)
@@ -101,9 +101,10 @@ function Shell() {
                 setModal('anchor')
               }}
             />
-            <HabitStack />
             <Feed />
           </>
+        ) : tab === 'foundation' ? (
+          <HabitStack />
         ) : (
           <Vault
             onAdd={() => {

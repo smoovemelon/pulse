@@ -6,6 +6,7 @@ export interface PulseCore {
   read: () => PulseState
   commit: (next: PulseState) => PulseState
   notify: (message: string) => void
+  dismissToast: () => void
   readonly toast: string | null
   readonly decayAlert: DecayAlert | null
   setDecayAlert: (alert: DecayAlert | null) => void

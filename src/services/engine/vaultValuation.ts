@@ -1,4 +1,4 @@
-import type { EconomyConfig, EconomyDifficulty, VaultItem, VaultMeasurement, VaultQuote, VaultValidation } from '../../types'
+import type { EconomyConfig, EconomyDifficulty, PulseState, VaultCategory, VaultItem, VaultMeasurement, VaultQuote, VaultValidation } from '../../types'
 
 export function economyPreset(difficulty: EconomyDifficulty): EconomyConfig {
   if (difficulty === 'lenient') return { difficulty, timeMultiplier: 80, cashMultiplier: 12 }
@@ -8,10 +8,34 @@ export function economyPreset(difficulty: EconomyDifficulty): EconomyConfig {
 
 export const BALANCED_ECONOMY = economyPreset('balanced')
 
-export function measurementFor(category: string): VaultMeasurement | 'either' {
-  if (category === 'gaming' || category === 'streaming' || category === 'social') return 'time'
-  if (category === 'dining' || category === 'gear' || category === 'outings') return 'money'
-  return 'either'
+export function canonicalVaultCategory(value: string): VaultCategory | null {
+  if (value === 'gaming' || value === 'streaming' || value === 'social' || value === 'Gaming') return 'gaming'
+  if (value === 'food' || value === 'dining' || value === 'Dining') return 'food'
+  if (value === 'items' || value === 'gear' || value === 'custom' || value === 'Items') return 'items'
+  if (value === 'events' || value === 'outings' || value === 'Events') return 'events'
+  return null
+}
+
+export function measurementFor(category: string): VaultMeasurement {
+  return canonicalVaultCategory(category) === 'gaming' ? 'time' : 'money'
+}
+
+export function applyDifficulty(
+  state: PulseState,
+  difficulty: EconomyDifficulty,
+): { readonly ok: true; readonly state: PulseState } | { readonly ok: false } {
+  if (state.economy.difficulty === difficulty) return { ok: true, state }
+  if (state.difficultyLocked) return { ok: false }
+  const economy = economyPreset(difficulty)
+  return {
+    ok: true,
+    state: {
+      ...state,
+      difficultyLocked: true,
+      economy,
+      vaultItems: repriceVault(state.vaultItems, economy),
+    },
+  }
 }
 
 export function calculateVaultValuation(measurement: VaultMeasurement, amountRaw: number, config: EconomyConfig = BALANCED_ECONOMY): VaultQuote {
@@ -68,7 +92,7 @@ export function migrateLegacyVault(category: string, cost: number, id: string, t
   }
   if (category === 'Items' || category === 'Dining' || category === 'Events') {
     const priceDollars = Math.round(cost / 20)
-    const mapped = category === 'Items' ? 'gear' : category === 'Dining' ? 'dining' : 'outings'
+    const mapped = canonicalVaultCategory(category) ?? 'items'
     const baseCost = calculateVaultValuation('money', priceDollars, BALANCED_ECONOMY).cost
     return { id, title, category: mapped, measurementType: 'money', durationMinutes: 0, priceDollars, baseCost, createdAt }
   }

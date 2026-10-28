@@ -5,7 +5,7 @@ import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { DEMO_SPEND } from '../../services/demo'
 import { calculateVaultValuation, measurementFor } from '../../services/engine'
-import type { VaultCategory, VaultMeasurement } from '../../types'
+import type { VaultCategory } from '../../types'
 import { Button } from '../Common/Button'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { CategoryPicker } from '../Common/CategoryPicker'
@@ -33,11 +33,9 @@ function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
   const { feedback } = useSensory()
   const { demoMode, economy } = useSettings()
   const [title, setTitle] = useState(demoMode ? DEMO_SPEND.title : '')
-  const [category, setCategory] = useState<VaultCategory>(demoMode ? DEMO_SPEND.category : 'gear')
-  const [custom, setCustom] = useState<VaultMeasurement>('money')
+  const [category, setCategory] = useState<VaultCategory>(demoMode ? DEMO_SPEND.category : 'items')
   const [amount, setAmount] = useState(demoMode ? DEMO_SPEND.amount : '')
-  const kind = measurementFor(category)
-  const measurement: VaultMeasurement = kind === 'either' ? custom : kind
+  const measurement = measurementFor(category)
 
   const quote = useMemo(
     () => calculateVaultValuation(measurement, Number(amount) || 0, economy),
@@ -73,13 +71,6 @@ function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
       </div>
 
       <CategoryPicker value={category} onChange={choose} />
-
-      {category === 'custom' && (
-        <div className="grid grid-cols-2 gap-2">
-          <Button tone={custom === 'time' ? 'pillActive' : 'pill'} onClick={() => setCustom('time')} className="rounded-xl py-2 text-[10px] font-extrabold">Minutes</Button>
-          <Button tone={custom === 'money' ? 'pillActive' : 'pill'} onClick={() => setCustom('money')} className="rounded-xl py-2 text-[10px] font-extrabold">Dollars</Button>
-        </div>
-      )}
       <div className="flex flex-col gap-1">
         <label htmlFor="spend-amount" className="text-[9px] font-extrabold uppercase text-muted">
           {measurement === 'time' ? 'Duration (min)' : 'Price (USD)'}

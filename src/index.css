@@ -343,9 +343,30 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
   background: conic-gradient(var(--ink) var(--turn, 0deg), var(--line) 0deg);
 }
 
+@keyframes catFloat {
+  0%,
+  100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+.cat-float {
+  animation: catFloat 3.4s ease-in-out infinite;
+}
+
+@keyframes alertIn {
+  from { transform: translateY(-8px); }
+  to { transform: none; }
+}
+
+.alert-in {
+  animation: alertIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .intro-step,
-  .streak-today-ring {
+  .streak-today-ring,
+  .cat-float,
+  .alert-in {
     animation: none;
   }
 }

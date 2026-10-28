@@ -46,7 +46,7 @@ Vault dial, default balanced:
 - Balanced: 120 PTS/hour, 20 PTS per dollar.
 - Hardcore: 160 PTS/hour, 30 PTS per dollar.
 - Time: `round((minutes / 60) × timeMultiplier)`. Money: `round(dollars × cashMultiplier)`.
-- Categories: gaming, streaming, and social are time. Dining, gear, and outings are money. Custom is either.
+- Categories: Gaming is time. Food/Drink, Items, and Events are money.
 
 Forge target starts at 120. After that it is the median judged points of the last 7 active days, clamped to 80–180. Habit bounties are not judged points. Grace is half the active target. At or above the target, the forge streak grows. From half up to the target, it holds. Under half, it resets and charges 15 points, or 20 points at tier 2 or higher. The chain streak grows only when all 3 decks are complete. Privileges use `min(chainStreak, forgeStreak)`. Judged logs are not multiplied by a streak.
 

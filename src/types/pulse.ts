@@ -1,10 +1,11 @@
 export type TxType = 'EARN' | 'SPEND'
 export type FeedFilter = 'ALL' | 'HEAVY' | 'ALIGNED' | 'SPEND'
-export type VaultCategory = 'gaming' | 'streaming' | 'social' | 'dining' | 'gear' | 'outings' | 'custom'
+export type VaultCategory = 'gaming' | 'food' | 'items' | 'events'
+export type RetiredVaultCategory = 'streaming' | 'social' | 'dining' | 'gear' | 'outings' | 'custom'
 export type LegacySpendCategory = 'Gaming' | 'Items' | 'Dining' | 'Events'
 export type VaultMeasurement = 'time' | 'money'
 export type VaultFilter = 'ALL' | VaultCategory
-export type SpendCategory = VaultCategory | LegacySpendCategory | 'Decay Audit'
+export type SpendCategory = VaultCategory | RetiredVaultCategory | LegacySpendCategory | 'Decay Audit'
 export type EconomyDifficulty = 'lenient' | 'balanced' | 'hardcore'
 export interface EconomyConfig {
   readonly difficulty: EconomyDifficulty
@@ -77,6 +78,7 @@ export interface PulseState {
   readonly lastChainCompletedDate: string
   readonly lastForgeCompletedDate: string
   readonly economy: EconomyConfig
+  readonly difficultyLocked: boolean
   readonly streakState: StreakState
   readonly username: string
   readonly isOnboarded: boolean

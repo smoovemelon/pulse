@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { localDateKey } from '../../lib/dates'
 import { runDecayAudit } from '../audit'
 import { forgeTarget } from '../engine/forge'
-import { migrateLegacyVault } from '../engine/vaultValuation'
+import { applyDifficulty, migrateLegacyVault } from '../engine/vaultValuation'
 import { distributeHabitPoints, nextOpenHabit } from '../engine/habits'
 import { scoreJudgment } from '../engine/judging'
 import { closedDayWarnings, cooldownRemaining, defaultPacing, proposePacing, settleDiscipline } from '../engine/pacing'
@@ -110,7 +110,7 @@ describe('pacing locks', () => {
     const gaming = migrateLegacyVault('Gaming', 120, 'g', 'Queue')
     const gear = migrateLegacyVault('Items', 100, 'i', 'Mug')
     expect(gaming).toMatchObject({ category: 'gaming', measurementType: 'time', durationMinutes: 60, baseCost: 120 })
-    expect(gear).toMatchObject({ category: 'gear', measurementType: 'money', priceDollars: 5, baseCost: 100 })
+    expect(gear).toMatchObject({ category: 'items', measurementType: 'money', priceDollars: 5, baseCost: 100 })
   })
 
   it('charges 20 points when tier 2 misses the grace floor', () => {
@@ -137,5 +137,15 @@ describe('pacing locks', () => {
     expect(result.state.forgeStreak).toBe(0)
     vi.useRealTimers()
     vi.unstubAllGlobals()
+  })
+
+  it('allows one dial change, then keeps that choice', () => {
+    const first = applyDifficulty(freshState(), 'hardcore')
+    expect(first.ok).toBe(true)
+    if (!first.ok) return
+    expect(first.state.difficultyLocked).toBe(true)
+    expect(first.state.economy.difficulty).toBe('hardcore')
+    expect(applyDifficulty(first.state, 'lenient').ok).toBe(false)
+    expect(applyDifficulty(first.state, 'hardcore').ok).toBe(true)
   })
 })

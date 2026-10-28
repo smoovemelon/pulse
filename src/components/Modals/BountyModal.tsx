@@ -5,7 +5,7 @@ import { useSettings } from '../../hooks/useSettings'
 import { useVault } from '../../hooks/useVault'
 import { DEMO_BOUNTY } from '../../services/demo'
 import { calculateVaultValuation, measurementFor } from '../../services/engine'
-import type { VaultCategory, VaultItem, VaultMeasurement } from '../../types'
+import type { VaultCategory, VaultItem } from '../../types'
 import { Button } from '../Common/Button'
 import { CategoryPicker } from '../Common/CategoryPicker'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
@@ -17,14 +17,12 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
   const { saveBounty } = useVault()
   const seeded = !item && demoMode
   const [title, setTitle] = useState(item?.title ?? (seeded ? DEMO_BOUNTY.title : ''))
-  const [category, setCategory] = useState<VaultCategory>(item?.category ?? (seeded ? DEMO_BOUNTY.category : 'gear'))
-  const [custom, setCustom] = useState<VaultMeasurement>(item?.measurementType ?? 'money')
+  const [category, setCategory] = useState<VaultCategory>(item?.category ?? (seeded ? DEMO_BOUNTY.category : 'items'))
   const startingAmount = item
     ? String(item.measurementType === 'time' ? item.durationMinutes ?? 0 : item.priceDollars ?? 0)
     : seeded ? DEMO_BOUNTY.amount : ''
   const [amount, setAmount] = useState(startingAmount)
-  const kind = measurementFor(category)
-  const measurement: VaultMeasurement = kind === 'either' ? custom : kind
+  const measurement = measurementFor(category)
   const quote = useMemo(
     () => calculateVaultValuation(measurement, Number(amount) || 0, economy),
     [amount, economy, measurement],
@@ -70,13 +68,6 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
       </div>
 
       <CategoryPicker value={category} onChange={choose} />
-
-      {category === 'custom' && (
-        <div className="grid grid-cols-2 gap-2">
-          <Button tone={custom === 'time' ? 'pillActive' : 'pill'} onClick={() => setCustom('time')} className="rounded-xl py-2 text-[10px] font-extrabold">Minutes</Button>
-          <Button tone={custom === 'money' ? 'pillActive' : 'pill'} onClick={() => setCustom('money')} className="rounded-xl py-2 text-[10px] font-extrabold">Dollars</Button>
-        </div>
-      )}
       <div className="flex flex-col gap-1">
         <label htmlFor="bounty-usd" className="text-[9px] font-extrabold uppercase text-muted">
           {measurement === 'time' ? 'Duration (min)' : 'Price (USD)'}

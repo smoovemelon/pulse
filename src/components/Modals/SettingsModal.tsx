@@ -3,11 +3,13 @@ import { RELEASE_LABEL } from '../../release'
 import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { Button } from '../Common/Button'
+import { DifficultyDial } from '../Common/DifficultyDial'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
+import { Well } from '../Common/primitives'
 import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
-  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo, username, saveUsername, economy, saveDifficulty } = useSettings()
+  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo, username, saveUsername } = useSettings()
   const { feedback } = useSensory()
   const [key, setKey] = useState(apiKey)
   const [name, setName] = useState(username)
@@ -99,24 +101,10 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
         </Button>
       </div>
 
-      <div className="depth-well rounded-2xl p-4 flex flex-col gap-2">
+      <Well className="flex flex-col gap-2 p-4">
         <span className="eyebrow eyebrow-muted">Discipline dial</span>
-        <div className="grid grid-cols-3 gap-2">
-          {(['lenient', 'balanced', 'hardcore'] as const).map((level) => (
-            <Button
-              key={level}
-              tone={economy.difficulty === level ? 'pillActive' : 'pill'}
-              onClick={() => saveDifficulty(level)}
-              className="rounded-xl py-2 text-[10px] font-extrabold uppercase"
-            >
-              {level}
-            </Button>
-          ))}
-        </div>
-        <p className="text-[10px] font-bold text-faint">
-          {economy.timeMultiplier} PTS/hr · {economy.cashMultiplier} PTS/$
-        </p>
-      </div>
+        <DifficultyDial />
+      </Well>
 
       <div className="depth-well rounded-2xl p-4 flex flex-col gap-2.5">
         <span className="eyebrow eyebrow-muted block">Data & Backups</span>
@@ -162,29 +150,20 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
         </button>
         {formulasOpen && <EconomyRules />}
       </div>
-      <div className="depth-well rounded-2xl px-4 py-3 flex flex-col gap-2">
-        <div>
-          <span className="text-xs font-extrabold tracking-tight text-ink block">Developer</span>
-          <span className="text-[10px] text-muted">Sample data for quick testing, or a clean device.</span>
-        </div>
+      <Well className="flex flex-col gap-3 px-4 py-3">
+        <span className="eyebrow eyebrow-muted">Developer</span>
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <span className="text-xs font-extrabold tracking-tight text-ink block">Demo mode</span>
-            <span className="text-[10px] text-muted">Fills the ledger, vault, and forms. Turning this off restores your data.</span>
-          </div>
+          <span className="text-xs font-extrabold tracking-tight text-ink">Demo mode</span>
           <Button
             tone="card"
             data-testid="demo-mode"
             onClick={toggleDemo}
-            className={`px-2.5 py-1 rounded-lg text-[10px] font-black shrink-0 ${
+            className={`shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-black ${
               demoMode ? 'text-emerald-700 border-emerald-200' : 'text-muted'
             }`}
           >
             {demoMode ? 'On' : 'Off'}
           </Button>
-        </div>
-        <div>
-          <span className="text-[10px] text-muted">Start over as a new user. This clears the balance, ledger, and vault on this device.</span>
         </div>
         {freshArmed ? (
           <div className="grid grid-cols-2 gap-2">
@@ -220,7 +199,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
             Start fresh
           </Button>
         )}
-      </div>
+      </Well>
       <p data-testid="build-indicator" className="text-center font-num text-[10px] font-bold tracking-wide text-faint">
         Altius {RELEASE_LABEL}
       </p>
@@ -236,7 +215,7 @@ function EconomyRules() {
         <p>
           Base = <Figure tone="earn">Strain (1–10) × 8 × (Duration / 45)<sup>0.45</sup></Figure>
         </p>
-        <p>Gemini rates the log. The app multiplies those ratings. Habit decks pay a flat share of a 60–85 point pool.</p>
+        <p>Gemini rates the log. The app multiplies those ratings. Foundation decks pay a flat share of a 60–85 point pool.</p>
         <ul className="flex flex-col gap-1">
           <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Strain</span><span className="font-num font-extrabold text-ink">60 / 40 / 20</span></li>
           <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Relevance</span><span className="font-num font-extrabold text-ink">1 / 0.75 / 0.5</span></li>
@@ -251,12 +230,12 @@ function EconomyRules() {
         <RuleTitle>2. Manual Vault Rules</RuleTitle>
         <Rule>
           <Tag chip="chip-violet">Time</Tag>
-          <p>Gaming, streaming, and social. Minutes divided by 60, times the dial.</p>
+          <p>Gaming. Minutes divided by 60, times the dial.</p>
           <p><Figure tone="spend">80 / 120 / 160 PTS per hour</Figure></p>
         </Rule>
         <Rule>
           <Tag chip="chip-sky">Money</Tag>
-          <p>Dining, gear, and outings. Dollars times the dial.</p>
+          <p>Food/Drink, Items, and Events. Dollars times the dial.</p>
           <p><Figure tone="spend">12 / 20 / 30 PTS per dollar</Figure></p>
         </Rule>
         <p>

@@ -21,6 +21,7 @@ export function disciplineDefaults(now = new Date()) {
     lastChainCompletedDate: '',
     lastForgeCompletedDate: '',
     economy: economyPreset('balanced'),
+    difficultyLocked: false,
     discountFrozenUntil: '',
     habitsNeedScore: true,
   }

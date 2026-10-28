@@ -33,7 +33,7 @@ export function SplitCapsule({
             </span>
           </div>
           <div className="min-w-0 text-right">
-            <Eyebrow>Chain</Eyebrow>
+            <Eyebrow>Foundation</Eyebrow>
             <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">
               {decksComplete}
               <span className="text-muted"> / 3 DECKS</span>
@@ -43,10 +43,10 @@ export function SplitCapsule({
         <div
           className="relative h-8 overflow-hidden rounded-full border border-zinc-400 bg-card dark:border-zinc-500"
           role="img"
-          aria-label={`Forge ${earned} of ${goal} points. Chain ${decksComplete} of 3 decks.`}
+          aria-label={`Forge ${earned} of ${goal} points. Foundation ${decksComplete} of 3 decks.`}
         >
-          <span className="absolute inset-y-0 right-1/2 bg-orange-500" style={{ width: `${forge / 2}%` }} />
-          <span className="absolute inset-y-0 left-1/2 bg-blue-500" style={{ width: `${chain / 2}%` }} />
+          <span className="absolute inset-y-0 right-1/2 bg-ink" style={{ width: `${forge / 2}%` }} />
+          <span className="absolute inset-y-0 left-1/2 bg-ink" style={{ width: `${chain / 2}%` }} />
         </div>
         <div data-testid="streak-chip" className="grid grid-cols-2 gap-2 border-t border-line pt-2.5">
           <div>

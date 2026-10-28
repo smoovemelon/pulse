@@ -44,4 +44,4 @@ export {
   streakTier,
   weekStrip,
 } from './streak'
-export { BALANCED_ECONOMY, calculateVaultValuation, economyPreset, measurementFor, migrateLegacyVault, repriceVault, validateVaultDraft, vaultTag } from './vaultValuation'
+export { BALANCED_ECONOMY, applyDifficulty, calculateVaultValuation, canonicalVaultCategory, economyPreset, measurementFor, migrateLegacyVault, repriceVault, validateVaultDraft, vaultTag } from './vaultValuation'

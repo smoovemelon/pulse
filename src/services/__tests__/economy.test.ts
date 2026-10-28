@@ -467,7 +467,7 @@ describe('demo mode', () => {
         {
           id: 'real',
           title: 'Tea',
-          category: 'gear' as const,
+          category: 'items' as const,
           measurementType: 'money' as const,
           priceDollars: 2,
           baseCost: 40,
@@ -488,7 +488,7 @@ describe('demo mode', () => {
     expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Cruiserweight'))).toBe(true)
     expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Middleweight'))).toBe(true)
     expect(demo.transactions.some((tx) => tx.type === 'SPEND')).toBe(true)
-    expect(demo.vaultItems.map((item) => item.category).sort()).toEqual(['dining', 'gaming', 'gear', 'outings'])
+    expect(demo.vaultItems.map((item) => item.category).sort()).toEqual(['events', 'food', 'gaming', 'items'])
     const net = demo.transactions.reduce((sum, tx) => sum + (tx.type === 'EARN' ? tx.points : -tx.points), 0)
     expect(demo.balance).toBe(net)
     const coffee = demo.vaultItems.find((item) => item.title === 'Coffee')
@@ -553,7 +553,7 @@ describe('intro', () => {
     expect(shouldIntroduce({ ...freshState(), transactions: [earn('2026-10-21', 40)] })).toBe(false)
     expect(shouldIntroduce({
       ...freshState(),
-      vaultItems: [{ id: 'v', title: 'Coffee', category: 'gear', measurementType: 'money', priceDollars: 5, baseCost: 100, createdAt: '2026-10-21T00:00:00.000Z' }],
+      vaultItems: [{ id: 'v', title: 'Coffee', category: 'items', measurementType: 'money', priceDollars: 5, baseCost: 100, createdAt: '2026-10-21T00:00:00.000Z' }],
     })).toBe(false)
     expect(shouldIntroduce({ ...freshState(), disciplineAnchor: 'Be a studious student.' })).toBe(false)
     expect(shouldIntroduce(freshState())).toBe(true)

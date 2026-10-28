@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { callGemini } from '../lib/gemini'
 import { enterDemo, exitDemo } from '../services/demo'
-import { economyPreset, repriceVault } from '../services/engine'
+import { applyDifficulty, economyPreset } from '../services/engine'
 import type { EconomyDifficulty } from '../types'
 import { clearDemoSnapshot, clearIntroSeen, exportBackup as downloadBackup, freshState, mergeBackup, restoreStorageBackup } from '../services/persistence'
 import { useCore } from './core'
@@ -21,6 +21,7 @@ export interface SettingsApi {
   checkKey: (candidate?: string) => Promise<void>
   readonly demoMode: boolean
   readonly economy: ReturnType<typeof economyPreset>
+  readonly difficultyLocked: boolean
   saveDifficulty: (difficulty: EconomyDifficulty) => void
   exportBackup: () => void
   importBackup: (file: File) => Promise<boolean>
@@ -156,10 +157,16 @@ export function useSettingsController(): SettingsApi {
 
   const saveDifficulty = useCallback(
     (difficulty: EconomyDifficulty) => {
-      const economy = economyPreset(difficulty)
       const current = read()
+      const next = applyDifficulty(current, difficulty)
+      if (!next.ok) {
+        feedback('error')
+        notify('Start fresh to change the dial')
+        return
+      }
+      if (next.state === current) return
       feedback('click')
-      commit({ ...current, economy, vaultItems: repriceVault(current.vaultItems, economy) })
+      commit(next.state)
       notify(`${difficulty} prices are active`)
     },
     [commit, feedback, notify, read],
@@ -168,6 +175,7 @@ export function useSettingsController(): SettingsApi {
   return {
     apiKey: state.apiKey,
     economy: state.economy,
+    difficultyLocked: state.difficultyLocked,
     saveDifficulty,
     anchor: state.disciplineAnchor,
     theme: state.theme,

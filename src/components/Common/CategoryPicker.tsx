@@ -1,18 +1,18 @@
 import type { VaultCategory } from '../../types'
+import { CategoryIcon } from '../Icons'
 import { Button } from './Button'
 
 const CATEGORIES: ReadonlyArray<{
   readonly id: VaultCategory
   readonly label: string
   readonly sub: string
+  readonly chip: string
+  readonly kind: 'gaming' | 'food' | 'items' | 'events'
 }> = [
-  { id: 'gaming', label: 'Gaming', sub: 'Time' },
-  { id: 'streaming', label: 'Streaming', sub: 'Time' },
-  { id: 'social', label: 'Social', sub: 'Time' },
-  { id: 'dining', label: 'Dining', sub: 'Money' },
-  { id: 'gear', label: 'Gear', sub: 'Money' },
-  { id: 'outings', label: 'Outings', sub: 'Money' },
-  { id: 'custom', label: 'Custom', sub: 'Either' },
+  { id: 'gaming', label: 'Gaming', sub: 'Time', chip: 'chip-violet', kind: 'gaming' },
+  { id: 'food', label: 'Food/Drink', sub: 'Money', chip: 'chip-amber', kind: 'food' },
+  { id: 'items', label: 'Items', sub: 'Money', chip: 'chip-sky', kind: 'items' },
+  { id: 'events', label: 'Events', sub: 'Money', chip: 'chip-emerald', kind: 'events' },
 ]
 
 export function CategoryPicker({
@@ -29,13 +29,16 @@ export function CategoryPicker({
         return (
           <Button
             key={entry.id}
-            tone={active ? 'pillActive' : 'pill'}
+            tone="pill"
             data-testid={`cat-${entry.id}`}
             onClick={() => onChange(entry.id)}
-            className="w-full py-2.5 px-2.5 rounded-xl text-[10px] font-black uppercase flex flex-col items-center justify-center gap-1"
+            className={`flex w-full flex-col items-center justify-center gap-1 rounded-xl px-2.5 py-2.5 text-[10px] font-black uppercase ${active ? entry.chip : ''}`}
           >
+            <span className={`flex h-8 w-8 items-center justify-center rounded-xl border ${entry.chip}`}>
+              <CategoryIcon kind={entry.kind} />
+            </span>
             <span>{entry.label}</span>
-            <span className={`text-[8px] font-extrabold font-num px-1.5 py-0.5 rounded-md whitespace-nowrap ${active ? 'cat-sub-active' : 'chip-zinc'}`}>
+            <span className={`rounded-md px-1.5 py-0.5 font-num text-[8px] font-extrabold whitespace-nowrap ${active ? 'cat-sub-active' : 'chip-zinc'}`}>
               {entry.sub}
             </span>
           </Button>
