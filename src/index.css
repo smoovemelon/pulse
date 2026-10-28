@@ -327,100 +327,10 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
   background: conic-gradient(var(--ink) var(--turn, 0deg), var(--line) 0deg);
 }
 
-.float-3d {
-  perspective: 480px;
-  pointer-events: none;
-  transform: translateX(-50%) scale(var(--cat-scale, 1));
-  transform-origin: center bottom;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.float-3d.is-pulling {
-  transition: none;
-}
-
-.float-3d-shadow {
-  position: absolute;
-  right: 16%;
-  bottom: 10%;
-  left: 16%;
-  height: 16px;
-  border-radius: 999px;
-  background: rgb(0 0 0 / 0.3);
-  filter: blur(12px);
-  pointer-events: none;
-}
-
-.float-3d-hit {
-  width: 100%;
-  height: 100%;
-  pointer-events: auto;
-  transform-style: preserve-3d;
-  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
-  transition: transform 0.28s ease-out;
-}
-
-.float-3d-bob {
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  animation: float3dBob 4.6s ease-in-out infinite;
-}
-
-.float-3d-stage {
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transform: rotateX(26deg);
-}
-
-.float-3d-spin {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  animation: float3dSpin calc(11s / var(--spin-speed, 1)) linear infinite;
-}
-
-.float-3d-face {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  backface-visibility: visible;
-}
-
-.float-3d-pause:hover .float-3d-bob,
-.float-3d-pause:hover .float-3d-spin {
-  animation-play-state: paused;
-}
-
-@keyframes float3dBob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(calc(-8px * var(--float-intensity, 1)));
-  }
-}
-
-@keyframes float3dSpin {
-  from {
-    transform: rotateY(0deg);
-  }
-  to {
-    transform: rotateY(360deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .intro-step,
   .intro-arc,
-  .streak-today-ring,
-  .float-3d-bob,
-  .float-3d-spin {
+  .streak-today-ring {
     animation: none;
   }
 
