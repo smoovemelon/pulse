@@ -30,7 +30,7 @@ export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void 
       />
     </section>
     </div>
-    <section className="depth-card rounded-[28px] p-4 flex flex-col gap-4">
+    <section className="depth-card rounded-[28px] p-4 flex flex-col gap-3">
       <SplitCapsule
         earned={economy.todayEarned}
         goal={economy.dailyGoal}

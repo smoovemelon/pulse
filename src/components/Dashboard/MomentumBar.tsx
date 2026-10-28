@@ -45,10 +45,21 @@ export function SplitCapsule({
           <span className="absolute inset-y-0 right-1/2 bg-orange-500" style={{ width: `${forge / 2}%` }} />
           <span className="absolute inset-y-0 left-1/2 bg-blue-500" style={{ width: `${chain / 2}%` }} />
         </div>
+        <div data-testid="streak-chip" className="grid grid-cols-3 gap-2 border-t border-line pt-2.5 text-center">
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Forge</span>
+            <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{forgeStreak}d</span>
+          </div>
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Chain</span>
+            <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{chainStreak}d</span>
+          </div>
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Tier {tier}</span>
+            <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{discountPercent}% off</span>
+          </div>
+        </div>
       </div>
-      <p data-testid="streak-chip" className="text-center text-[10px] font-extrabold uppercase tracking-widest text-muted">
-        Forge: {forgeStreak}d · Chain: {chainStreak}d · Tier {tier} ({discountPercent}% off)
-      </p>
     </div>
   )
 }

@@ -16,16 +16,18 @@ export function StreakBadge({
   const statusClass = state === 'SECURED' ? 'text-ink' : 'text-muted'
 
   return (
-    <div className="text-ink" role="region" aria-label="Streak">
-      <div className="flex items-end justify-between gap-1.5">
+    <div className="flex flex-col gap-3 text-ink" role="region" aria-label="Streak">
+      <div className="flex items-start justify-between gap-1.5">
         {week.map((day) => (
           <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">{day.label}</span>
-            <DayMark day={day} goal={goal} />
+            <span className="flex h-7 w-full items-center justify-center">
+              <DayMark day={day} goal={goal} />
+            </span>
           </div>
         ))}
       </div>
-      <p data-testid="streak-status" className={`mt-4 text-[11px] font-semibold leading-relaxed ${statusClass}`}>
+      <p data-testid="streak-status" className={`text-center text-[11px] font-semibold leading-relaxed ${statusClass}`}>
         {status}
       </p>
     </div>
@@ -47,11 +49,11 @@ function DayMark({ day, goal }: { readonly day: WeekDay; readonly goal: number }
   }
 
   const tone = day.mark === 'secured'
-    ? 'h-2 bg-ink'
+    ? 'bg-ink'
     : day.mark === 'grace'
-      ? 'h-2 bg-faint'
+      ? 'bg-faint'
       : day.mark === 'missed'
-        ? 'h-2 border border-line bg-well'
-        : 'h-2 border border-line'
-  return <span aria-hidden="true" className={`w-full rounded-full ${tone}`} />
+        ? 'border border-line bg-well'
+        : 'border border-line bg-card'
+  return <span aria-hidden="true" className={`h-5 w-5 rounded-full ${tone}`} />
 }
