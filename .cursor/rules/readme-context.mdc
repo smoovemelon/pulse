@@ -1,0 +1,20 @@
+---
+description: Keep README.md as the Gemini feature-design brief
+alwaysApply: true
+---
+
+# README context
+
+`README.md` is the project brief for feature design. Paste that file into Gemini.
+
+When a change alters product behavior, the economy, the data model, persistence, scoring, or the architecture described there, update `README.md` in the same change. Leave it unchanged for styling, copy, and refactors that do not change those facts.
+
+Keep these sections, in this order:
+
+1. High-Level Vision & Current State
+2. Architecture & File Structure
+3. Data Models & State Management
+4. Key Features & Workflows Implemented
+5. Active Limitations, Edge Cases & Gaps
+
+Write from the code. Do not invent a backend, accounts, or new point formulas. Economy numbers stay in `.cursor/rules/pulse-economy.mdc`.

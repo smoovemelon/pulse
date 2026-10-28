@@ -1,32 +1,40 @@
-# React + TypeScript + Vite
+# Project Technical Summary
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## 1. High-Level Vision & Current State
 
-Currently, two official plugins are available:
+- Altius is a single-user discipline economy. The person names one main goal (the anchor), logs work in plain language, and earns a point balance they can spend on rewards. Work adds points. Leisure takes them back. There is no account, social graph, or cloud sync. The product is a finished client app at release `v1.0.33-prod` (`src/release.ts`), phone-first and also usable in a desktop browser.
+- Target platform is a portrait standalone PWA (`display: standalone`, `orientation: portrait`, theme `#F4F4F5`) aimed at a phone-width column (`max-w-[430px]`). It ships as a static site. A sideload Android package is not part of this repo’s build.
+- Stack: React 19 and TypeScript, Vite 8, Tailwind CSS v4 via `@tailwindcss/vite`. Vitest 5 runs in Node before `tsc -b` and `vite build` (`npm run build`). Lint is Oxlint. Icons are local SVG components in `src/components/Icons.tsx`. `lucide-react` is listed in devDependencies and is not imported. UI font is Plus Jakarta Sans; numbers use Space Grotesk, both loaded from Google Fonts in `index.html`. Production is a static Vite build on Vercel. There is no `vercel.json` and no server runtime in the repo.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 2. Architecture & File Structure
 
-## React Compiler
+- `src/types/pulse.ts` is the only shared model. `src/types/index.ts` re-exports it. `src/services/` holds scoring, audit, persistence, demo data, and the intro gate. `src/services/engine/` is the pure economy. `src/services/economy.ts` re-exports that engine for UI callers. `src/hooks/` owns React state. `src/components/` is presentation. `src/lib/` holds Gemini, dates, greeting, audio, confetti, and the history back stack. `src/App.tsx` is the only screen.
+- There is no router and no server. `PulseProvider` loads state once, and `commit` writes the whole `PulseState` through `saveState`. Screens read slices: economy, ledger, vault, settings, sensory, notice. Overlays are local React state (`feed` | `vault`, plus one modal). The browser back stack in `src/lib/backStack.ts` pushes a history entry per open sheet, vault tab, and intro step so an Android edge swipe closes the top layer. The welcome name sheet is not on that stack.
+- The only third-party API is Gemini, called from the browser in `src/lib/gemini.ts`. `callGemini` posts to `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent` with an 8 second timeout. It tries `gemini-3.8-flash`, then `gemini-3.5-flash-lite`, then `gemini-3-flash-preview`. The key is optional in the request: a stored key is sent as `x-goog-api-key` and a query param; an empty key still hits the endpoint and failure falls through. No other backend, database, or auth provider exists.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 3. Data Models & State Management
 
-## Expanding the Oxlint configuration
+- `PulseState` holds `balance`, `soundEnabled`, `lastAuditDate`, `apiKey`, `disciplineAnchor`, `dailyGoal`, `theme` (`light` | `dark`), `demoMode`, `streakCount`, `streakState` (`STALLED` | `SAFE` | `SECURED`), `username`, `isOnboarded`, `transactions`, and `vaultItems`. `dailyGoal` is always the constant `120` (`DAILY_GOAL` in `src/lib/dates.ts`). Grace floor is `60`. Decay penalty is `15`. The unnamed anchor is `Your main goal`.
+- A `Transaction` is `EARN` or `SPEND` with `id`, `title`, `points`, `timestamp`, `date`, optional `reasoning`, `formula_breakdown`, `effort_strain`, `anchor_alignment`, `multiplier`, and `weight_class`. Spends may use category `Gaming` | `Items` | `Dining` | `Events` | `Decay Audit`. A `VaultItem` is `id`, `title`, `cost`, `category`, `usd`, `hrs`, `formulaTag`. Weight classes are Heavyweight `2.0x`, Cruiserweight `1.5x`, Middleweight `1.0x`, and Lightweight `0.5x`.
+- Persistence is `localStorage` only, one key per field, via `src/services/persistence.ts`. Keys: `pulse_balance`, `pulse_txs`, `pulse_vault`, `pulse_anchor`, `pulse_sound`, `pulse_last_audit`, `pulse_gemini_key`, `pulse_theme`, `pulse_profile`, `pulse_demo`, `pulse_demo_snapshot`, `pulse_intro`, `pulse_streak_count`, `pulse_streak_state`, `pulse_username`, `pulse_onboarded`. `pulse_streak_closed` records the last closed day. `pulse_decay` is removed on save. `navigator.storage.persist()` is requested at startup and its result is only logged.
+- `pulse_profile` must be `fresh-1`. Any other value wipes the profile to `freshState()` on load. Transactions and vault rows are parsed defensively; a totally invalid array becomes empty, and mixed arrays drop the bad rows. `saveState` writes on every `commit`. There is no cross-device sync.
+- Backup export is `{ app: 'Altius', version: '1.4.0', exported_at, storage }` and downloads `altius-backup.json`. Restore replaces app keys, and rolls back if parsing fails. A file without a `storage` envelope is merged by `mergeBackup` (balance, anchor, transactions, vault, sound, username, onboarded only). Demo mode snapshots the real profile in `pulse_demo_snapshot` and restores it on exit. Three version labels coexist: npm `0.0.0`, release `v1.0.33-prod`, backup schema `1.4.0`.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## 4. Key Features & Workflows Implemented
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+- Name gate, then a skippable 7-step intro for an empty, unnamed, unseen profile. Header question mark reopens the guide. Greeting uses the local hour (`morning` 5–11, `afternoon` 12–16, otherwise `evening`) and a lowercased username. Light/dark theme, Web Audio sounds, and vibration patterns.
+- Log and judge: duration is clamped to 5–360 minutes (chips at 15, 30, 45, 60, 90). A named anchor is required. The last four earns are sent as context. The model returns title, category, strain, validity, alignment, rejection reason, and point fields. The app ignores the model’s points and category. `evaluateAnchorAction` scores it. Full credit requires `isValidAnchorAction`, alignment at least 7, and a concrete log (a digit or a keyword such as reps, pages, miles, lecture). Base is `round(strain 1–10 × 8 × (minutes / 45) ^ 0.45)`. Alignment `>= 8` is Heavyweight `2.0×`, `>= 4` is Cruiserweight `1.5×`, below that is Middleweight `1.0×` on the full-credit path. Anything that fails the gate is Lightweight `0.5×`, alignment capped under 4, minimum 5 points. If Gemini fails, `localActionFallback` forces half credit at strain 7. `appendEarn` then applies the streak multiplier (`1.0` through day 2, `1.1` from day 3, `1.2` from day 7, `1.3` from day 14) and rounds.
+- Daily loop: today’s earned points are the sum of `EARN` rows whose `date` is today’s UTC `YYYY-MM-DD`. The ring is that sum over 120. On load, `runDecayAudit` closes `lastAuditDate` once if it is before today. Earned `>= 120` increments the streak. `60–119` holds it. Under `60` resets it to 0, subtracts 15 (not below 0), and prepends a `Decay Audit` spend. `pulse_streak_closed` blocks a second close of that same day. Settings copy explains these rules.
+- Spend now, or park a bounty. Gaming is hours × 50 and price must be 0. Items are USD × 20 and hours must be 0. Dining and Events need hours; with a price the cost is USD × 20 plus hours × 35, otherwise hours × 50, and timed quotes floor at 25. Immediate spend and vault unlock both refuse a cost the balance cannot cover. Saving or editing a bounty does not charge points. Unlock writes a spend and leaves the bounty in the vault. Deleting a ledger row reverses its points and floors the balance at 0. Feed filters: All, Heavy+ (`EARN` and multiplier `>= 1.5`), Aligned (`EARN` and alignment `>= 4`), Spends.
+- Settings: Gemini key save and a live ping, display name, JSON export/import, demo mode with a fixed sample ledger, and Start fresh (clears balance, ledger, vault, and intro, keeps name and demo flag). Confetti plays on earn, spend, and unlock.
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 5. Active Limitations, Edge Cases & Gaps
+
+- The audit closes one stored date, then sets `pulse_last_audit` to today. Days between that date and today are never scored, so a multi-day absence does not decay or advance the streak once per missed day. The decay row is dated today (`assessment.today`), not the missed day. `timestamp` values are display strings (`Today, Just now`), not instants, so history has no real clock.
+- Ledger `date` is UTC. The greeting and the on-screen calendar date use local time. A US evening can already be the next UTC day, so “today” on the ring and the greeting can disagree.
+- Stored `streakCount` is not recomputed when a row is deleted or when an earn is added after a day has closed. `currentStreak` in `src/services/engine/momentum.ts` is a different rule (consecutive UTC days at or above 120, and any earn today counts as 1) and is only used by tests. `lifetimeStats` is also unused by the UI.
+- Judged logs never land on Middleweight. The full-credit path starts at alignment 7, which is already Cruiserweight. Middleweight only appears when `calculateActionPoints` is called directly, which demo data does. The model’s `category` is discarded, so earns have no category unless something else sets it.
+- `localActionFallback` rewrites any log containing “push” to `{duration}-Min Push Session w/ Brandon`. The concrete-proof check is an English keyword list plus “contains a digit.” Vague-but-real work and non-English logs stay at half credit.
+- The Gemini key sits in `localStorage` in plaintext and is sent from the browser. An empty or bad key still attempts the network call, then half-credit fallback, and the error text is shown in a toast. There is no rate limit, queue, or offline outbox.
+- Unlock does not remove or decrement the bounty, so the same reward can be bought repeatedly. Deleting a decay row refunds 15 points and does not restore the streak. Balance cannot go negative, so a decay or a reversal against a short balance silently drops the remainder.
+- `pulse_profile !== fresh-1` deletes the working profile on next load. Invalid ledger rows are dropped without notice. IDs are `tx-${Date.now()}` and `v-${Date.now()}`, so two commits in the same millisecond can collide. Tests cover the engine, demo, intro, greeting, and backup round-trip (`src/services/__tests__/`). There are no component or browser tests. Fonts require the Google Fonts network. The service worker (`vite-plugin-pwa`, `registerType: autoUpdate`) caches the shell; a stale client is possible until the worker updates.
