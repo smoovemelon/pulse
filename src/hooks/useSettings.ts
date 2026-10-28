@@ -122,7 +122,7 @@ export function useSettingsController(): SettingsApi {
     setKeyBadge('No Key Entered')
     setKeyBadgeClass('chip-amber')
     feedback('click')
-    notify('Fresh start. Balance, ledger, and vault are clear.')
+    notify('Fresh start. Balance, history, and vault are clear.')
   }, [commit, feedback, notify, read, setDecayAlert])
 
   const toggleDemo = useCallback(() => {

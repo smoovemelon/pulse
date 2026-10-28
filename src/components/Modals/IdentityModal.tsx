@@ -19,7 +19,7 @@ export function IdentityModal({ onConfirm }: { readonly onConfirm: (username: st
           Welcome to Altius
         </h3>
         <p className="max-w-[28ch] text-[11px] leading-relaxed text-body">
-          Enter your handle to initialize your discipline ledger and track daily momentum.
+          Enter your handle to start your history and track daily momentum.
         </p>
       </div>
       <input

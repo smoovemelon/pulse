@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { useSensory } from '../hooks/useSensory'
-import { FeedIcon, FoundationIcon, PlusIcon, VaultIcon } from './Icons'
+import { FeedIcon, FoundationIcon, PlusIcon, StatsIcon, VaultIcon } from './Icons'
 
-export type DockTab = 'feed' | 'foundation' | 'vault'
+export type DockTab = 'feed' | 'foundation' | 'stats' | 'vault'
 
 export function Dock({
   tab,
@@ -18,7 +18,7 @@ export function Dock({
   return (
     <nav className="dock-bar">
       <div
-        className="pointer-events-auto relative grid w-full max-w-[430px] grid-cols-[1fr_1fr_76px_1fr] items-center rounded-[32px] border border-line p-2 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14)]"
+        className="pointer-events-auto relative grid w-full max-w-[430px] grid-cols-[1fr_1fr_72px_1fr_1fr] items-center rounded-[32px] border border-line p-2 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14)]"
         style={{ background: 'var(--dock)', backdropFilter: 'blur(24px)' }}
       >
         <DockTabButton
@@ -34,7 +34,6 @@ export function Dock({
         <DockTabButton
           label="Foundation"
           testId="nav-foundation"
-          tour="foundation"
           active={tab === 'foundation'}
           onClick={() => {
             feedback('click')
@@ -59,9 +58,19 @@ export function Dock({
           </button>
         </div>
         <DockTabButton
+          label="Stats"
+          testId="nav-stats"
+          active={tab === 'stats'}
+          onClick={() => {
+            feedback('click')
+            onTab('stats')
+          }}
+        >
+          <StatsIcon className="mb-0.5 h-5 w-5" />
+        </DockTabButton>
+        <DockTabButton
           label="Vault"
           testId="nav-vault"
-          tour="vault"
           active={tab === 'vault'}
           onClick={() => {
             feedback('click')
@@ -80,28 +89,25 @@ function DockTabButton({
   active,
   onClick,
   testId,
-  tour,
   children,
 }: {
   readonly label: string
   readonly active: boolean
   readonly onClick: () => void
   readonly testId?: string
-  readonly tour?: string
   readonly children: ReactNode
 }) {
   return (
     <button
       type="button"
       data-testid={testId}
-      data-tour={tour}
       onClick={onClick}
-      className={`press focus-ring flex flex-col items-center justify-center rounded-2xl py-2 font-black ${
+      className={`press focus-ring flex w-full flex-col items-center justify-center rounded-2xl py-2 font-black ${
         active ? 'text-ink' : 'text-faint'
       }`}
     >
       {children}
-      <span className="text-[9px] font-extrabold uppercase tracking-wider">{label}</span>
+      <span className="max-w-full truncate text-[8px] font-extrabold uppercase tracking-wide">{label}</span>
     </button>
   )
 }

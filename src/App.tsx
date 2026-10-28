@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Dashboard } from './components/Dashboard/Dashboard'
 import { HabitStack } from './components/Habits/HabitStack'
 import { Dock, type DockTab } from './components/Dock'
+import type { TourTarget } from './components/Intro/IntroTour'
 import { Feed } from './components/Feed/Feed'
 import { Header } from './components/Header'
 import { IntroTour } from './components/Intro/IntroTour'
@@ -13,6 +14,7 @@ import { SpendModal } from './components/Modals/SpendPanel'
 import { IdentityModal } from './components/Modals/IdentityModal'
 import { SettingsModal } from './components/Modals/SettingsModal'
 import { Toast } from './components/Toast'
+import { Stats } from './components/Stats/Stats'
 import { Vault } from './components/Vault/Vault'
 import { useBackLayer } from './hooks/useBackLayer'
 import { useCore } from './hooks/core'
@@ -34,6 +36,16 @@ function Shell() {
   const [resumeAction, setResumeAction] = useState(false)
   const [editing, setEditing] = useState<VaultItem | null>(null)
   const [introOpen, setIntroOpen] = useState(() => shouldIntroduce(state) && state.isOnboarded && state.username.trim() !== '')
+  const [tourTarget, setTourTarget] = useState<TourTarget | undefined>(undefined)
+  const shown: DockTab = !introOpen
+    ? tab
+    : tourTarget === 'foundation'
+      ? 'foundation'
+      : tourTarget === 'bounty'
+        ? 'vault'
+        : tourTarget
+          ? 'feed'
+          : tab
 
   const closeModal = () => {
     setResumeAction(false)
@@ -93,7 +105,7 @@ function Shell() {
             setIntroOpen(true)
           }}
         />
-        {tab === 'feed' ? (
+        {shown === 'feed' ? (
           <>
             <Dashboard
               onEditAnchor={() => {
@@ -103,8 +115,10 @@ function Shell() {
             />
             <Feed />
           </>
-        ) : tab === 'foundation' ? (
+        ) : shown === 'foundation' ? (
           <HabitStack />
+        ) : shown === 'stats' ? (
+          <Stats />
         ) : (
           <Vault
             onAdd={() => {
@@ -119,7 +133,7 @@ function Shell() {
           />
         )}
       </div>
-      <Dock tab={tab} onTab={setTab} onAction={() => setModal('action')} />
+      <Dock tab={shown} onTab={setTab} onAction={() => setModal('action')} />
       {(modal === 'action' || resumeAction) && (
         <ActionModal
           onClose={closeModal}
@@ -145,7 +159,15 @@ function Shell() {
       {modal === 'vault' && <BountyModal item={editing} onClose={() => setModal(null)} />}
       {modal === 'spend' && <SpendModal onClose={() => setModal(null)} />}
       <DecayAlertModal />
-      {introOpen && <IntroTour onClose={() => setIntroOpen(false)} />}
+      {introOpen && (
+        <IntroTour
+          onTarget={setTourTarget}
+          onClose={() => {
+            setTourTarget(undefined)
+            setIntroOpen(false)
+          }}
+        />
+      )}
       {identityOpen && (
         <IdentityModal
           onConfirm={(username) => {

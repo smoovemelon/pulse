@@ -288,10 +288,23 @@ export function EventsIcon({ className = 'w-4 h-4' }: IconProps) {
 export function FoodIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
     <Svg className={className}>
-      <path d="M5 3v6a3 3 0 0 0 6 0V3" />
-      <path d="M8 3v18" />
-      <path d="M14 4h4.2a2.2 2.2 0 0 1 2.2 2.2V9a3.2 3.2 0 0 1-3.2 3.2H14" />
-      <path d="M14 4v8.2" />
+      <path d="M5.2 3v5" />
+      <path d="M8.8 3v5" />
+      <path d="M5.2 8h3.6" />
+      <path d="M7 8v13" />
+      <path d="M13.2 4.2h6.4v7.2a2.4 2.4 0 0 1-2.4 2.4h-1.6a2.4 2.4 0 0 1-2.4-2.4z" />
+      <path d="M13.8 7.6h5.2" />
+    </Svg>
+  )
+}
+
+export function StatsIcon({ className = 'w-5 h-5' }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4 19V10" />
+      <path d="M10 19V5" />
+      <path d="M16 19v-6" />
+      <path d="M3 19h18" />
     </Svg>
   )
 }

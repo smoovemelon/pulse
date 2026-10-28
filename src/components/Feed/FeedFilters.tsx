@@ -3,9 +3,9 @@ import type { FeedFilter } from '../../types'
 
 const FILTERS: ReadonlyArray<{ readonly id: FeedFilter; readonly label: string }> = [
   { id: 'ALL', label: 'All' },
-  { id: 'HEAVY', label: 'Heavy+' },
-  { id: 'ALIGNED', label: 'Aligned' },
-  { id: 'SPEND', label: 'Spends' },
+  { id: 'EARNED', label: 'Earned' },
+  { id: 'SPENT', label: 'Spent' },
+  { id: 'DECAY', label: 'Decay' },
 ]
 
 export function FeedFilters({

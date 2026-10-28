@@ -3,6 +3,7 @@ import { useHabits } from '../../hooks/useHabits'
 import { createId } from '../../lib/id'
 import type { HabitDeck } from '../../types'
 import { Button } from '../Common/Button'
+import { TimePop } from '../Common/TimePop'
 
 export function DeckSettings() {
   const habits = useHabits()
@@ -61,12 +62,8 @@ export function DeckSettings() {
       {habits.habitsNeedScore && <p className="text-[10px] font-bold text-faint">Scores are on-device until a Gemini key can rate them.</p>}
       <span className="eyebrow eyebrow-muted">Pacing cutoffs</span>
       <div className="grid grid-cols-2 gap-2">
-        <label className="text-[10px] font-bold text-muted">Deck 1
-          <input type="time" value={deck1} onChange={(event) => setDeck1(event.target.value)} className="field mt-1 w-full rounded-xl px-3 py-2 text-xs font-num" />
-        </label>
-        <label className="text-[10px] font-bold text-muted">Deck 2
-          <input type="time" value={deck2} onChange={(event) => setDeck2(event.target.value)} className="field mt-1 w-full rounded-xl px-3 py-2 text-xs font-num" />
-        </label>
+        <TimePop label={habits.decks[0]?.name ?? 'Deck 1'} value={deck1} onChange={setDeck1} />
+        <TimePop label={habits.decks[1]?.name ?? 'Deck 2'} value={deck2} onChange={setDeck2} />
       </div>
       <Button tone="card" onClick={() => habits.savePacing(deck1, deck2)} className="rounded-xl py-2.5 text-[11px] font-extrabold">
         Queue cutoffs for tomorrow

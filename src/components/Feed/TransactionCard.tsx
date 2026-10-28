@@ -4,23 +4,33 @@ import { SparkleIcon, TrashIcon } from '../Icons'
 import { Button } from '../Common/Button'
 import { Panel, Well } from '../Common/primitives'
 import type { Transaction } from '../../types'
+import { categoryVisual } from '../Vault/categoryVisual'
 import { WeightClassPill } from './WeightClassPill'
 import { weightClassStyles } from './weightStyles'
+
+function historyBadge(tx: Transaction) {
+  if (tx.type === 'EARN') return { label: 'Earned', chip: 'chip-emerald' }
+  if (tx.category === 'Decay Audit') return { label: 'Decay', chip: 'chip-rose' }
+  if (tx.category) {
+    const visual = categoryVisual(String(tx.category))
+    return { label: visual.label, chip: visual.chip }
+  }
+  return { label: 'Spent', chip: 'chip-rose' }
+}
 
 export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; readonly onDelete: () => void }) {
   const weight = weightClassStyles(tx.multiplier || 1)
   const locked = isLockedTransaction(tx)
+  const badge = historyBadge(tx)
   return (
     <Panel className="flex flex-col gap-2.5 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span
-              className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
-                tx.type === 'EARN' ? 'chip-emerald' : 'chip-rose'
-              }`}
+              className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${badge.chip}`}
             >
-              {tx.type}
+              {badge.label}
             </span>
             {tx.type === 'EARN' && (tx.multiplier ?? 1) < 1 && (
               <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border chip-zinc">

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { localDateKey } from '../../lib/dates'
 import { runDecayAudit } from '../audit'
 import { forgeTarget } from '../engine/forge'
+import { progressWindow } from '../engine/progress'
 import { applyDifficulty, migrateLegacyVault } from '../engine/vaultValuation'
 import { distributeHabitPoints, nextOpenHabit } from '../engine/habits'
 import { scoreJudgment } from '../engine/judging'
@@ -147,5 +148,27 @@ describe('pacing locks', () => {
     expect(first.state.economy.difficulty).toBe('hardcore')
     expect(applyDifficulty(first.state, 'lenient').ok).toBe(false)
     expect(applyDifficulty(first.state, 'hardcore').ok).toBe(true)
+  })
+})
+
+describe('progress window', () => {
+  it('reads earned, spent, and the forge target for each day', () => {
+    const row = (date: string, points: number, type: 'EARN' | 'SPEND' = 'EARN') => ({
+      id: `${type}-${date}`,
+      type,
+      title: 'Row',
+      points,
+      timestamp: date,
+      date,
+      reasoning: 'Judged',
+    })
+    const days = progressWindow(
+      [row('2026-10-27', 90), row('2026-10-27', 15, 'SPEND'), row('2026-10-28', 40)],
+      2,
+      '2026-10-28',
+    )
+    expect(days.map((day) => day.date)).toEqual(['2026-10-27', '2026-10-28'])
+    expect(days[0]).toMatchObject({ earned: 90, spent: 15, goal: 120, onTarget: false })
+    expect(days[1]).toMatchObject({ earned: 40, goal: 90, onTarget: false })
   })
 })

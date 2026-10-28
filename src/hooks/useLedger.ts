@@ -18,9 +18,10 @@ export interface LedgerApi {
 }
 
 function matches(tx: Transaction, filter: FeedFilter) {
-  if (filter === 'HEAVY') return tx.type === 'EARN' && (tx.multiplier || 0) >= 1.5
-  if (filter === 'ALIGNED') return tx.type === 'EARN' && (tx.anchor_alignment || 0) >= 4
-  if (filter === 'SPEND') return tx.type === 'SPEND'
+  const decay = tx.type === 'SPEND' && tx.category === 'Decay Audit'
+  if (filter === 'EARNED') return tx.type === 'EARN'
+  if (filter === 'SPENT') return tx.type === 'SPEND' && !decay
+  if (filter === 'DECAY') return decay
   return true
 }
 
@@ -125,7 +126,7 @@ export function useLedgerController(): LedgerApi {
       if (!tx) return
       if (isLockedTransaction(tx)) {
         feedback('error')
-        notify('Discipline decay stays on the ledger')
+        notify('Discipline decay stays in history')
         return
       }
       const balance = balanceAfterRemoval(current.balance, tx)

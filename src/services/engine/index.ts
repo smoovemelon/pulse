@@ -34,6 +34,8 @@ export { auditDecay } from './decayAudit'
 export type { DecayAssessment } from './decayAudit'
 export { balanceAfterRemoval, isLockedTransaction, removalShortfall } from './history'
 export { currentStreak, earnedOn, lifetimeStats } from './momentum'
+export { progressWindow } from './progress'
+export type { ProgressDay } from './progress'
 export {
   advanceStreak,
   applyStreakBonus,

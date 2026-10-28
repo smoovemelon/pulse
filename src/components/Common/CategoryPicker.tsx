@@ -32,13 +32,13 @@ export function CategoryPicker({
             tone="pill"
             data-testid={`cat-${entry.id}`}
             onClick={() => onChange(entry.id)}
-            className={`flex w-full flex-col items-center justify-center gap-1 rounded-xl px-2.5 py-2.5 text-[10px] font-black uppercase ${active ? entry.chip : ''}`}
+            className={`no-dim flex w-full flex-col items-center justify-center gap-1 rounded-xl px-2.5 py-2.5 text-[10px] font-black uppercase ${active ? entry.chip : ''}`}
           >
             <span className={`flex h-8 w-8 items-center justify-center rounded-xl border ${entry.chip}`}>
               <CategoryIcon kind={entry.kind} />
             </span>
             <span>{entry.label}</span>
-            <span className={`rounded-md px-1.5 py-0.5 font-num text-[8px] font-extrabold whitespace-nowrap ${active ? 'cat-sub-active' : 'chip-zinc'}`}>
+            <span className="cat-tag rounded-md px-1.5 py-0.5 font-num text-[8px] font-extrabold whitespace-nowrap">
               {entry.sub}
             </span>
           </Button>

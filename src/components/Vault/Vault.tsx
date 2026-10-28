@@ -25,7 +25,7 @@ export function Vault({
     <main className="flex flex-col gap-3">
       <Surface className="flex flex-col gap-4 p-5">
         <BalanceDisplay balance={balance} label="Balance" testId="vault-balance" prominent />
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2" data-tour="bounty">
           <Button
             tone="pill"
             data-testid="open-spend"

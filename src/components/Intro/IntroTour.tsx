@@ -2,17 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { pushEntry } from '../../lib/backStack'
 import { markIntroSeen } from '../../services/persistence'
 import { Button } from '../Common/Button'
-import { DifficultyDial } from '../Common/DifficultyDial'
 import { Eyebrow } from '../Common/primitives'
 
-type TourTarget = 'balance' | 'day' | 'foundation' | 'log' | 'vault'
+export type TourTarget = 'balance' | 'day' | 'foundation' | 'log' | 'bounty'
 
 const STEPS: readonly {
   readonly kicker: string
   readonly title: string
   readonly body: string
   readonly target?: TourTarget
-  readonly dial?: boolean
 }[] = [
   {
     kicker: 'Get started',
@@ -34,21 +32,20 @@ const STEPS: readonly {
   {
     kicker: 'Decks',
     title: 'Open Foundation',
-    body: 'The decks live on their own tab. Finish habits in order. Edit names and cutoff times there. Use PTO asks you to confirm, then spends a banked token. Habit bounties are flat and stay separate from judged logs.',
+    body: 'The three decks live here. Finish habits in order. Edit opens the names, and each cutoff opens a time slider. Use PTO asks you to confirm before it spends a token. Habit points stay separate from judged logs.',
     target: 'foundation',
   },
   {
     kicker: 'Earn',
     title: 'Log it with plus',
-    body: 'Plus opens a log. Describe the work and set how long it took. The score lands on the balance and in the ledger.',
+    body: 'Plus opens a log. Describe the work and set how long it took. The score lands on the balance and in History.',
     target: 'log',
   },
   {
     kicker: 'Spend',
     title: 'Park a bounty',
-    body: 'The vault prices time and money from the discipline dial. Balanced is 120 points an hour and 20 points a dollar. Lenient is cheaper. Hardcore costs more. The weaker streak sets the discount.',
-    target: 'vault',
-    dial: true,
+    body: 'Spend and Add sit together. Add parks a reward. Spend uses points now. Prices follow the discipline dial in Settings. Confirm the first change. After that, Start fresh is how the dial moves.',
+    target: 'bounty',
   },
   {
     kicker: 'Ready',
@@ -63,18 +60,26 @@ function spotFor(target: TourTarget, maxHeight: number): Spot | null {
   const node = document.querySelector(`[data-tour="${target}"]`)
   if (!node) return null
   const rect = node.getBoundingClientRect()
-  const radius = target === 'log' ? 999 : target === 'vault' || target === 'foundation' ? 20 : 32
+  const radius = target === 'log' ? 999 : target === 'bounty' ? 18 : 32
   return { top: rect.top, left: rect.left, width: rect.width, height: Math.min(rect.height, maxHeight), radius }
 }
 
-export function IntroTour({ onClose }: { readonly onClose: () => void }) {
+export function IntroTour({
+  onClose,
+  onTarget,
+}: {
+  readonly onClose: () => void
+  readonly onTarget?: (target: TourTarget | undefined) => void
+}) {
   const [step, setStep] = useState(0)
   const [spot, setSpot] = useState<Spot | null>(null)
   const stepRef = useRef(0)
   const cardRef = useRef<HTMLDivElement>(null)
   const releases = useRef<Array<() => void>>([])
   const onCloseRef = useRef(onClose)
+  const onTargetRef = useRef(onTarget)
   onCloseRef.current = onClose
+  onTargetRef.current = onTarget
   const current = STEPS[step]
   const last = step === STEPS.length - 1
 
@@ -114,11 +119,12 @@ export function IntroTour({ onClose }: { readonly onClose: () => void }) {
 
   useEffect(() => {
     const target = STEPS[step].target
+    onTargetRef.current?.(target)
     if (!target) {
       setSpot(null)
       return
     }
-    const dock = target === 'log' || target === 'vault' || target === 'foundation'
+    const dock = target === 'log'
     let frame = 0
     const measure = (allowScroll: boolean) => {
       const node = document.querySelector(`[data-tour="${target}"]`)
@@ -140,7 +146,8 @@ export function IntroTour({ onClose }: { readonly onClose: () => void }) {
       setSpot(spotFor(target, room))
     }
     measure(true)
-    const wait = window.setTimeout(() => measure(true), 40)
+    const wait = window.setTimeout(() => measure(true), 48)
+    const again = window.setTimeout(() => measure(true), 160)
     const onMove = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => measure(false))
@@ -151,6 +158,7 @@ export function IntroTour({ onClose }: { readonly onClose: () => void }) {
     if (cardRef.current) observer.observe(cardRef.current)
     return () => {
       window.clearTimeout(wait)
+      window.clearTimeout(again)
       cancelAnimationFrame(frame)
       observer.disconnect()
       window.removeEventListener('resize', onMove)
@@ -174,7 +182,7 @@ export function IntroTour({ onClose }: { readonly onClose: () => void }) {
   const cardTop = (() => {
     if (!spot) return null
     const cardH = cardRef.current?.offsetHeight ?? 300
-    const dock = current.target === 'log' || current.target === 'vault' || current.target === 'foundation'
+    const dock = current.target === 'log'
     if (dock) return Math.max(8, spot.top - cardH - 12)
     return Math.max(8, window.innerHeight - cardH - 8)
   })()
@@ -242,8 +250,7 @@ export function IntroTour({ onClose }: { readonly onClose: () => void }) {
             <Eyebrow className="mb-1 block">{current.kicker}</Eyebrow>
             <h3 id="intro-heading" className="heading-athletic text-xl text-ink">{current.title}</h3>
           </div>
-          <p className="text-sm font-semibold leading-relaxed text-body">{current.body}</p>
-          {current.dial && <DifficultyDial />}
+          <p className="w-full text-sm font-semibold leading-relaxed text-body">{current.body}</p>
         </div>
 
         <div className="flex items-center justify-center gap-1.5" aria-hidden="true">

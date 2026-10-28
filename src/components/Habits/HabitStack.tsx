@@ -14,7 +14,7 @@ export function HabitStack() {
   const hours = Math.ceil(habits.cooldownMs / 3600000)
 
   return (
-    <Surface data-testid="habit-stack" className="flex flex-col gap-3 p-4">
+    <Surface data-testid="habit-stack" data-tour="foundation" className="flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <Eyebrow>Foundation</Eyebrow>

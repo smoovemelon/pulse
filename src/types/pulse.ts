@@ -1,5 +1,5 @@
 export type TxType = 'EARN' | 'SPEND'
-export type FeedFilter = 'ALL' | 'HEAVY' | 'ALIGNED' | 'SPEND'
+export type FeedFilter = 'ALL' | 'EARNED' | 'SPENT' | 'DECAY'
 export type VaultCategory = 'gaming' | 'food' | 'items' | 'events'
 export type RetiredVaultCategory = 'streaming' | 'social' | 'dining' | 'gear' | 'outings' | 'custom'
 export type LegacySpendCategory = 'Gaming' | 'Items' | 'Dining' | 'Events'

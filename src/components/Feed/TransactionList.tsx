@@ -11,7 +11,7 @@ export function TransactionList({
 }) {
   return (
     <div className="space-y-2.5" data-testid="tx-feed">
-      {transactions.length === 0 && <EmptyState>No activity in this filter yet.</EmptyState>}
+      {transactions.length === 0 && <EmptyState>Nothing in this view yet.</EmptyState>}
       {transactions.map((tx) => (
         <TransactionCard key={tx.id} tx={tx} onDelete={() => onDelete(tx.id)} />
       ))}

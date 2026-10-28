@@ -22,7 +22,7 @@ export function DecayAlertModal() {
           <AlertIcon className="w-6 h-6" />
         </div>
         <div>
-          <span className="eyebrow block mb-1">Discipline Ledger Audit</span>
+          <span className="eyebrow block mb-1">Decay</span>
           <h3 id="decay-heading" className="text-lg heading-athletic">Midnight Decay Assessed</h3>
         </div>
         <div className="depth-well rounded-2xl p-4 flex flex-col gap-2 text-left">
