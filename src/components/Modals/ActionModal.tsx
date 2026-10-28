@@ -90,7 +90,7 @@ export function ActionModal({
     <ModalSheet labelledBy="action-heading" onDismiss={onClose}>
       <div className="flex justify-between items-center">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">
+          <span className="eyebrow block mb-0.5">
             Discipline Assessment
           </span>
           <h3 id="action-heading" className="text-base heading-athletic text-ink">
@@ -101,7 +101,7 @@ export function ActionModal({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="input-action-text" className="text-[10px] font-extrabold uppercase tracking-widest text-muted">
+        <label htmlFor="input-action-text" className="eyebrow eyebrow-muted">
           What did you accomplish?
         </label>
         <textarea
@@ -111,7 +111,7 @@ export function ActionModal({
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="e.g., Push day at the gym with Brandon"
-          className="field w-full rounded-2xl p-3.5 text-xs font-bold focus:outline-none resize-none"
+          className="field w-full rounded-2xl p-3.5 text-xs font-bold resize-none"
         />
         <div className="flex items-center gap-1 text-[10px] text-faint font-semibold px-1">
           <SparkleIcon className="w-3.5 h-3.5 shrink-0" />
@@ -121,7 +121,7 @@ export function ActionModal({
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Session duration</span>
+          <span className="eyebrow eyebrow-muted">Session duration</span>
           <div className="flex items-center gap-1.5">
             <button type="button" className="w-7 h-7 rounded-lg depth-well text-body flex items-center justify-center active:scale-90" aria-label="Decrease Duration" onClick={() => setMinutes(duration - 5)}>
               <MinusIcon />

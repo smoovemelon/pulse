@@ -229,15 +229,45 @@ html[data-theme='dark'] .cat-sub-active {
 }
 
 .action-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 
-.momentum-track { stroke: #ececef; }
-.momentum-progress { stroke: #6bbf45; }
-.momentum-knob { fill: #6bbf45; }
-.momentum-knob-ring { fill: #fff; }
+.press {
+  transition: transform 160ms ease, filter 160ms ease;
+}
 
-html[data-theme='dark'] .momentum-track { stroke: #3f3f46; }
+.press:hover {
+  filter: brightness(0.97);
+}
+
+.press:active {
+  transform: scale(0.97);
+}
+
+.press:disabled,
+.press:disabled:active,
+.press:disabled:hover {
+  transform: none;
+  filter: none;
+}
+
+.focus-ring:focus-visible,
+.field:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.eyebrow-muted {
+  color: var(--muted);
+}
 
 .chip-sky { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
 .chip-amber { background: #fffbeb; color: #b45309; border-color: #fde68a; }
@@ -295,20 +325,6 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
   animation: introRise 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.intro-arc {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  transform: rotate(-90deg);
-  transform-origin: center;
-  animation: introArc 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes introArc {
-  to {
-    stroke-dashoffset: 28;
-  }
-}
-
 @keyframes streakPulse {
   0%,
   100% {
@@ -329,12 +345,7 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
 
 @media (prefers-reduced-motion: reduce) {
   .intro-step,
-  .intro-arc,
   .streak-today-ring {
     animation: none;
-  }
-
-  .intro-arc {
-    stroke-dashoffset: 28;
   }
 }

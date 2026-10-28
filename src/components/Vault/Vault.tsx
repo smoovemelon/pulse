@@ -4,6 +4,7 @@ import { useVault } from '../../hooks/useVault'
 import type { VaultItem } from '../../types'
 import { Button } from '../Common/Button'
 import { EmptyState } from '../Common/EmptyState'
+import { Surface } from '../Common/primitives'
 import { BalanceDisplay } from '../Dashboard/BalanceDisplay'
 import { BountyCard } from './BountyCard'
 import { VaultFilters } from './VaultFilters'
@@ -22,7 +23,7 @@ export function Vault({
 
   return (
     <main className="flex flex-col gap-3">
-      <section className="depth-card rounded-[28px] p-5 flex flex-col gap-4">
+      <Surface className="flex flex-col gap-4 p-5">
         <BalanceDisplay balance={balance} label="Balance" testId="vault-balance" prominent />
         <div className="grid grid-cols-2 gap-2">
           <Button
@@ -49,7 +50,7 @@ export function Vault({
             Add
           </Button>
         </div>
-      </section>
+      </Surface>
 
       <VaultFilters filter={filter} onFilter={setFilter} />
 

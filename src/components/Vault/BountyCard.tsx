@@ -2,6 +2,7 @@ import { useCore } from '../../hooks/core'
 import { chargeCost, vaultTag } from '../../services/engine'
 import { CategoryIcon, EditIcon, TrashIcon } from '../Icons'
 import { Button } from '../Common/Button'
+import { Eyebrow, Panel } from '../Common/primitives'
 import type { VaultItem } from '../../types'
 import { categoryVisual } from './categoryVisual'
 import { UnlockButton } from './UnlockButton'
@@ -27,14 +28,14 @@ export function BountyCard({
   const visual = categoryVisual(item.category)
 
   return (
-    <article className="depth-card rounded-2xl p-4 flex flex-col gap-3">
+    <Panel className="flex flex-col gap-3 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 min-w-0">
           <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${visual.chip}`}>
             <CategoryIcon kind={visual.kind} />
           </div>
           <div className="min-w-0">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">{item.category}</span>
+            <Eyebrow>{item.category}</Eyebrow>
             <h4 className="text-sm font-extrabold tracking-tight text-ink mt-1.5 break-words">{item.title}</h4>
           </div>
         </div>
@@ -72,6 +73,6 @@ export function BountyCard({
         </div>
         <UnlockButton canAfford={canAfford} percent={percent} testId={`unlock-${item.id}`} onClick={onUnlock} />
       </div>
-    </article>
+    </Panel>
   )
 }

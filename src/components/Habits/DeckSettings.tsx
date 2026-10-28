@@ -24,7 +24,7 @@ export function DeckSettings() {
           <input
             value={deck.name}
             onChange={(event) => setDecks((current) => current.map((item, index) => index === deckIndex ? { ...item, name: event.target.value } : item))}
-            className="field w-full rounded-xl px-3 py-2 text-xs font-extrabold focus:outline-none"
+            className="field w-full rounded-xl px-3 py-2 text-xs font-extrabold"
           />
           {deck.habits.map((habit, habitIndex) => (
             <input
@@ -32,7 +32,7 @@ export function DeckSettings() {
               value={habit.title}
               maxLength={60}
               onChange={(event) => updateTitle(deckIndex, habitIndex, event.target.value)}
-              className="field w-full rounded-xl px-3 py-2 text-xs font-bold focus:outline-none"
+              className="field w-full rounded-xl px-3 py-2 text-xs font-bold"
             />
           ))}
           <div className="flex gap-2">
@@ -59,7 +59,7 @@ export function DeckSettings() {
         {blocked ? 'Decks locked today' : 'Save decks'}
       </Button>
       {habits.habitsNeedScore && <p className="text-[10px] font-bold text-faint">Scores are on-device until a Gemini key can rate them.</p>}
-      <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Pacing cutoffs</span>
+      <span className="eyebrow eyebrow-muted">Pacing cutoffs</span>
       <div className="grid grid-cols-2 gap-2">
         <label className="text-[10px] font-bold text-muted">Deck 1
           <input type="time" value={deck1} onChange={(event) => setDeck1(event.target.value)} className="field mt-1 w-full rounded-xl px-3 py-2 text-xs font-num" />

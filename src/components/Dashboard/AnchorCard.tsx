@@ -1,32 +1,29 @@
 import { DEFAULT_ANCHOR } from '../../lib/dates'
-import { AnchorIcon } from '../Icons'
 import { Button } from '../Common/Button'
+import { Eyebrow, IconTile, Well } from '../Common/primitives'
+import { AnchorIcon } from '../Icons'
 
 export function AnchorCard({ anchor, onEdit }: { readonly anchor: string; readonly onEdit: () => void }) {
   const placeholder = anchor === DEFAULT_ANCHOR
   return (
-    <div className="depth-well rounded-2xl p-3.5 flex items-center justify-between">
-      <div className="flex items-center gap-2.5 pr-2 min-w-0">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-ink text-canvas">
+    <Well className="flex items-center justify-between p-3.5">
+      <div className="flex min-w-0 items-center gap-2.5 pr-2">
+        <IconTile>
           <AnchorIcon className="h-[18px] w-[18px]" />
-        </div>
+        </IconTile>
         <div className="min-w-0">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block">Discipline Anchor</span>
+          <Eyebrow className="block">Discipline Anchor</Eyebrow>
           <span
             data-testid="anchor-label"
-            className={`text-xs font-extrabold truncate max-w-[180px] block tracking-tight ${placeholder ? 'text-faint' : 'text-ink'}`}
+            className={`block max-w-[180px] truncate text-xs font-extrabold tracking-tight ${placeholder ? 'text-faint' : 'text-ink'}`}
           >
             {anchor}
           </span>
         </div>
       </div>
-      <Button
-        tone="card"
-        onClick={onEdit}
-        className="px-3 py-1.5 rounded-xl text-[11px] font-extrabold text-body active:scale-95 transition-all shrink-0"
-      >
+      <Button tone="card" onClick={onEdit} className="shrink-0 rounded-xl px-3 py-1.5 text-[11px] font-extrabold text-body">
         Edit
       </Button>
-    </div>
+    </Well>
   )
 }

@@ -17,5 +17,5 @@ export function Button({
   type = 'button',
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { readonly tone?: ButtonTone }) {
-  return <button type={type} className={`${TONE[tone]} ${className}`.trim()} {...props} />
+  return <button type={type} className={`press focus-ring ${TONE[tone]} ${className}`.trim()} {...props} />
 }

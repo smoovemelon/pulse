@@ -61,7 +61,7 @@ function Shell() {
   })
   useBackLayer(decayAlert !== null, dismissDecay)
 
-  const sheetOpen = modal !== null || decayAlert !== null || introOpen || identityOpen
+  const sheetOpen = modal !== null || decayAlert !== null || identityOpen
 
   useEffect(() => {
     document.body.style.overflow = sheetOpen ? 'hidden' : ''

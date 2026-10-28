@@ -24,7 +24,7 @@ export function Dock({
             feedback('click')
             onTab('feed')
           }}
-          className={`flex-1 flex flex-col items-center justify-center py-2 rounded-2xl font-black ${
+          className={`press focus-ring flex flex-1 flex-col items-center justify-center rounded-2xl py-2 font-black ${
             tab === 'feed' ? 'text-ink' : 'text-faint'
           }`}
         >
@@ -35,11 +35,12 @@ export function Dock({
           <button
             type="button"
             data-testid="open-action"
+            data-tour="log"
             onClick={() => {
               feedback('click')
               onAction()
             }}
-            className="w-[72px] h-[72px] rounded-full depth-button-dark flex items-center justify-center shadow-[0_12px_28px_rgba(0,0,0,0.35)] active:scale-90 transition-transform border text-3xl font-light"
+            className="focus-ring flex h-[72px] w-[72px] items-center justify-center rounded-full border text-3xl font-light shadow-[0_12px_28px_rgba(0,0,0,0.35)] depth-button-dark transition-transform active:scale-90"
             aria-label="Log action"
           >
             <PlusIcon className="w-7 h-7" />
@@ -48,11 +49,12 @@ export function Dock({
         <button
           type="button"
           data-testid="nav-vault"
+          data-tour="vault"
           onClick={() => {
             feedback('click')
             onTab('vault')
           }}
-          className={`flex-1 flex flex-col items-center justify-center py-2 rounded-2xl font-black ${
+          className={`press focus-ring flex flex-1 flex-col items-center justify-center rounded-2xl py-2 font-black ${
             tab === 'vault' ? 'text-ink' : 'text-faint'
           }`}
         >

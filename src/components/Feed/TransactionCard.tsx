@@ -2,6 +2,7 @@ import { formatTimestamp } from '../../lib/dates'
 import { isLockedTransaction } from '../../services/engine'
 import { SparkleIcon, TrashIcon } from '../Icons'
 import { Button } from '../Common/Button'
+import { Panel, Well } from '../Common/primitives'
 import type { Transaction } from '../../types'
 import { WeightClassPill } from './WeightClassPill'
 import { weightClassStyles } from './weightStyles'
@@ -10,7 +11,7 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
   const weight = weightClassStyles(tx.multiplier || 1)
   const locked = isLockedTransaction(tx)
   return (
-    <article className="depth-card rounded-2xl p-4 flex flex-col gap-2.5">
+    <Panel className="flex flex-col gap-2.5 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -52,7 +53,7 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
       </div>
 
       {tx.type === 'EARN' && tx.effort_strain !== undefined && (
-        <div className="depth-well p-2.5 rounded-xl flex flex-col gap-1.5 font-num">
+        <Well className="flex flex-col gap-1.5 p-2.5 font-num">
           <div className="flex items-center justify-between text-[10px] font-bold text-body gap-2">
             <div className="flex gap-3">
               <span>
@@ -72,7 +73,7 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
               <div className={`${weight.bar} h-full rounded-full`} style={{ width: `${((tx.anchor_alignment || 0) / 10) * 100}%` }} />
             </div>
           </div>
-        </div>
+        </Well>
       )}
 
       {tx.formula_breakdown && (
@@ -84,6 +85,6 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
           <span>{tx.reasoning}</span>
         </div>
       )}
-    </article>
+    </Panel>
   )
 }

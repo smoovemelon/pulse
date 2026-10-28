@@ -32,7 +32,7 @@ export function IdentityModal({ onConfirm }: { readonly onConfirm: (username: st
         onKeyDown={(event) => {
           if (event.key === 'Enter') confirm()
         }}
-        className="field w-full rounded-2xl p-3.5 text-xs font-bold focus:outline-none"
+        className="field w-full rounded-2xl p-3.5 text-xs font-bold"
         autoComplete="nickname"
       />
       <Button

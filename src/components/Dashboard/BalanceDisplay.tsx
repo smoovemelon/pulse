@@ -1,3 +1,5 @@
+import { Eyebrow } from '../Common/primitives'
+
 export function BalanceDisplay({
   balance,
   label = 'Discipline Balance',
@@ -11,15 +13,15 @@ export function BalanceDisplay({
 }) {
   return (
     <div>
-      <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">{label}</span>
-      <div className="flex items-baseline gap-2 mt-1">
+      <Eyebrow>{label}</Eyebrow>
+      <div className="mt-1 flex items-baseline gap-2">
         <span
           data-testid={testId}
-          className={`${prominent ? 'text-5xl' : 'text-3xl'} font-extrabold tracking-tight font-num text-ink`}
+          className={`${prominent ? 'text-5xl' : 'text-3xl'} font-num font-extrabold tracking-tight text-ink`}
         >
           {balance.toLocaleString()}
         </span>
-        <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted font-num">PTS</span>
+        <span className="font-num text-[11px] font-extrabold uppercase tracking-wider text-muted">PTS</span>
       </div>
     </div>
   )

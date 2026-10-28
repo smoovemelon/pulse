@@ -45,7 +45,7 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
     <ModalSheet labelledBy="vault-editor-heading" onDismiss={onClose}>
       <div className="flex justify-between items-center">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">
+          <span className="eyebrow block mb-0.5">
             {item ? 'Edit Existing Reward' : 'Reward Configurator'}
           </span>
           <h3 id="vault-editor-heading" className="text-base heading-athletic text-ink">
@@ -56,7 +56,7 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="bounty-title" className="text-[10px] font-extrabold uppercase tracking-widest text-muted">
+        <label htmlFor="bounty-title" className="eyebrow eyebrow-muted">
           Bounty Title
         </label>
         <input
@@ -65,7 +65,7 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           placeholder="e.g., Coffee"
-          className="field w-full rounded-2xl p-3.5 text-xs font-bold focus:outline-none"
+          className="field w-full rounded-2xl p-3.5 text-xs font-bold"
         />
       </div>
 
@@ -89,12 +89,12 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
           value={amount}
           placeholder={measurement === 'time' ? '60' : '5'}
           onChange={(event) => setAmount(event.target.value)}
-          className="field w-full rounded-xl px-3 py-2 text-xs font-num font-extrabold focus:outline-none"
+          className="field w-full rounded-xl px-3 py-2 text-xs font-num font-extrabold"
         />
       </div>
 
       <div className="depth-card rounded-2xl px-4 py-3.5">
-        <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block">{quote.tag}</span>
+        <span className="eyebrow block">{quote.tag}</span>
         <div className="mt-1 flex items-center justify-between gap-3">
           <span className="text-[11px] font-extrabold uppercase tracking-widest text-muted font-num whitespace-nowrap">
             Balance {balance.toLocaleString()}

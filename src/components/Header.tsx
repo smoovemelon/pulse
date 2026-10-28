@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useSensory } from '../hooks/useSensory'
 import { useSettings } from '../hooks/useSettings'
 import { greetingDate, greetingLine } from '../lib/greeting'
+import { Button } from './Common/Button'
 import { GuideIcon, MoonIcon, SettingsIcon, SunIcon, VolumeOff, VolumeOn } from './Icons'
 
 export function Header({ onOpenSettings, onOpenIntro }: { onOpenSettings: () => void; onOpenIntro: () => void }) {
@@ -58,14 +59,14 @@ function HeaderButton({
   readonly children: ReactNode
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      tone="card"
       onClick={onClick}
-      className="flex h-10 w-10 items-center justify-center rounded-2xl text-ink depth-card transition-all active:scale-95"
+      className="flex h-10 w-10 items-center justify-center rounded-2xl text-ink"
       aria-label={label}
       data-testid={testId}
     >
       {children}
-    </button>
+    </Button>
   )
 }

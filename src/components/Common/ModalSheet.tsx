@@ -69,7 +69,7 @@ export function CloseButton({ onClick }: { readonly onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="w-8 h-8 rounded-full bg-well border border-line flex justify-center items-center text-muted active:scale-90"
+      className="press focus-ring flex h-8 w-8 items-center justify-center rounded-full border border-line bg-well text-muted"
       aria-label="Close"
     >
       <CloseIcon />

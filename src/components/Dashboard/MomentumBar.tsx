@@ -1,3 +1,5 @@
+import { Eyebrow, Well } from '../Common/primitives'
+
 export function SplitCapsule({
   earned,
   goal,
@@ -21,17 +23,17 @@ export function SplitCapsule({
 
   return (
     <div data-testid="split-capsule" className="flex flex-col gap-2.5">
-      <div className="depth-well flex flex-col gap-2.5 rounded-2xl p-3.5">
+      <Well className="flex flex-col gap-2.5 p-3.5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Forge</span>
+            <Eyebrow>Forge</Eyebrow>
             <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">
               <span data-testid="today-earned">{earned}</span>
               <span className="text-muted"> / {goal} PTS</span>
             </span>
           </div>
           <div className="min-w-0 text-right">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Chain</span>
+            <Eyebrow>Chain</Eyebrow>
             <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">
               {decksComplete}
               <span className="text-muted"> / 3 DECKS</span>
@@ -48,15 +50,15 @@ export function SplitCapsule({
         </div>
         <div data-testid="streak-chip" className="grid grid-cols-2 gap-2 border-t border-line pt-2.5">
           <div>
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Streak</span>
+            <Eyebrow>Streak</Eyebrow>
             <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{streakDays}d</span>
           </div>
           <div className="text-right">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Tier {tier}</span>
+            <Eyebrow>Tier {tier}</Eyebrow>
             <span className="mt-0.5 block font-num text-[11px] font-extrabold tracking-tight text-ink">{discountPercent}% off</span>
           </div>
         </div>
-      </div>
+      </Well>
     </div>
   )
 }

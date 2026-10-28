@@ -1,4 +1,5 @@
 import type { StreakState, WeekDay } from '../../types'
+import { Eyebrow } from '../Common/primitives'
 
 export function StreakBadge({
   state,
@@ -20,7 +21,7 @@ export function StreakBadge({
       <div className="flex items-start justify-between gap-1.5">
         {week.map((day) => (
           <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">{day.label}</span>
+            <Eyebrow>{day.label}</Eyebrow>
             <span className="flex h-7 w-full items-center justify-center">
               <DayMark day={day} goal={goal} />
             </span>

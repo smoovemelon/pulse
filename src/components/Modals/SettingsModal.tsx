@@ -22,7 +22,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
     <ModalSheet labelledBy="settings-heading" className="max-h-[88vh]" onDismiss={onClose}>
       <div className="flex justify-between items-center">
         <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint block mb-0.5">Preferences</span>
+          <span className="eyebrow block mb-0.5">Preferences</span>
           <h3 id="settings-heading" className="text-base heading-athletic text-ink">Settings</h3>
         </div>
         <div className="flex items-center gap-2">
@@ -34,7 +34,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="display-name" className="text-[10px] font-extrabold uppercase tracking-widest text-muted">
+        <label htmlFor="display-name" className="eyebrow eyebrow-muted">
           Display Name
         </label>
         <input
@@ -43,7 +43,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="e.g. adrinn"
-          className="field w-full rounded-2xl p-3.5 text-xs font-bold focus:outline-none"
+          className="field w-full rounded-2xl p-3.5 text-xs font-bold"
           autoComplete="nickname"
         />
         <Button
@@ -59,7 +59,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
 
       <div className="flex flex-col gap-1.5">
         <div className="flex justify-between items-center gap-2">
-          <label htmlFor="api-key" className="text-[10px] font-extrabold uppercase tracking-widest text-muted">
+          <label htmlFor="api-key" className="eyebrow eyebrow-muted">
             Gemini API Key
           </label>
           <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border shrink-0 ${keyBadgeClass}`}>{keyBadge}</span>
@@ -70,7 +70,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           value={key}
           onChange={(event) => setKey(event.target.value)}
           placeholder="Paste Google AI Studio Key"
-          className="field w-full rounded-2xl p-3.5 text-xs font-mono focus:outline-none"
+          className="field w-full rounded-2xl p-3.5 text-xs font-mono"
           autoComplete="off"
         />
       </div>
@@ -100,7 +100,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       </div>
 
       <div className="depth-well rounded-2xl p-4 flex flex-col gap-2">
-        <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Discipline dial</span>
+        <span className="eyebrow eyebrow-muted">Discipline dial</span>
         <div className="grid grid-cols-3 gap-2">
           {(['lenient', 'balanced', 'hardcore'] as const).map((level) => (
             <Button
@@ -119,7 +119,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       </div>
 
       <div className="depth-well rounded-2xl p-4 flex flex-col gap-2.5">
-        <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted block">Data & Backups</span>
+        <span className="eyebrow eyebrow-muted block">Data & Backups</span>
         <div className="grid grid-cols-2 gap-2">
           <Button
             tone="card"
