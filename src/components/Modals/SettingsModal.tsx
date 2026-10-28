@@ -4,6 +4,7 @@ import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { Button } from '../Common/Button'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
+import { DeckSettings } from '../Habits/DeckSettings'
 import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
@@ -98,6 +99,8 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           Save Key
         </Button>
       </div>
+
+      <DeckSettings />
 
       <div className="depth-well rounded-2xl p-4 flex flex-col gap-2.5">
         <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted block">Data & Backups</span>
@@ -209,13 +212,6 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
   )
 }
 
-const ALIGNMENT = [
-  { threshold: '≥ 8.0 direct', multiplier: '2.0×', name: 'Heavyweight', chip: 'chip-emerald' },
-  { threshold: '≥ 6.0 direct', multiplier: '1.5×', name: 'Cruiserweight', chip: 'chip-indigo' },
-  { threshold: '≥ 4.0 direct', multiplier: '1.0×', name: 'Middleweight', chip: 'chip-sky' },
-  { threshold: 'Under 4 or off anchor', multiplier: '0.5×', name: 'Lightweight', chip: 'chip-zinc' },
-] as const
-
 function EconomyRules() {
   return (
     <div className="flex flex-col gap-3.5 pt-2.5 border-t border-line text-[11px] leading-relaxed text-body">
@@ -224,17 +220,11 @@ function EconomyRules() {
         <p>
           Base = <Figure tone="earn">Strain (1–10) × 8 × (Duration / 45)<sup>0.45</sup></Figure>
         </p>
-        <p>A direct advance of the anchor multiplies that base. Other productive work earns half and still counts for the day.</p>
+        <p>Gemini rates the log. The app multiplies those ratings. Habit decks pay a flat share of a 60–85 point pool.</p>
         <ul className="flex flex-col gap-1">
-          {ALIGNMENT.map((tier) => (
-            <li key={tier.name} className="flex items-center justify-between gap-2">
-              <span className="font-num font-bold text-muted">{tier.threshold}</span>
-              <span className="flex items-center gap-2">
-                <Tag chip={tier.chip}>{tier.name}</Tag>
-                <span className="font-num font-extrabold text-ink w-8 text-right">{tier.multiplier}</span>
-              </span>
-            </li>
-          ))}
+          <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Strain</span><span className="font-num font-extrabold text-ink">60 / 40 / 20</span></li>
+          <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Relevance</span><span className="font-num font-extrabold text-ink">1 / 0.75 / 0.5</span></li>
+          <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Weight</span><span className="font-num font-extrabold text-ink">2 / 1.5 / 1</span></li>
         </ul>
         <p>
           Default anchor: <span className="font-extrabold text-ink">Your main goal</span>

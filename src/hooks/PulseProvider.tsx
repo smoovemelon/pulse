@@ -4,6 +4,7 @@ import { applyDocumentTheme, loadState, saveState } from '../services/persistenc
 import type { DecayAlert, FeedbackKind, PulseState } from '../types'
 import { CoreContext, useCore, type PulseCore } from './core'
 import { SliceContext, type PulseSlices } from './slices'
+import { useHabitsController } from './useHabits'
 import { useEconomyController } from './usePulseEconomy'
 import { useLedgerController } from './useLedger'
 import { useSensoryController } from './useSensory'
@@ -12,6 +13,7 @@ import { useVaultController } from './useVault'
 
 function BindSlices({ children }: { children: ReactNode }) {
   const economy = useEconomyController()
+  const habits = useHabitsController()
   const ledger = useLedgerController()
   const vault = useVaultController()
   const sensory = useSensoryController()
@@ -20,13 +22,14 @@ function BindSlices({ children }: { children: ReactNode }) {
   const slices = useMemo<PulseSlices>(
     () => ({
       economy,
+      habits,
       ledger,
       vault,
       sensory,
       settings,
       notice: { toast: core.toast, notify: core.notify },
     }),
-    [core.notify, core.toast, economy, ledger, sensory, settings, vault],
+    [core.notify, core.toast, economy, habits, ledger, sensory, settings, vault],
   )
   return <SliceContext.Provider value={slices}>{children}</SliceContext.Provider>
 }

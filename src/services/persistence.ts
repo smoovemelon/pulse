@@ -1,5 +1,5 @@
 import { DAILY_GOAL, DEFAULT_ANCHOR, localDateKey } from '../lib/dates'
-import { resolveStreak } from './engine'
+import { disciplineDefaults, resolveStreak } from './engine'
 import type {
   PulseState,
   SpendCategory,
@@ -27,12 +27,46 @@ const KEYS = {
   streakState: 'pulse_streak_state',
   username: 'pulse_username',
   onboarded: 'pulse_onboarded',
+  discipline: 'pulse_discipline',
 } as const
 
 const FRESH_PROFILE = 'fresh-1'
 const LEGACY_ANCHOR = 'Paused Bench Press 205 lbs'
 
-const WEIGHT_CLASSES = ['Heavyweight (2.0x)', 'Cruiserweight (1.5x)', 'Middleweight (1.0x)', 'Lightweight (0.5x)'] as const
+function disciplineSlice(state: PulseState) {
+  return {
+    decks: state.decks,
+    habitDay: state.habitDay,
+    pacing: state.pacing,
+    warnings: state.warnings,
+    ptoTokens: state.ptoTokens,
+    ptoCadence: state.ptoCadence,
+    chainStreak: state.chainStreak,
+    discountFrozenUntil: state.discountFrozenUntil,
+    habitsNeedScore: state.habitsNeedScore,
+  }
+}
+
+function readDiscipline(value: unknown) {
+  const fallback = disciplineDefaults()
+  const parsed = typeof value === 'string' ? readUnknownValue(value) : value
+  if (!isRecord(parsed) || !Array.isArray(parsed.decks) || parsed.decks.length !== 3) return fallback
+  return {
+    ...fallback,
+    ...(parsed as Partial<ReturnType<typeof disciplineDefaults>>),
+    decks: parsed.decks as PulseState['decks'],
+  }
+}
+
+function readUnknownValue(raw: string): unknown {
+  try {
+    return JSON.parse(raw) as unknown
+  } catch {
+    return null
+  }
+}
+
+const WEIGHT_CLASSES = ['Heavyweight (2.0x)', 'Cruiserweight (1.5x)', 'Middleweight (1.0x)', 'Lightweight (1.0x)', 'Lightweight (0.5x)'] as const
 const VAULT_CATEGORIES = ['Gaming', 'Items', 'Dining', 'Events'] as const
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -157,6 +191,7 @@ export function freshState(): PulseState {
     isOnboarded: false,
     transactions: [],
     vaultItems: [],
+    ...disciplineDefaults(),
   }
 }
 
@@ -232,6 +267,7 @@ export function loadState(): PulseState {
     isOnboarded: localStorage.getItem(KEYS.onboarded) === 'true',
     transactions,
     vaultItems: storedVault === null ? [] : (parseVaultItems(readUnknown(KEYS.vault)) ?? []),
+    ...readDiscipline(localStorage.getItem(KEYS.discipline)),
   }
 }
 
@@ -248,6 +284,7 @@ export function saveState(state: PulseState) {
   localStorage.setItem(KEYS.username, state.username)
   localStorage.setItem(KEYS.onboarded, String(state.isOnboarded))
   localStorage.setItem(KEYS.theme, state.theme)
+  localStorage.setItem(KEYS.discipline, JSON.stringify(disciplineSlice(state)))
   if (state.demoMode) localStorage.setItem(KEYS.demo, 'true')
   else localStorage.removeItem(KEYS.demo)
   if (state.apiKey) localStorage.setItem(KEYS.apiKey, state.apiKey)
@@ -287,6 +324,7 @@ export function readDemoSnapshot(): PulseState | null {
       isOnboarded: parsed.isOnboarded === true,
       transactions,
       vaultItems,
+      ...readDiscipline(parsed),
     }
   } catch {
     return null
@@ -355,6 +393,7 @@ export function serializeBackup(state: PulseState): string {
     [KEYS.onboarded]: String(state.isOnboarded),
     [KEYS.theme]: state.theme,
     [KEYS.profile]: FRESH_PROFILE,
+    [KEYS.discipline]: JSON.stringify(disciplineSlice(state)),
   }
   if (state.demoMode) storage[KEYS.demo] = 'true'
   else delete storage[KEYS.demo]

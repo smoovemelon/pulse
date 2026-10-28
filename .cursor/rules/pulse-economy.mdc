@@ -27,6 +27,8 @@ export function quoteVault(category: VaultCategory, usd: number, hrs: number): V
 
 These are the current numbers. Use them when a prompt does not state a different figure. A specific user prompt that sets a different number replaces the one below.
 
+Live Gemini judging uses categorical ratings only. Points are `round(strainPoints × relevance × weight)` with strain HIGH 60, MEDIUM 40, LOW 20; relevance DIRECT 1, ENABLING 0.75, GENERAL 0.5; weight HEAVYWEIGHT 2, CRUISERWEIGHT 1.5, LIGHTWEIGHT 1. The alignment bands below remain the offline math helper, not the live judge.
+
 Action points: `Base = Strain (1–10) × 8 × (Duration_min / 45)^0.45`, then round. Anchor alignment multiplies the base:
 
 - `>= 8.0` → 2.0× Heavyweight

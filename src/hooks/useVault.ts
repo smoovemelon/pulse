@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { celebrate } from '../lib/confetti'
 import { localDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
-import { calculateVaultValuation, replayStreak, validateVaultDraft } from '../services/engine'
+import { calculateVaultValuation, chargeCost, replayStreak, validateVaultDraft } from '../services/engine'
 import type { BountyDraft, VaultFilter, VaultItem } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -88,9 +88,10 @@ export function useVaultController(): VaultApi {
   const unlockBounty = useCallback(
     (item: VaultItem) => {
       const current = read()
-      if (current.balance < item.cost) {
+      const cost = chargeCost(current, item.cost)
+      if (current.balance < cost) {
         feedback('click')
-        notify(`Need ${item.cost - current.balance} more PTS`)
+        notify(`Need ${cost - current.balance} more PTS`)
         return
       }
       const transactions = [
@@ -98,7 +99,7 @@ export function useVaultController(): VaultApi {
           id: createId('tx'),
           type: 'SPEND' as const,
           title: item.title,
-          points: item.cost,
+          points: cost,
           category: item.category,
           timestamp: new Date().toISOString(),
           date: localDateKey(),
@@ -108,7 +109,7 @@ export function useVaultController(): VaultApi {
       commit({
         ...current,
         ...replayStreak(transactions),
-        balance: current.balance - item.cost,
+        balance: current.balance - cost,
         transactions,
       })
       feedback('spend')

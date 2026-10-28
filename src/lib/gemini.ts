@@ -133,6 +133,56 @@ REASONING
   }
 }
 
+export function buildCategoricalPayload(anchor: string, rawAction: string, duration: number) {
+  const systemPrompt = `You classify one logged action against the user's anchor ("${anchor}"). Return only the categorical rubric. Do not invent point values.
+
+Ratings:
+- relevance: DIRECT when this is a causal step toward the anchor, ENABLING when it prepares that work, GENERAL otherwise.
+- strain: HIGH, MEDIUM, or LOW.
+- weightClass: HEAVYWEIGHT for a strong direct effort, CRUISERWEIGHT for a solid direct or enabling effort, LIGHTWEIGHT otherwise.
+- reasoning: one candid sentence.
+
+Calibration for the anchor "${anchor}":
+1. "Finished the main deliverable for ${anchor}" → DIRECT, HIGH, HEAVYWEIGHT.
+2. "Prepared the tools that support ${anchor}" → ENABLING, MEDIUM, CRUISERWEIGHT.
+3. "Tidied the room" → GENERAL, LOW, LIGHTWEIGHT.`
+
+  return {
+    contents: [{ parts: [{ text: `Logged: "${rawAction}", Duration: ${duration} mins` }] }],
+    systemInstruction: { parts: [{ text: systemPrompt }] },
+    generationConfig: {
+      temperature: 0.1,
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'OBJECT',
+        properties: {
+          relevance: { type: 'STRING', enum: ['DIRECT', 'ENABLING', 'GENERAL'] },
+          strain: { type: 'STRING', enum: ['HIGH', 'MEDIUM', 'LOW'] },
+          weightClass: { type: 'STRING', enum: ['HEAVYWEIGHT', 'CRUISERWEIGHT', 'LIGHTWEIGHT'] },
+          reasoning: { type: 'STRING' },
+        },
+        required: ['relevance', 'strain', 'weightClass', 'reasoning'],
+      },
+    },
+  }
+}
+
+export function buildHabitPayload(anchor: string, habits: readonly { id: string; title: string }[]) {
+  const lines = habits.map((habit) => `${habit.id}: ${habit.title}`).join('\n')
+  return {
+    contents: [{ parts: [{ text: lines }] }],
+    systemInstruction: {
+      parts: [{
+        text: `Rate each habit against the anchor "${anchor}". Return JSON {"habits":[{"id":"...","strain":"HIGH|MEDIUM|LOW","relevance":"DIRECT|ENABLING|GENERAL"}]}. Use HIGH strain for hard friction and DIRECT only for a causal habit.`,
+      }],
+    },
+    generationConfig: {
+      temperature: 0.1,
+      responseMimeType: 'application/json',
+    },
+  }
+}
+
 export function polishReasoning(reasoning: string) {
   return reasoning
     .replace(/of([A-Z])/g, 'of $1')

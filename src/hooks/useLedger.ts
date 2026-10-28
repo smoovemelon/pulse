@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { celebrate } from '../lib/confetti'
 import { localDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
-import { applyStreakBonus, balanceAfterRemoval, calculateVaultValuation, isLockedTransaction, removalShortfall, replayStreak, streakMultiplier, validateVaultDraft } from '../services/engine'
+import { applyStreakBonus, balanceAfterRemoval, calculateVaultValuation, chargeCost, isLockedTransaction, removalShortfall, replayStreak, shaveWarning, streakMultiplier, validateVaultDraft } from '../services/engine'
 import type { EarnDraft, FeedFilter, SpendDraft, Transaction } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -54,12 +54,13 @@ export function useLedgerController(): LedgerApi {
         },
         ...current.transactions,
       ]
-      commit({
+      const earned = {
         ...current,
         ...replayStreak(transactions),
         balance: current.balance + points,
         transactions,
-      })
+      }
+      commit(tx.weight_class?.startsWith('Heavyweight') || (tx.multiplier ?? 0) >= 2 ? shaveWarning(earned) : earned)
       feedback('earn')
       celebrate()
       notify(`+${points} PTS: "${tx.title}"`)
@@ -88,9 +89,10 @@ export function useLedgerController(): LedgerApi {
         return false
       }
       const current = read()
-      if (current.balance < quote.cost) {
+      const cost = chargeCost(current, quote.cost)
+      if (current.balance < cost) {
         feedback('error')
-        notify(`Need ${quote.cost - current.balance} more PTS`)
+        notify(`Need ${cost - current.balance} more PTS`)
         return false
       }
       const transactions = [
@@ -98,7 +100,7 @@ export function useLedgerController(): LedgerApi {
           id: createId('tx'),
           type: 'SPEND' as const,
           title,
-          points: quote.cost,
+          points: cost,
           category: draft.category,
           formula_breakdown: quote.tag,
           timestamp: new Date().toISOString(),
@@ -109,12 +111,12 @@ export function useLedgerController(): LedgerApi {
       commit({
         ...current,
         ...replayStreak(transactions),
-        balance: current.balance - quote.cost,
+        balance: current.balance - cost,
         transactions,
       })
       feedback('spend')
       celebrate()
-      notify(`-${quote.cost} PTS: "${title}"`)
+      notify(`-${cost} PTS: "${title}"`)
       return true
     },
     [commit, feedback, notify, read],

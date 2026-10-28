@@ -14,7 +14,7 @@ const STEPS: readonly { readonly kicker: string; readonly title: string; readonl
   {
     kicker: 'First move',
     title: 'Name the anchor',
-    body: 'Set a discipline anchor before you log anything. A direct match at 8 earns heavyweight, and from 6 earns cruiserweight. From 4 up to 6 earns middleweight. Under 4, or other productive work, earns lightweight at half.',
+    body: 'Set a discipline anchor before you log anything. Gemini rates relevance, strain, and weight. The app multiplies those ratings into points. Habit decks pay a flat bounty and have to be finished in order.',
     mark: <MarkTile><AnchorIcon className="h-5 w-5" /></MarkTile>,
   },
   {

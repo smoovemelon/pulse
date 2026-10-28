@@ -1,7 +1,7 @@
 import { DECAY_PENALTY, GRACE_FLOOR, localDateKey, localNoonIso, shiftDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
 import type { DecayAlert, PulseState, SpendTransaction } from '../types'
-import { advanceStreak, earnedOn } from './engine'
+import { advanceStreak, earnedOn, settleDiscipline } from './engine'
 
 export interface AuditResult {
   readonly state: PulseState
@@ -23,12 +23,16 @@ function datesUntil(start: string, endExclusive: string): string[] {
 
 function closeDay(state: PulseState, day: string): { state: PulseState; alert: DecayAlert | null; met: boolean; earned: number } {
   const earned = earnedOn(state.transactions, day)
-  const nextStreak = advanceStreak(state.streakCount, earned, state.dailyGoal)
-  if (earned >= GRACE_FLOOR) {
+  const shielded = state.habitDay.date === day && state.habitDay.shielded
+  const nextStreak = shielded
+    ? { streakCount: state.streakCount, streakState: state.streakState }
+    : advanceStreak(state.streakCount, earned, state.dailyGoal)
+  if (shielded || earned >= GRACE_FLOOR) {
+    const next = state.habitDay.date === day ? settleDiscipline({ ...state, ...nextStreak }, day, earned) : { ...state, ...nextStreak }
     return {
-      state: { ...state, ...nextStreak },
+      state: next,
       alert: null,
-      met: nextStreak.streakState === 'SECURED',
+      met: next.streakState === 'SECURED',
       earned,
     }
   }
@@ -49,13 +53,14 @@ function closeDay(state: PulseState, day: string): { state: PulseState; alert: D
     timestamp: localNoonIso(day),
     date: day,
   }
+  const penalized = {
+    ...state,
+    ...nextStreak,
+    balance: state.balance - collected,
+    transactions: [penalty, ...state.transactions],
+  }
   return {
-    state: {
-      ...state,
-      ...nextStreak,
-      balance: state.balance - collected,
-      transactions: [penalty, ...state.transactions],
-    },
+    state: state.habitDay.date === day ? settleDiscipline(penalized, day, earned) : penalized,
     alert: { earned },
     met: false,
     earned,

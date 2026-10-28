@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Dashboard } from './components/Dashboard/Dashboard'
+import { HabitStack } from './components/Habits/HabitStack'
 import { Dock } from './components/Dock'
 import { Feed } from './components/Feed/Feed'
 import { Header } from './components/Header'
@@ -100,6 +101,7 @@ function Shell() {
                 setModal('anchor')
               }}
             />
+            <HabitStack />
             <Feed />
           </>
         ) : (

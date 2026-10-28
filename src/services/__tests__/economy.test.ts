@@ -3,6 +3,7 @@ import { DEFAULT_ANCHOR, localDateKey } from '../../lib/dates'
 import { greetingDate, greetingLine } from '../../lib/greeting'
 import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
+import { disciplineDefaults } from '../engine'
 import { DEMO_ACTION, DEMO_ANCHOR, DEMO_BOUNTY, DEMO_SPEND, enterDemo, exitDemo } from '../demo'
 import { balanceAfterRemoval, calculateActionPoints, currentStreak, earnedOn, evaluateAnchorAction, lifetimeStats, localActionFallback, validateVaultDraft } from '../economy'
 import { applyStreakBonus, streakMultiplier, weekStrip } from '../engine'
@@ -42,6 +43,7 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     isOnboarded: false,
     transactions: [],
     vaultItems: [],
+    ...disciplineDefaults(new Date('2026-10-21T15:00:00Z')),
     ...partial,
   }
 }

@@ -3,7 +3,11 @@ export type FeedFilter = 'ALL' | 'HEAVY' | 'ALIGNED' | 'SPEND'
 export type VaultCategory = 'Gaming' | 'Items' | 'Dining' | 'Events'
 export type VaultFilter = 'ALL' | VaultCategory
 export type SpendCategory = VaultCategory | 'Decay Audit'
-export type WeightClass = 'Heavyweight (2.0x)' | 'Cruiserweight (1.5x)' | 'Middleweight (1.0x)' | 'Lightweight (0.5x)'
+export type WeightClass = 'Heavyweight (2.0x)' | 'Cruiserweight (1.5x)' | 'Middleweight (1.0x)' | 'Lightweight (1.0x)' | 'Lightweight (0.5x)'
+export type Relevance = 'DIRECT' | 'ENABLING' | 'GENERAL'
+export type StrainBand = 'HIGH' | 'MEDIUM' | 'LOW'
+export type JudgeWeight = 'HEAVYWEIGHT' | 'CRUISERWEIGHT' | 'LIGHTWEIGHT'
+export type WarningId = 'deck1' | 'deck2' | 'deck3'
 export type ThemeName = 'light' | 'dark'
 export type StreakState = 'STALLED' | 'SAFE' | 'SECURED'
 export type WeekMark = 'secured' | 'grace' | 'missed' | 'quiet' | 'today' | 'upcoming'
@@ -65,6 +69,55 @@ export interface PulseState {
   readonly isOnboarded: boolean
   readonly transactions: readonly Transaction[]
   readonly vaultItems: readonly VaultItem[]
+  readonly decks: readonly HabitDeck[]
+  readonly habitDay: HabitDay
+  readonly pacing: PacingScheduleConfig
+  readonly warnings: readonly WarningId[]
+  readonly ptoTokens: number
+  readonly ptoCadence: number
+  readonly chainStreak: number
+  readonly discountFrozenUntil: string
+  readonly habitsNeedScore: boolean
+}
+
+export interface MicroHabit {
+  readonly id: string
+  readonly title: string
+  readonly points: number
+  readonly relevance: Relevance
+  readonly strain: StrainBand
+}
+
+export interface HabitDeck {
+  readonly id: string
+  readonly name: string
+  readonly habits: readonly MicroHabit[]
+}
+
+export interface HabitDay {
+  readonly date: string
+  readonly completedIds: readonly string[]
+  readonly clearedWarnings: readonly WarningId[]
+  readonly shielded: boolean
+}
+
+export interface PacingScheduleConfig {
+  readonly deck1Cutoff: string
+  readonly deck2Cutoff: string
+  readonly auditCutoff: string
+  readonly lastModified: string
+  readonly pendingConfig?: {
+    readonly deck1Cutoff: string
+    readonly deck2Cutoff: string
+    readonly effectiveDate: string
+  }
+}
+
+export interface ActionJudgmentResult {
+  readonly relevance: Relevance
+  readonly strain: StrainBand
+  readonly weightClass: JudgeWeight
+  readonly reasoning: string
 }
 
 export interface WeekDay {

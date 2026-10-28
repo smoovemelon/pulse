@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import type { useHabitsController } from './useHabits'
 import type { EconomyApi } from './usePulseEconomy'
 import type { LedgerApi } from './useLedger'
 import type { NoticeApi } from './useNotice'
@@ -7,6 +8,7 @@ import type { SettingsApi } from './useSettings'
 import type { VaultApi } from './useVault'
 
 export interface PulseSlices {
+  readonly habits: ReturnType<typeof useHabitsController>
   readonly economy: EconomyApi
   readonly ledger: LedgerApi
   readonly vault: VaultApi
