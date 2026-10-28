@@ -1,74 +1,49 @@
-export function MomentumGauge({
+export function SplitCapsule({
   earned,
   goal,
-  percent,
+  decksComplete,
+  forgeStreak,
+  chainStreak,
+  tier,
+  discountPercent,
 }: {
   readonly earned: number
   readonly goal: number
-  readonly percent: number
+  readonly decksComplete: number
+  readonly forgeStreak: number
+  readonly chainStreak: number
+  readonly tier: number
+  readonly discountPercent: number
 }) {
-  const size = 200
-  const stroke = 16
-  const radius = (size - stroke) / 2 - 4
-  const center = size / 2
-  const circumference = 2 * Math.PI * radius
-  const gap = circumference * 0.25
-  const track = circumference - gap
-  const clamped = Math.max(0, Math.min(100, percent))
-  const progress = track * (clamped / 100)
-  const sweep = ((135 + 270 * (clamped / 100)) * Math.PI) / 180
-  const knobX = center + radius * Math.cos(sweep)
-  const knobY = center + radius * Math.sin(sweep)
+  const width = Math.max(0, Math.min(100, goal <= 0 ? 0 : (earned / goal) * 100))
 
   return (
-    <div className="relative mx-auto h-[200px] w-[200px]">
-      <svg
-        data-testid="momentum-bar"
-        viewBox={`0 0 ${size} ${size}`}
-        className="h-full w-full"
-        role="img"
-        aria-label={`${earned} of ${goal} daily goal, ${clamped}%`}
-      >
-        <g transform={`rotate(135 ${center} ${center})`}>
-          <circle
-            className="momentum-track"
-            cx={center}
-            cy={center}
-            r={radius}
-            fill="none"
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            strokeDasharray={`${track} ${gap}`}
-          />
-          {clamped > 0 && (
-            <circle
-              className="momentum-progress"
-              cx={center}
-              cy={center}
-              r={radius}
-              fill="none"
-              strokeWidth={stroke}
-              strokeLinecap="round"
-              strokeDasharray={`${progress} ${circumference}`}
-            />
-          )}
-        </g>
-        {clamped > 0 && (
-          <>
-            <circle className="momentum-knob-ring" cx={knobX} cy={knobY} r={stroke * 0.64} />
-            <circle className="momentum-knob" cx={knobX} cy={knobY} r={stroke * 0.5} />
-          </>
-        )}
-      </svg>
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-        <span className="flex items-end font-num leading-none tracking-tight text-ink">
-          <span data-testid="today-earned" className="text-5xl font-extrabold">
-            {clamped}
-          </span>
-          <span className="mb-1 ml-0.5 text-lg font-bold text-muted">%</span>
-        </span>
-        <span className="mt-1.5 text-sm font-semibold text-muted">{earned >= goal ? 'Goal met' : 'Daily goal'}</span>
+    <div data-testid="split-capsule" className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-2xl border border-line bg-card px-3 py-2.5">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Forge</span>
+          <div className="relative mt-2 h-2 overflow-hidden rounded-full bg-well">
+            <span className="absolute inset-y-0 left-1/2 w-px bg-faint" aria-hidden="true" />
+            <span className="absolute inset-y-0 left-0 rounded-full bg-ink" style={{ width: `${width}%` }} />
+          </div>
+          <p className="mt-1.5 font-num text-[11px] font-extrabold text-ink">
+            <span data-testid="today-earned">{earned}</span>
+            <span className="text-faint"> / {goal} PTS</span>
+          </p>
+        </div>
+        <div className="rounded-2xl border border-line bg-card px-3 py-2.5">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">Chain</span>
+          <div className="mt-2 grid grid-cols-3 gap-1">
+            {[0, 1, 2].map((index) => (
+              <span key={index} className={`h-2 rounded-full ${index < decksComplete ? 'bg-ink' : 'bg-well'}`} />
+            ))}
+          </div>
+          <p className="mt-1.5 font-num text-[11px] font-extrabold text-ink">{decksComplete} / 3 DECKS</p>
+        </div>
       </div>
+      <p data-testid="streak-chip" className="text-[11px] font-extrabold text-muted">
+        ⚡ Forge: {forgeStreak}d | 🔗 Chain: {chainStreak}d (Tier {tier} · {discountPercent}% Off)
+      </p>
     </div>
   )
 }

@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { celebrate } from '../lib/confetti'
 import { localDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
-import { applyStreakBonus, balanceAfterRemoval, calculateVaultValuation, chargeCost, isLockedTransaction, removalShortfall, replayStreak, shaveWarning, streakMultiplier, validateVaultDraft } from '../services/engine'
+import { balanceAfterRemoval, calculateVaultValuation, chargeCost, isLockedTransaction, removalShortfall, shaveWarning, validateVaultDraft } from '../services/engine'
 import type { EarnDraft, FeedFilter, SpendDraft, Transaction } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -39,14 +39,12 @@ export function useLedgerController(): LedgerApi {
   const appendEarn = useCallback(
     (tx: EarnDraft) => {
       const current = read()
-      const bonus = streakMultiplier(current.streakCount)
-      const points = applyStreakBonus(tx.points, current.streakCount)
-      const breakdown = tx.formula_breakdown && bonus !== 1 ? `${tx.formula_breakdown} × ${bonus}x streak` : tx.formula_breakdown
+      const points = tx.points
       const transactions = [
         {
           ...tx,
           points,
-          formula_breakdown: breakdown,
+          formula_breakdown: tx.formula_breakdown,
           id: createId('tx'),
           type: 'EARN' as const,
           timestamp: new Date().toISOString(),
@@ -56,7 +54,6 @@ export function useLedgerController(): LedgerApi {
       ]
       const earned = {
         ...current,
-        ...replayStreak(transactions),
         balance: current.balance + points,
         transactions,
       }
@@ -76,19 +73,19 @@ export function useLedgerController(): LedgerApi {
         notify('Name what you spent on')
         return false
       }
-      const validation = validateVaultDraft(draft.category, draft.usd, draft.hrs)
+      const validation = validateVaultDraft(draft.measurementType, draft.amount)
       if (!validation.ok) {
         feedback('error')
         notify(validation.message)
         return false
       }
-      const quote = calculateVaultValuation(draft.category, draft.usd, draft.hrs)
+      const current = read()
+      const quote = calculateVaultValuation(draft.measurementType, draft.amount, current.economy)
       if (quote.cost <= 0) {
         feedback('error')
         notify('Calculated cost must be at least 1 PTS')
         return false
       }
-      const current = read()
       const cost = chargeCost(current, quote.cost)
       if (current.balance < cost) {
         feedback('error')
@@ -110,7 +107,6 @@ export function useLedgerController(): LedgerApi {
       ]
       commit({
         ...current,
-        ...replayStreak(transactions),
         balance: current.balance - cost,
         transactions,
       })
@@ -138,7 +134,6 @@ export function useLedgerController(): LedgerApi {
       const delta = balance - current.balance
       commit({
         ...current,
-        ...replayStreak(transactions),
         balance,
         transactions,
       })

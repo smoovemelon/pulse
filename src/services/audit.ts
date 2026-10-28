@@ -1,7 +1,7 @@
-import { DECAY_PENALTY, GRACE_FLOOR, localDateKey, localNoonIso, shiftDateKey } from '../lib/dates'
+import { localDateKey, localNoonIso, shiftDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
 import type { DecayAlert, PulseState, SpendTransaction } from '../types'
-import { advanceStreak, earnedOn, settleDiscipline } from './engine'
+import { advanceStreak, decayPenalty, earnedOn, forgeTarget, graceFloor, settleDiscipline } from './engine'
 
 export interface AuditResult {
   readonly state: PulseState
@@ -23,12 +23,22 @@ function datesUntil(start: string, endExclusive: string): string[] {
 
 function closeDay(state: PulseState, day: string): { state: PulseState; alert: DecayAlert | null; met: boolean; earned: number } {
   const earned = earnedOn(state.transactions, day)
+  const target = forgeTarget(state.transactions, day)
+  const grace = graceFloor(target)
+  const fee = decayPenalty(state.chainStreak, state.forgeStreak)
   const shielded = state.habitDay.date === day && state.habitDay.shielded
   const nextStreak = shielded
-    ? { streakCount: state.streakCount, streakState: state.streakState }
-    : advanceStreak(state.streakCount, earned, state.dailyGoal)
-  if (shielded || earned >= GRACE_FLOOR) {
-    const next = state.habitDay.date === day ? settleDiscipline({ ...state, ...nextStreak }, day, earned) : { ...state, ...nextStreak }
+    ? { streakCount: state.forgeStreak, streakState: state.streakState }
+    : advanceStreak(state.forgeStreak, earned, target)
+  const forged = {
+    ...state,
+    ...nextStreak,
+    forgeStreak: nextStreak.streakCount,
+    streakCount: nextStreak.streakCount,
+    lastForgeCompletedDate: nextStreak.streakState === 'SECURED' ? day : state.lastForgeCompletedDate,
+  }
+  if (shielded || earned >= grace) {
+    const next = state.habitDay.date === day ? settleDiscipline(forged, day, earned) : forged
     return {
       state: next,
       alert: null,
@@ -37,16 +47,16 @@ function closeDay(state: PulseState, day: string): { state: PulseState; alert: D
     }
   }
 
-  const collected = Math.min(DECAY_PENALTY, Math.max(0, state.balance))
-  const uncollected = DECAY_PENALTY - collected
+  const collected = Math.min(fee, Math.max(0, state.balance))
+  const uncollected = fee - collected
   const reasoning = uncollected > 0
-    ? `The day closed under 60 PTS. Streak reset. Collected ${collected} PTS of the 15 PTS fee. Uncollected ${uncollected} PTS because the balance reached 0.`
-    : 'The day closed under 60 PTS. Streak reset and accountability fee assessed.'
+    ? `The day closed under ${grace} PTS. Streak reset. Collected ${collected} PTS of the ${fee} PTS fee. Uncollected ${uncollected} PTS because the balance reached 0.`
+    : `The day closed under ${grace} PTS. Streak reset and accountability fee assessed.`
   const penalty: SpendTransaction = {
     id: createId('tx'),
     type: 'SPEND',
     title: 'Discipline Decay: Target Missed',
-    points: DECAY_PENALTY,
+    points: fee,
     category: 'Decay Audit',
     is_locked: true,
     reasoning,
@@ -54,14 +64,13 @@ function closeDay(state: PulseState, day: string): { state: PulseState; alert: D
     date: day,
   }
   const penalized = {
-    ...state,
-    ...nextStreak,
+    ...forged,
     balance: state.balance - collected,
     transactions: [penalty, ...state.transactions],
   }
   return {
     state: state.habitDay.date === day ? settleDiscipline(penalized, day, earned) : penalized,
-    alert: { earned },
+    alert: { earned, penalty: fee, target },
     met: false,
     earned,
   }

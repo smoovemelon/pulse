@@ -36,7 +36,7 @@ export function DecayAlertModal() {
           </div>
           <div className="flex items-center justify-between text-xs pt-2 border-t border-line">
             <span className="font-extrabold">Accountability Penalty</span>
-            <span className="font-num font-extrabold text-rose-600">-15 PTS</span>
+            <span className="font-num font-extrabold text-rose-600">-{decayAlert.penalty} PTS</span>
           </div>
         </div>
         <p className="text-[11px] text-muted leading-relaxed">

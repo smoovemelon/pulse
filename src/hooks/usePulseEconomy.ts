@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { localDateKey } from '../lib/dates'
 import { runDecayAudit } from '../services/audit'
-import { earnedOn, streakMultiplier, streakStatusMessage, streakTier, weekStrip } from '../services/engine'
+import { deckComplete, decayPenalty, earnedOn, forgeTarget, perkTier, streakStatusMessage, streakTier, weekStrip } from '../services/engine'
 import type { DecayAlert, StreakState, WeekDay } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -12,6 +12,12 @@ export interface EconomyApi {
   readonly todayEarned: number
   readonly momentumPct: number
   readonly streak: number
+  readonly forgeStreak: number
+  readonly chainStreak: number
+  readonly tier: number
+  readonly discountPercent: number
+  readonly decksComplete: number
+  readonly graceFloor: number
   readonly streakMultiplier: number
   readonly streakState: StreakState
   readonly streakStatus: string
@@ -29,7 +35,7 @@ export function useEconomyController(): EconomyApi {
     if (result.alert) {
       setDecayAlert(result.alert)
       feedback('spend')
-      notify('Discipline Decay Applied: -15 PTS (Day closed under 60)')
+      notify(`Discipline Decay Applied: -${result.alert.penalty} PTS`)
     }
   }, [commit, feedback, notify, read, setDecayAlert])
 
@@ -39,18 +45,26 @@ export function useEconomyController(): EconomyApi {
 
   const today = localDateKey()
   const todayEarned = earnedOn(state.transactions, today)
-  const multiplier = streakMultiplier(state.streakCount)
+  const target = forgeTarget(state.transactions, today)
+  const perk = perkTier(state.chainStreak, state.forgeStreak)
+  const fee = decayPenalty(state.chainStreak, state.forgeStreak)
 
   return {
     balance: state.balance,
-    dailyGoal: state.dailyGoal,
+    dailyGoal: target,
     todayEarned,
-    momentumPct: Math.min(100, Math.round((todayEarned / state.dailyGoal) * 100)),
-    streak: state.streakCount,
-    streakMultiplier: multiplier,
-    streakState: streakTier(todayEarned, state.dailyGoal),
-    streakStatus: streakStatusMessage(todayEarned, multiplier, state.dailyGoal),
-    week: weekStrip(state.transactions, today, state.dailyGoal),
+    momentumPct: Math.min(100, Math.round((todayEarned / target) * 100)),
+    streak: state.forgeStreak,
+    forgeStreak: state.forgeStreak,
+    chainStreak: state.chainStreak,
+    tier: perk.tier,
+    discountPercent: Math.round(perk.discount * 100),
+    decksComplete: state.decks.filter((deck) => deckComplete(deck, state.habitDay.completedIds)).length,
+    graceFloor: target * 0.5,
+    streakMultiplier: 1,
+    streakState: streakTier(todayEarned, target),
+    streakStatus: streakStatusMessage(todayEarned, target, fee),
+    week: weekStrip(state.transactions, today, target),
     decayAlert,
     dismissDecay: () => setDecayAlert(null),
   }

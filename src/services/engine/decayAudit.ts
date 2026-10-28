@@ -1,6 +1,7 @@
-import { DECAY_PENALTY, GRACE_FLOOR, localDateKey } from '../../lib/dates'
+import { DECAY_PENALTY, localDateKey } from '../../lib/dates'
 import type { StreakState, Transaction } from '../../types'
 import { earnedOn } from './momentum'
+import { graceFloor } from './forge'
 import { streakTier } from './streak'
 
 export interface DecayAssessment {
@@ -30,7 +31,7 @@ export function auditDecay(
   const checkDate = force ? today : lastAuditDate
   const earned = earnedOn(transactions, checkDate)
   const tier = streakTier(earned, dailyGoal)
-  const missed = earned < GRACE_FLOOR
+  const missed = earned < graceFloor(dailyGoal)
   return {
     today,
     earned,

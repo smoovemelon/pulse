@@ -4,8 +4,8 @@ import { usePulseEconomy } from '../../hooks/usePulseEconomy'
 import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { DEMO_SPEND } from '../../services/demo'
-import { calculateVaultValuation } from '../../services/engine'
-import type { VaultCategory } from '../../types'
+import { calculateVaultValuation, measurementFor } from '../../services/engine'
+import type { VaultCategory, VaultMeasurement } from '../../types'
 import { Button } from '../Common/Button'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { CategoryPicker } from '../Common/CategoryPicker'
@@ -31,34 +31,28 @@ function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
   const { appendSpend } = useLedger()
   const { balance } = usePulseEconomy()
   const { feedback } = useSensory()
-  const { demoMode } = useSettings()
+  const { demoMode, economy } = useSettings()
   const [title, setTitle] = useState(demoMode ? DEMO_SPEND.title : '')
-  const [category, setCategory] = useState<VaultCategory>(demoMode ? DEMO_SPEND.category : 'Items')
-  const [usd, setUsd] = useState(demoMode ? DEMO_SPEND.usd : '')
-  const [hrs, setHrs] = useState(demoMode ? DEMO_SPEND.hrs : '')
+  const [category, setCategory] = useState<VaultCategory>(demoMode ? DEMO_SPEND.category : 'gear')
+  const [custom, setCustom] = useState<VaultMeasurement>('money')
+  const [amount, setAmount] = useState(demoMode ? DEMO_SPEND.amount : '')
+  const kind = measurementFor(category)
+  const measurement: VaultMeasurement = kind === 'either' ? custom : kind
 
-  const priceDisabled = category === 'Gaming'
-  const hoursDisabled = category === 'Items'
   const quote = useMemo(
-    () => calculateVaultValuation(category, priceDisabled ? 0 : Number(usd) || 0, hoursDisabled ? 0 : Number(hrs) || 0),
-    [category, hoursDisabled, hrs, priceDisabled, usd],
+    () => calculateVaultValuation(measurement, Number(amount) || 0, economy),
+    [amount, economy, measurement],
   )
   const shortfall = quote.cost > balance ? quote.cost - balance : 0
 
   const choose = (next: VaultCategory) => {
     feedback('click')
     setCategory(next)
-    if (next === 'Gaming') setUsd('')
-    if (next === 'Items') setHrs('')
+    setAmount('')
   }
 
   const spend = () => {
-    const ok = appendSpend({
-      title,
-      category,
-      usd: priceDisabled ? 0 : Number(usd) || 0,
-      hrs: hoursDisabled ? 0 : Number(hrs) || 0,
-    })
+    const ok = appendSpend({ title, category, measurementType: measurement, amount: Number(amount) || 0 })
     if (ok) onSpent()
   }
 
@@ -80,49 +74,26 @@ function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
 
       <CategoryPicker value={category} onChange={choose} />
 
-      <div className={priceDisabled || hoursDisabled ? 'grid grid-cols-1' : 'grid grid-cols-2 gap-2.5'}>
-        {!priceDisabled && (
-          <div className="flex flex-col gap-1">
-            <label htmlFor="spend-usd" className="text-[9px] font-extrabold uppercase text-muted">
-              Price (USD)
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-2.5 text-xs font-bold text-faint">$</span>
-              <input
-                id="spend-usd"
-                data-testid="spend-usd"
-                type="number"
-                step="any"
-                min="0"
-                value={usd}
-                placeholder={category === 'Items' ? 'e.g. 5' : 'Optional'}
-                onChange={(event) => setUsd(event.target.value)}
-                className="field w-full rounded-xl pl-6 pr-3 py-2 text-xs font-num font-extrabold focus:outline-none"
-              />
-            </div>
-          </div>
-        )}
-        {!hoursDisabled && (
-          <div className="flex flex-col gap-1">
-            <label htmlFor="spend-hrs" className="text-[9px] font-extrabold uppercase text-muted">
-              Duration (Hrs)
-            </label>
-            <div className="relative">
-              <input
-                id="spend-hrs"
-                data-testid="spend-hrs"
-                type="number"
-                step="0.5"
-                min="0"
-                value={hrs}
-                placeholder="e.g. 1"
-                onChange={(event) => setHrs(event.target.value)}
-                className="field w-full rounded-xl px-3 py-2 pr-10 text-xs font-num font-extrabold focus:outline-none"
-              />
-              <span className="absolute right-3 top-2.5 text-[10px] font-bold text-faint font-num">hrs</span>
-            </div>
-          </div>
-        )}
+      {category === 'custom' && (
+        <div className="grid grid-cols-2 gap-2">
+          <Button tone={custom === 'time' ? 'pillActive' : 'pill'} onClick={() => setCustom('time')} className="rounded-xl py-2 text-[10px] font-extrabold">Minutes</Button>
+          <Button tone={custom === 'money' ? 'pillActive' : 'pill'} onClick={() => setCustom('money')} className="rounded-xl py-2 text-[10px] font-extrabold">Dollars</Button>
+        </div>
+      )}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="spend-amount" className="text-[9px] font-extrabold uppercase text-muted">
+          {measurement === 'time' ? 'Duration (min)' : 'Price (USD)'}
+        </label>
+        <input
+          id="spend-amount"
+          data-testid="spend-usd"
+          type="number"
+          min="0"
+          value={amount}
+          placeholder={measurement === 'time' ? '60' : '5'}
+          onChange={(event) => setAmount(event.target.value)}
+          className="field w-full rounded-xl px-3 py-2 text-xs font-num font-extrabold focus:outline-none"
+        />
       </div>
 
       <div className="depth-card rounded-2xl px-4 py-3.5">

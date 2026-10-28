@@ -15,6 +15,7 @@ export {
 export {
   applyPendingPacing,
   chargeCost,
+  decayPenalty,
   clearDeckWarning,
   closedDayWarnings,
   cooldownRemaining,
@@ -28,6 +29,7 @@ export {
   shaveWarning,
   syncLiveDiscipline,
 } from './pacing'
+export { forgeTarget, graceFloor } from './forge'
 export { auditDecay } from './decayAudit'
 export type { DecayAssessment } from './decayAudit'
 export { balanceAfterRemoval, isLockedTransaction, removalShortfall } from './history'
@@ -42,4 +44,4 @@ export {
   streakTier,
   weekStrip,
 } from './streak'
-export { calculateVaultValuation, validateVaultDraft } from './vaultValuation'
+export { BALANCED_ECONOMY, calculateVaultValuation, economyPreset, measurementFor, migrateLegacyVault, repriceVault, validateVaultDraft, vaultTag } from './vaultValuation'

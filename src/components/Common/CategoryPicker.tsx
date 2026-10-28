@@ -3,13 +3,16 @@ import { Button } from './Button'
 
 const CATEGORIES: ReadonlyArray<{
   readonly id: VaultCategory
+  readonly label: string
   readonly sub: string
-  readonly idle: string
 }> = [
-  { id: 'Items', sub: 'Price only', idle: 'chip-sky' },
-  { id: 'Dining', sub: 'Needs time', idle: 'chip-amber' },
-  { id: 'Events', sub: 'Needs time', idle: 'chip-emerald' },
-  { id: 'Gaming', sub: 'Time only', idle: 'chip-violet' },
+  { id: 'gaming', label: 'Gaming', sub: 'Time' },
+  { id: 'streaming', label: 'Streaming', sub: 'Time' },
+  { id: 'social', label: 'Social', sub: 'Time' },
+  { id: 'dining', label: 'Dining', sub: 'Money' },
+  { id: 'gear', label: 'Gear', sub: 'Money' },
+  { id: 'outings', label: 'Outings', sub: 'Money' },
+  { id: 'custom', label: 'Custom', sub: 'Either' },
 ]
 
 export function CategoryPicker({
@@ -31,8 +34,8 @@ export function CategoryPicker({
             onClick={() => onChange(entry.id)}
             className="w-full py-2.5 px-2.5 rounded-xl text-[10px] font-black uppercase flex flex-col items-center justify-center gap-1"
           >
-            <span>{entry.id}</span>
-            <span className={`text-[8px] font-extrabold font-num px-1.5 py-0.5 rounded-md whitespace-nowrap ${active ? 'cat-sub-active' : entry.idle}`}>
+            <span>{entry.label}</span>
+            <span className={`text-[8px] font-extrabold font-num px-1.5 py-0.5 rounded-md whitespace-nowrap ${active ? 'cat-sub-active' : 'chip-zinc'}`}>
               {entry.sub}
             </span>
           </Button>

@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { localDateKey } from '../../lib/dates'
+import { runDecayAudit } from '../audit'
+import { forgeTarget } from '../engine/forge'
+import { migrateLegacyVault } from '../engine/vaultValuation'
 import { distributeHabitPoints, nextOpenHabit } from '../engine/habits'
 import { scoreJudgment } from '../engine/judging'
 import { closedDayWarnings, cooldownRemaining, defaultPacing, proposePacing, settleDiscipline } from '../engine/pacing'
@@ -85,5 +88,54 @@ describe('pacing locks', () => {
     expect(settled.ptoTokens).toBe(2)
     expect(settled.ptoCadence).toBe(0)
     expect(settled.chainStreak).toBe(1)
+  })
+
+  it('sets the forge target from the median of the last active judged days', () => {
+    const row = (date: string, points: number) => ({
+      id: date,
+      type: 'EARN' as const,
+      title: 'Session',
+      points,
+      timestamp: date,
+      date,
+    })
+    expect(forgeTarget([], '2026-10-28')).toBe(120)
+    expect(forgeTarget([row('2026-10-20', 10)], '2026-10-21')).toBe(80)
+    expect(forgeTarget([row('2026-10-20', 200), row('2026-10-21', 40)], '2026-10-22')).toBe(120)
+    const habit = { ...row('2026-10-20', 500), reasoning: 'Habit deck bounty' }
+    expect(forgeTarget([habit], '2026-10-21')).toBe(120)
+  })
+
+  it('maps legacy bounties onto time and money', () => {
+    const gaming = migrateLegacyVault('Gaming', 120, 'g', 'Queue')
+    const gear = migrateLegacyVault('Items', 100, 'i', 'Mug')
+    expect(gaming).toMatchObject({ category: 'gaming', measurementType: 'time', durationMinutes: 60, baseCost: 120 })
+    expect(gear).toMatchObject({ category: 'gear', measurementType: 'money', priceDollars: 5, baseCost: 100 })
+  })
+
+  it('charges 20 points when tier 2 misses the grace floor', () => {
+    const bag = new Map<string, string>()
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => bag.get(key) ?? null,
+      setItem: (key: string, value: string) => { bag.set(key, value) },
+      removeItem: (key: string) => { bag.delete(key) },
+      clear: () => bag.clear(),
+    })
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-21T15:00:00Z'))
+    const result = runDecayAudit({
+      ...freshState(),
+      balance: 100,
+      lastAuditDate: '2026-10-20',
+      chainStreak: 14,
+      forgeStreak: 14,
+      streakCount: 14,
+      habitDay: { ...freshState().habitDay, date: '2026-10-21' },
+      transactions: [{ id: 'low', type: 'EARN', title: 'Short', points: 10, timestamp: 't', date: '2026-10-20' }],
+    })
+    expect(result.state.transactions[0]?.points).toBe(20)
+    expect(result.state.forgeStreak).toBe(0)
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
   })
 })

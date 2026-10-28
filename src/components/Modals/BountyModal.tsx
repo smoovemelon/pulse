@@ -4,51 +4,40 @@ import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { useVault } from '../../hooks/useVault'
 import { DEMO_BOUNTY } from '../../services/demo'
-import { calculateVaultValuation } from '../../services/engine'
-import type { VaultCategory, VaultItem } from '../../types'
+import { calculateVaultValuation, measurementFor } from '../../services/engine'
+import type { VaultCategory, VaultItem, VaultMeasurement } from '../../types'
 import { Button } from '../Common/Button'
 import { CategoryPicker } from '../Common/CategoryPicker'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 
-function asCategory(value: string | undefined): VaultCategory {
-  if (value === 'Items' || value === 'Dining' || value === 'Events' || value === 'Gaming') return value
-  return 'Items'
-}
-
 export function BountyModal({ item, onClose }: { readonly item: VaultItem | null; readonly onClose: () => void }) {
   const { feedback } = useSensory()
   const { balance } = usePulseEconomy()
-  const { demoMode } = useSettings()
+  const { demoMode, economy } = useSettings()
   const { saveBounty } = useVault()
   const seeded = !item && demoMode
   const [title, setTitle] = useState(item?.title ?? (seeded ? DEMO_BOUNTY.title : ''))
-  const [category, setCategory] = useState<VaultCategory>(item ? asCategory(item.category) : seeded ? DEMO_BOUNTY.category : 'Items')
-  const [usd, setUsd] = useState(item?.usd ? String(item.usd) : seeded ? DEMO_BOUNTY.usd : '')
-  const [hrs, setHrs] = useState(item?.hrs ? String(item.hrs) : seeded ? DEMO_BOUNTY.hrs : '')
-
-  const priceDisabled = category === 'Gaming'
-  const hoursDisabled = category === 'Items'
+  const [category, setCategory] = useState<VaultCategory>(item?.category ?? (seeded ? DEMO_BOUNTY.category : 'gear'))
+  const [custom, setCustom] = useState<VaultMeasurement>(item?.measurementType ?? 'money')
+  const startingAmount = item
+    ? String(item.measurementType === 'time' ? item.durationMinutes ?? 0 : item.priceDollars ?? 0)
+    : seeded ? DEMO_BOUNTY.amount : ''
+  const [amount, setAmount] = useState(startingAmount)
+  const kind = measurementFor(category)
+  const measurement: VaultMeasurement = kind === 'either' ? custom : kind
   const quote = useMemo(
-    () => calculateVaultValuation(category, priceDisabled ? 0 : Number(usd) || 0, hoursDisabled ? 0 : Number(hrs) || 0),
-    [category, hoursDisabled, hrs, priceDisabled, usd],
+    () => calculateVaultValuation(measurement, Number(amount) || 0, economy),
+    [amount, economy, measurement],
   )
   const shortfall = quote.cost > balance ? quote.cost - balance : 0
 
   const choose = (next: VaultCategory) => {
     feedback('click')
     setCategory(next)
-    if (next === 'Gaming') setUsd('')
-    if (next === 'Items') setHrs('')
   }
 
   const save = () => {
-    const ok = saveBounty({
-      id: item?.id,
-      title,
-      category,
-      usd: priceDisabled ? 0 : Number(usd) || 0,
-      hrs: hoursDisabled ? 0 : Number(hrs) || 0,
-    })
+    const ok = saveBounty({ id: item?.id, title, category, measurementType: measurement, amount: Number(amount) || 0 })
     if (ok) onClose()
   }
 
@@ -82,49 +71,26 @@ export function BountyModal({ item, onClose }: { readonly item: VaultItem | null
 
       <CategoryPicker value={category} onChange={choose} />
 
-      <div className={priceDisabled || hoursDisabled ? 'grid grid-cols-1' : 'grid grid-cols-2 gap-2.5'}>
-        {!priceDisabled && (
-          <div className="flex flex-col gap-1">
-            <label htmlFor="bounty-usd" className="text-[9px] font-extrabold uppercase text-muted">
-              Price (USD)
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-2.5 text-xs font-bold text-faint">$</span>
-              <input
-                id="bounty-usd"
-                data-testid="bounty-usd"
-                type="number"
-                step="any"
-                min="0"
-                value={usd}
-                placeholder={category === 'Items' ? 'e.g. 5' : 'Optional'}
-                onChange={(event) => setUsd(event.target.value)}
-                className="field w-full rounded-xl pl-6 pr-3 py-2 text-xs font-num font-extrabold focus:outline-none"
-              />
-            </div>
-          </div>
-        )}
-        {!hoursDisabled && (
-          <div className="flex flex-col gap-1">
-            <label htmlFor="bounty-hrs" className="text-[9px] font-extrabold uppercase text-muted">
-              Duration (Hrs)
-            </label>
-            <div className="relative">
-              <input
-                id="bounty-hrs"
-                data-testid="bounty-hrs"
-                type="number"
-                step="0.5"
-                min="0"
-                value={hrs}
-                placeholder="e.g. 1"
-                onChange={(event) => setHrs(event.target.value)}
-                className="field w-full rounded-xl px-3 py-2 pr-10 text-xs font-num font-extrabold focus:outline-none"
-              />
-              <span className="absolute right-3 top-2.5 text-[10px] font-bold text-faint font-num">hrs</span>
-            </div>
-          </div>
-        )}
+      {category === 'custom' && (
+        <div className="grid grid-cols-2 gap-2">
+          <Button tone={custom === 'time' ? 'pillActive' : 'pill'} onClick={() => setCustom('time')} className="rounded-xl py-2 text-[10px] font-extrabold">Minutes</Button>
+          <Button tone={custom === 'money' ? 'pillActive' : 'pill'} onClick={() => setCustom('money')} className="rounded-xl py-2 text-[10px] font-extrabold">Dollars</Button>
+        </div>
+      )}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="bounty-usd" className="text-[9px] font-extrabold uppercase text-muted">
+          {measurement === 'time' ? 'Duration (min)' : 'Price (USD)'}
+        </label>
+        <input
+          id="bounty-usd"
+          data-testid="bounty-usd"
+          type="number"
+          min="0"
+          value={amount}
+          placeholder={measurement === 'time' ? '60' : '5'}
+          onChange={(event) => setAmount(event.target.value)}
+          className="field w-full rounded-xl px-3 py-2 text-xs font-num font-extrabold focus:outline-none"
+        />
       </div>
 
       <div className="depth-card rounded-2xl px-4 py-3.5">

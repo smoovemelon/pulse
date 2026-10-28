@@ -1,8 +1,6 @@
 import type { StreakState, WeekDay } from '../../types'
 
 export function StreakBadge({
-  streak,
-  multiplier,
   state,
   status,
   week,
@@ -19,15 +17,7 @@ export function StreakBadge({
 
   return (
     <section className="depth-card rounded-[28px] p-4 text-ink" aria-label="Streak">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[10px] font-extrabold uppercase tracking-widest text-faint">
-          Streak ▲ <span data-testid="current-streak" className="font-num text-sm font-extrabold tracking-tight text-ink">{streak}</span> days
-        </p>
-        <span data-testid="streak-multiplier" className="shrink-0 rounded-full bg-ink px-2 py-1 text-[10px] font-extrabold tracking-wide text-canvas">
-          <span className="font-num">{multiplier.toFixed(1)}x</span> bonus
-        </span>
-      </div>
-      <div className="mt-4 flex items-end justify-between gap-1.5">
+      <div className="flex items-end justify-between gap-1.5">
         {week.map((day) => (
           <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-faint">{day.label}</span>

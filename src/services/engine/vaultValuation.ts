@@ -1,66 +1,76 @@
-import type { VaultCategory, VaultQuote, VaultValidation } from '../../types'
+import type { EconomyConfig, EconomyDifficulty, VaultItem, VaultMeasurement, VaultQuote, VaultValidation } from '../../types'
 
-export function calculateVaultValuation(category: VaultCategory, usdRaw: number, hrsRaw: number): VaultQuote {
-  const usd = Math.max(0, Number(usdRaw) || 0)
-  const hrs = Math.max(0, Number(hrsRaw) || 0)
-
-  if (category === 'Gaming') {
-    const cost = Math.max(0, Math.round(hrs * 50))
-    return {
-      cost,
-      tag: hrs > 0 ? `${hrs} hrs @ 50 PTS/hr` : 'Enter hours',
-      usd: 0,
-      hrs,
-    }
-  }
-
-  if (category === 'Items') {
-    const cost = Math.max(0, Math.round(usd * 20))
-    return {
-      cost,
-      tag: usd > 0 ? `$${usd} @ 20 PTS/$` : 'Enter price',
-      usd,
-      hrs: 0,
-    }
-  }
-
-  if (hrs > 0 && usd > 0) {
-    return {
-      cost: Math.max(25, Math.round(usd * 20 + hrs * 35)),
-      tag: `$${usd} + ${hrs} hrs`,
-      usd,
-      hrs,
-    }
-  }
-
-  if (hrs > 0) {
-    return {
-      cost: Math.max(25, Math.round(hrs * 50)),
-      tag: `${hrs} hrs @ 50 PTS/hr`,
-      usd: 0,
-      hrs,
-    }
-  }
-
-  return { cost: 0, tag: 'Time required', usd, hrs: 0 }
+export function economyPreset(difficulty: EconomyDifficulty): EconomyConfig {
+  if (difficulty === 'lenient') return { difficulty, timeMultiplier: 80, cashMultiplier: 12 }
+  if (difficulty === 'hardcore') return { difficulty, timeMultiplier: 160, cashMultiplier: 30 }
+  return { difficulty: 'balanced', timeMultiplier: 120, cashMultiplier: 20 }
 }
 
-export function validateVaultDraft(category: VaultCategory, usdRaw: number, hrsRaw: number): VaultValidation {
-  const usd = Math.max(0, Number(usdRaw) || 0)
-  const hrs = Math.max(0, Number(hrsRaw) || 0)
+export const BALANCED_ECONOMY = economyPreset('balanced')
 
-  if (category === 'Gaming') {
-    if (usd > 0) return { ok: false, message: 'Gaming is time-only. Price must stay at $0.' }
-    if (hrs <= 0) return { ok: false, message: 'Please specify a duration (hours) for Gaming' }
+export function measurementFor(category: string): VaultMeasurement | 'either' {
+  if (category === 'gaming' || category === 'streaming' || category === 'social') return 'time'
+  if (category === 'dining' || category === 'gear' || category === 'outings') return 'money'
+  return 'either'
+}
+
+export function calculateVaultValuation(measurement: VaultMeasurement, amountRaw: number, config: EconomyConfig = BALANCED_ECONOMY): VaultQuote {
+  const amount = Math.max(0, Number(amountRaw) || 0)
+  if (measurement === 'time') {
+    const cost = Math.round((amount / 60) * config.timeMultiplier)
+    return {
+      cost,
+      tag: `${amount} min @ ${config.timeMultiplier} PTS/hr`,
+      usd: 0,
+      hrs: amount / 60,
+    }
+  }
+  const cost = Math.round(amount * config.cashMultiplier)
+  return {
+    cost,
+    tag: `$${amount} @ ${config.cashMultiplier} PTS/$`,
+    usd: amount,
+    hrs: 0,
+  }
+}
+
+export function validateVaultDraft(measurement: VaultMeasurement, amountRaw: number): VaultValidation {
+  const amount = Math.max(0, Number(amountRaw) || 0)
+  if (measurement === 'time') {
+    if (amount <= 0) return { ok: false, message: 'Enter a duration in minutes.' }
     return { ok: true }
   }
-
-  if (category === 'Items') {
-    if (hrs > 0) return { ok: false, message: 'Items are price-only. Duration must stay at 0 hours.' }
-    if (usd <= 0) return { ok: false, message: 'Please specify a price (USD $) for Items' }
-    return { ok: true }
-  }
-
-  if (hrs <= 0) return { ok: false, message: `Please specify a duration (hours) for ${category}` }
+  if (amount <= 0) return { ok: false, message: 'Enter a price in dollars.' }
   return { ok: true }
+}
+
+export function vaultTag(item: Pick<VaultItem, 'measurementType' | 'durationMinutes' | 'priceDollars'>, config: EconomyConfig): string {
+  return calculateVaultValuation(
+    item.measurementType,
+    item.measurementType === 'time' ? item.durationMinutes ?? 0 : item.priceDollars ?? 0,
+    config,
+  ).tag
+}
+
+export function repriceVault(items: readonly VaultItem[], config: EconomyConfig): readonly VaultItem[] {
+  return items.map((item) => {
+    const amount = item.measurementType === 'time' ? item.durationMinutes ?? 0 : item.priceDollars ?? 0
+    return { ...item, baseCost: calculateVaultValuation(item.measurementType, amount, config).cost }
+  })
+}
+
+export function migrateLegacyVault(category: string, cost: number, id: string, title: string): VaultItem | null {
+  const createdAt = new Date().toISOString()
+  if (category === 'Gaming') {
+    const durationMinutes = Math.round((cost / 120) * 60)
+    const baseCost = calculateVaultValuation('time', durationMinutes, BALANCED_ECONOMY).cost
+    return { id, title, category: 'gaming', measurementType: 'time', durationMinutes, priceDollars: 0, baseCost, createdAt }
+  }
+  if (category === 'Items' || category === 'Dining' || category === 'Events') {
+    const priceDollars = Math.round(cost / 20)
+    const mapped = category === 'Items' ? 'gear' : category === 'Dining' ? 'dining' : 'outings'
+    const baseCost = calculateVaultValuation('money', priceDollars, BALANCED_ECONOMY).cost
+    return { id, title, category: mapped, measurementType: 'money', durationMinutes: 0, priceDollars, baseCost, createdAt }
+  }
+  return null
 }

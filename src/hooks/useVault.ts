@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { celebrate } from '../lib/confetti'
 import { localDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
-import { calculateVaultValuation, chargeCost, replayStreak, validateVaultDraft } from '../services/engine'
+import { calculateVaultValuation, chargeCost, validateVaultDraft } from '../services/engine'
 import type { BountyDraft, VaultFilter, VaultItem } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -37,29 +37,30 @@ export function useVaultController(): VaultApi {
         notify('Please enter a title for this reward')
         return false
       }
-      const validation = validateVaultDraft(draft.category, draft.usd, draft.hrs)
+      const validation = validateVaultDraft(draft.measurementType, draft.amount)
       if (!validation.ok) {
         feedback('error')
         notify(validation.message)
         return false
       }
 
-      const quote = calculateVaultValuation(draft.category, draft.usd, draft.hrs)
+      const current = read()
+      const quote = calculateVaultValuation(draft.measurementType, draft.amount, current.economy)
       if (quote.cost <= 0) {
         feedback('error')
         notify('Calculated cost must be at least 1 PTS')
         return false
       }
 
-      const current = read()
       const nextItem: VaultItem = {
         id: draft.id || createId('v'),
         title,
         category: draft.category,
-        cost: quote.cost,
-        usd: quote.usd,
-        hrs: quote.hrs,
-        formulaTag: quote.tag,
+        measurementType: draft.measurementType,
+        durationMinutes: draft.measurementType === 'time' ? draft.amount : 0,
+        priceDollars: draft.measurementType === 'money' ? draft.amount : 0,
+        baseCost: quote.cost,
+        createdAt: current.vaultItems.find((item) => item.id === draft.id)?.createdAt ?? new Date().toISOString(),
       }
       const vaultItems = draft.id
         ? current.vaultItems.map((item) => (item.id === draft.id ? nextItem : item))
@@ -88,7 +89,7 @@ export function useVaultController(): VaultApi {
   const unlockBounty = useCallback(
     (item: VaultItem) => {
       const current = read()
-      const cost = chargeCost(current, item.cost)
+      const cost = chargeCost(current, item.baseCost)
       if (current.balance < cost) {
         feedback('click')
         notify(`Need ${cost - current.balance} more PTS`)
@@ -108,7 +109,6 @@ export function useVaultController(): VaultApi {
       ]
       commit({
         ...current,
-        ...replayStreak(transactions),
         balance: current.balance - cost,
         transactions,
       })

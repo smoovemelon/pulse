@@ -1,5 +1,7 @@
 import { localDateKey, shiftDateKey } from '../../lib/dates'
 import type { HabitDeck, PacingScheduleConfig, PulseState, WarningId } from '../../types'
+import { forgeTarget } from './forge'
+import { economyPreset } from './vaultValuation'
 import { allDecksComplete, deckComplete, defaultDecks, emptyHabitDay, unfinishedHabits } from './habits'
 import { earnedOn } from './momentum'
 
@@ -15,6 +17,10 @@ export function disciplineDefaults(now = new Date()) {
     ptoTokens: 1,
     ptoCadence: 0,
     chainStreak: 0,
+    forgeStreak: 0,
+    lastChainCompletedDate: '',
+    lastForgeCompletedDate: '',
+    economy: economyPreset('balanced'),
     discountFrozenUntil: '',
     habitsNeedScore: true,
   }
@@ -64,12 +70,16 @@ export function perkTier(chainStreak: number, forgeStreak: number) {
   return { tier: 0, capacity: 2, discount: 0, auditCutoff: '00:00' }
 }
 
-export function discountRate(state: Pick<PulseState, 'chainStreak' | 'streakCount' | 'discountFrozenUntil'>, now = new Date()): number {
-  if (state.discountFrozenUntil && Date.parse(state.discountFrozenUntil) > now.getTime()) return 0
-  return perkTier(state.chainStreak, state.streakCount).discount
+export function decayPenalty(chainStreak: number, forgeStreak: number): number {
+  return perkTier(chainStreak, forgeStreak).tier >= 2 ? 20 : 15
 }
 
-export function chargeCost(state: Pick<PulseState, 'chainStreak' | 'streakCount' | 'discountFrozenUntil'>, cost: number, now = new Date()): number {
+export function discountRate(state: Pick<PulseState, 'chainStreak' | 'forgeStreak' | 'discountFrozenUntil'>, now = new Date()): number {
+  if (state.discountFrozenUntil && Date.parse(state.discountFrozenUntil) > now.getTime()) return 0
+  return perkTier(state.chainStreak, state.forgeStreak).discount
+}
+
+export function chargeCost(state: Pick<PulseState, 'chainStreak' | 'forgeStreak' | 'discountFrozenUntil'>, cost: number, now = new Date()): number {
   return Math.max(1, Math.round(cost * (1 - discountRate(state, now))))
 }
 
@@ -177,25 +187,28 @@ export function settleDiscipline(state: PulseState, day: string, earned: number)
   if (progress.shielded) {
     return { ...state, warnings: [], chainStreak: state.chainStreak }
   }
-  const warnings = closedDayWarnings(state.decks, progress.completedIds, progress.clearedWarnings, earned, state.dailyGoal)
-  const complete = allDecksComplete(state.decks, progress.completedIds) && earned >= state.dailyGoal && warnings.length === 0
-  let chainStreak = complete ? state.chainStreak + 1 : state.chainStreak
+  const goal = forgeTarget(state.transactions, day)
+  const warnings = closedDayWarnings(state.decks, progress.completedIds, progress.clearedWarnings, earned, goal)
+  const decksDone = allDecksComplete(state.decks, progress.completedIds)
+  let chainStreak = decksDone ? state.chainStreak + 1 : state.chainStreak
+  let lastChainCompletedDate = decksDone ? day : state.lastChainCompletedDate
   let ptoCadence = state.ptoCadence
   let ptoTokens = state.ptoTokens
-  let streakCount = state.streakCount
+  let forgeStreak = state.forgeStreak
   let discountFrozenUntil = state.discountFrozenUntil
   let transactions = state.transactions
-  if (complete) {
+  if (warnings.length === 0) {
     ptoCadence += 1
     if (ptoCadence >= 7) {
-      const capacity = perkTier(chainStreak, streakCount).capacity
+      const capacity = perkTier(chainStreak, forgeStreak).capacity
       if (ptoTokens < capacity) ptoTokens += 1
       ptoCadence = 0
     }
   }
   if (warnings.length === 3) {
     chainStreak = 0
-    streakCount = 0
+    forgeStreak = 0
+    lastChainCompletedDate = state.lastChainCompletedDate
     const missed = unfinishedHabits(state.decks, progress.completedIds)
     const penalty = missed * 20
     const collected = Math.min(penalty, Math.max(0, state.balance))
@@ -219,7 +232,10 @@ export function settleDiscipline(state: PulseState, day: string, earned: number)
       transactions,
       warnings: [],
       chainStreak,
-      streakCount,
+      forgeStreak,
+      streakCount: forgeStreak,
+      lastChainCompletedDate,
+      lastForgeCompletedDate: '',
       streakState: 'STALLED',
       ptoCadence,
       ptoTokens,
@@ -229,18 +245,18 @@ export function settleDiscipline(state: PulseState, day: string, earned: number)
   if (warnings.length > 0) {
     discountFrozenUntil = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
   }
-  return { ...state, warnings: [], chainStreak, ptoCadence, ptoTokens, discountFrozenUntil, transactions }
+  return { ...state, warnings: [], chainStreak, forgeStreak, streakCount: forgeStreak, lastChainCompletedDate, ptoCadence, ptoTokens, discountFrozenUntil, transactions }
 }
 
 export function syncLiveDiscipline(state: PulseState, now = new Date()): PulseState {
   const today = localDateKey(now)
-  const pacing = { ...applyPendingPacing(state.pacing, today), auditCutoff: perkTier(state.chainStreak, state.streakCount).auditCutoff }
+  const pacing = { ...applyPendingPacing(state.pacing, today), auditCutoff: perkTier(state.chainStreak, state.forgeStreak).auditCutoff }
   const waitingOnAudit = state.habitDay.date < today && state.lastAuditDate <= state.habitDay.date
   const habitDay = state.habitDay.date === today || waitingOnAudit
     ? state.habitDay
     : { date: today, completedIds: [] as string[], clearedWarnings: [] as WarningId[], shielded: false }
   if (habitDay.date !== today) return { ...state, pacing, habitDay }
   const earned = earnedOn(state.transactions, today)
-  const warnings = dueWarnings(state.decks, habitDay.completedIds, habitDay.clearedWarnings, pacing, earned, state.dailyGoal, now)
+  const warnings = dueWarnings(state.decks, habitDay.completedIds, habitDay.clearedWarnings, pacing, earned, forgeTarget(state.transactions, today), now)
   return { ...state, pacing, habitDay, warnings }
 }

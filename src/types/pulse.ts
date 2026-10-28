@@ -1,8 +1,16 @@
 export type TxType = 'EARN' | 'SPEND'
 export type FeedFilter = 'ALL' | 'HEAVY' | 'ALIGNED' | 'SPEND'
-export type VaultCategory = 'Gaming' | 'Items' | 'Dining' | 'Events'
+export type VaultCategory = 'gaming' | 'streaming' | 'social' | 'dining' | 'gear' | 'outings' | 'custom'
+export type LegacySpendCategory = 'Gaming' | 'Items' | 'Dining' | 'Events'
+export type VaultMeasurement = 'time' | 'money'
 export type VaultFilter = 'ALL' | VaultCategory
-export type SpendCategory = VaultCategory | 'Decay Audit'
+export type SpendCategory = VaultCategory | LegacySpendCategory | 'Decay Audit'
+export type EconomyDifficulty = 'lenient' | 'balanced' | 'hardcore'
+export interface EconomyConfig {
+  readonly difficulty: EconomyDifficulty
+  readonly timeMultiplier: number
+  readonly cashMultiplier: number
+}
 export type WeightClass = 'Heavyweight (2.0x)' | 'Cruiserweight (1.5x)' | 'Middleweight (1.0x)' | 'Lightweight (1.0x)' | 'Lightweight (0.5x)'
 export type Relevance = 'DIRECT' | 'ENABLING' | 'GENERAL'
 export type StrainBand = 'HIGH' | 'MEDIUM' | 'LOW'
@@ -47,11 +55,12 @@ export type Transaction = EarnTransaction | SpendTransaction
 export interface VaultItem {
   readonly id: string
   readonly title: string
-  readonly cost: number
   readonly category: VaultCategory
-  readonly usd: number
-  readonly hrs: number
-  readonly formulaTag: string
+  readonly measurementType: VaultMeasurement
+  readonly durationMinutes?: number
+  readonly priceDollars?: number
+  readonly baseCost: number
+  readonly createdAt: string
 }
 
 export interface PulseState {
@@ -64,6 +73,10 @@ export interface PulseState {
   readonly theme: ThemeName
   readonly demoMode: boolean
   readonly streakCount: number
+  readonly forgeStreak: number
+  readonly lastChainCompletedDate: string
+  readonly lastForgeCompletedDate: string
+  readonly economy: EconomyConfig
   readonly streakState: StreakState
   readonly username: string
   readonly isOnboarded: boolean
@@ -152,8 +165,8 @@ export interface BountyDraft {
   readonly id?: string
   readonly title: string
   readonly category: VaultCategory
-  readonly usd: number
-  readonly hrs: number
+  readonly measurementType: VaultMeasurement
+  readonly amount: number
 }
 
 export interface EarnDraft {
@@ -170,12 +183,14 @@ export interface EarnDraft {
 export interface SpendDraft {
   readonly title: string
   readonly category: VaultCategory
-  readonly usd: number
-  readonly hrs: number
+  readonly measurementType: VaultMeasurement
+  readonly amount: number
 }
 
 export interface DecayAlert {
   readonly earned: number
+  readonly penalty: number
+  readonly target: number
 }
 
 export interface LifetimeStats {

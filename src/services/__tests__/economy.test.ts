@@ -37,7 +37,6 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     dailyGoal: 120,
     theme: 'light',
     demoMode: false,
-    streakCount: 0,
     streakState: 'STALLED',
     username: '',
     isOnboarded: false,
@@ -45,6 +44,8 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     vaultItems: [],
     ...disciplineDefaults(new Date('2026-10-21T15:00:00Z')),
     ...partial,
+    forgeStreak: partial.forgeStreak ?? partial.streakCount ?? 0,
+    streakCount: partial.streakCount ?? partial.forgeStreak ?? 0,
   }
 }
 
@@ -250,7 +251,7 @@ describe('midnight decay', () => {
     )
 
     expect(result.met).toBe(false)
-    expect(result.alert).toEqual({ earned: 59 })
+    expect(result.alert).toEqual({ earned: 59, penalty: 15, target: 120 })
     expect(result.state.balance).toBe(185)
     expect(result.state.streakCount).toBe(0)
     expect(result.state.streakState).toBe('STALLED')
@@ -389,51 +390,19 @@ describe('history removal', () => {
 })
 
 describe('vault category validation', () => {
-  it('blocks gaming that carries a dollar price', () => {
-    expect(validateVaultDraft('Gaming', 12, 1)).toEqual({
-      ok: false,
-      message: 'Gaming is time-only. Price must stay at $0.',
-    })
-  })
-
-  it('blocks dining and events with no duration', () => {
-    expect(validateVaultDraft('Dining', 35, 0)).toEqual({
-      ok: false,
-      message: 'Please specify a duration (hours) for Dining',
-    })
-    expect(validateVaultDraft('Events', 0, 0).ok).toBe(false)
-  })
-
-  it('blocks items that include hours or omit a price', () => {
-    expect(validateVaultDraft('Items', 40, 2).ok).toBe(false)
-    expect(validateVaultDraft('Items', 0, 0)).toEqual({
-      ok: false,
-      message: 'Please specify a price (USD $) for Items',
-    })
-  })
-
-  it('accepts a timed gaming session, a priced item, and a free dining block', () => {
-    expect(validateVaultDraft('Gaming', 0, 1.5)).toEqual({ ok: true })
-    expect(validateVaultDraft('Items', 80, 0)).toEqual({ ok: true })
-    expect(validateVaultDraft('Dining', 0, 2)).toEqual({ ok: true })
-    expect(validateVaultDraft('Events', 15, 3)).toEqual({ ok: true })
+  it('requires minutes for time and dollars for money', () => {
+    expect(validateVaultDraft('time', 0)).toEqual({ ok: false, message: 'Enter a duration in minutes.' })
+    expect(validateVaultDraft('money', 0)).toEqual({ ok: false, message: 'Enter a price in dollars.' })
+    expect(validateVaultDraft('time', 90)).toEqual({ ok: true })
+    expect(validateVaultDraft('money', 12)).toEqual({ ok: true })
   })
 })
 
 describe('streak multiplier', () => {
-  it('steps from 1.0x through 1.3x and rounds the bonus onto the points', () => {
-    expect(streakMultiplier(0)).toBe(1)
-    expect(streakMultiplier(2)).toBe(1)
-    expect(streakMultiplier(3)).toBe(1.1)
-    expect(streakMultiplier(6)).toBe(1.1)
-    expect(streakMultiplier(7)).toBe(1.2)
-    expect(streakMultiplier(13)).toBe(1.2)
-    expect(streakMultiplier(14)).toBe(1.3)
-    expect(streakMultiplier(40)).toBe(1.3)
-    expect(applyStreakBonus(100, 2)).toBe(100)
-    expect(applyStreakBonus(100, 3)).toBe(110)
-    expect(applyStreakBonus(84, 7)).toBe(101)
-    expect(applyStreakBonus(100, 14)).toBe(130)
+  it('leaves judged points unscaled', () => {
+    expect(streakMultiplier(14)).toBe(1)
+    expect(applyStreakBonus(100, 14)).toBe(100)
+    expect(applyStreakBonus(84, 7)).toBe(84)
   })
 
   it('marks the Monday-start week from secured, grace, today, and later days', () => {
@@ -498,11 +467,11 @@ describe('demo mode', () => {
         {
           id: 'real',
           title: 'Tea',
-          cost: 40,
-          category: 'Items' as const,
-          usd: 2,
-          hrs: 0,
-          formulaTag: '$2 @ 20 PTS/$',
+          category: 'gear' as const,
+          measurementType: 'money' as const,
+          priceDollars: 2,
+          baseCost: 40,
+          createdAt: '2026-10-21T00:00:00.000Z',
         },
       ],
     }
@@ -519,15 +488,15 @@ describe('demo mode', () => {
     expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Cruiserweight'))).toBe(true)
     expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Middleweight'))).toBe(true)
     expect(demo.transactions.some((tx) => tx.type === 'SPEND')).toBe(true)
-    expect(demo.vaultItems.map((item) => item.category).sort()).toEqual(['Dining', 'Events', 'Gaming', 'Items'])
+    expect(demo.vaultItems.map((item) => item.category).sort()).toEqual(['dining', 'gaming', 'gear', 'outings'])
     const net = demo.transactions.reduce((sum, tx) => sum + (tx.type === 'EARN' ? tx.points : -tx.points), 0)
     expect(demo.balance).toBe(net)
     const coffee = demo.vaultItems.find((item) => item.title === 'Coffee')
     const lunch = demo.vaultItems.find((item) => item.title === 'Lunch')
     const show = demo.vaultItems.find((item) => item.title === 'Show ticket')
-    expect(coffee && demo.balance >= coffee.cost).toBe(true)
-    expect(lunch && demo.balance < lunch.cost).toBe(true)
-    expect(show && demo.balance < show.cost).toBe(true)
+    expect(coffee && demo.balance >= coffee.baseCost).toBe(true)
+    expect(lunch && demo.balance < lunch.baseCost).toBe(true)
+    expect(show && demo.balance < show.baseCost).toBe(true)
 
     const again = enterDemo({ ...demo, balance: 1 })
     expect(readDemoSnapshot()?.balance).toBe(12)
@@ -545,8 +514,8 @@ describe('demo mode', () => {
   it('offers ready-to-submit form values', () => {
     expect(DEMO_ACTION.text.trim().length).toBeGreaterThan(0)
     expect(DEMO_ACTION.duration).toBe(45)
-    expect(validateVaultDraft(DEMO_SPEND.category, Number(DEMO_SPEND.usd), Number(DEMO_SPEND.hrs) || 0)).toEqual({ ok: true })
-    expect(validateVaultDraft(DEMO_BOUNTY.category, Number(DEMO_BOUNTY.usd), Number(DEMO_BOUNTY.hrs))).toEqual({ ok: true })
+    expect(validateVaultDraft(DEMO_SPEND.measurementType, Number(DEMO_SPEND.amount))).toEqual({ ok: true })
+    expect(validateVaultDraft(DEMO_BOUNTY.measurementType, Number(DEMO_BOUNTY.amount))).toEqual({ ok: true })
     expect(DEMO_ANCHOR).not.toBe(DEFAULT_ANCHOR)
   })
 })
@@ -584,7 +553,7 @@ describe('intro', () => {
     expect(shouldIntroduce({ ...freshState(), transactions: [earn('2026-10-21', 40)] })).toBe(false)
     expect(shouldIntroduce({
       ...freshState(),
-      vaultItems: [{ id: 'v', title: 'Coffee', cost: 100, category: 'Items', usd: 5, hrs: 0, formulaTag: 'USD' }],
+      vaultItems: [{ id: 'v', title: 'Coffee', category: 'gear', measurementType: 'money', priceDollars: 5, baseCost: 100, createdAt: '2026-10-21T00:00:00.000Z' }],
     })).toBe(false)
     expect(shouldIntroduce({ ...freshState(), disciplineAnchor: 'Be a studious student.' })).toBe(false)
     expect(shouldIntroduce(freshState())).toBe(true)

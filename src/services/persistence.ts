@@ -1,12 +1,14 @@
 import { DAILY_GOAL, DEFAULT_ANCHOR, localDateKey } from '../lib/dates'
-import { disciplineDefaults, resolveStreak } from './engine'
+import { disciplineDefaults, migrateLegacyVault, resolveStreak } from './engine'
 import type {
+  EconomyConfig,
   PulseState,
   SpendCategory,
   ThemeName,
   Transaction,
   VaultCategory,
   VaultItem,
+  VaultMeasurement,
   WeightClass,
 } from '../types'
 
@@ -42,6 +44,10 @@ function disciplineSlice(state: PulseState) {
     ptoTokens: state.ptoTokens,
     ptoCadence: state.ptoCadence,
     chainStreak: state.chainStreak,
+    forgeStreak: state.forgeStreak,
+    lastChainCompletedDate: state.lastChainCompletedDate,
+    lastForgeCompletedDate: state.lastForgeCompletedDate,
+    economy: state.economy,
     discountFrozenUntil: state.discountFrozenUntil,
     habitsNeedScore: state.habitsNeedScore,
   }
@@ -58,6 +64,14 @@ function readDiscipline(value: unknown) {
   }
 }
 
+function savedForgeStreak(raw: string | null, legacyCount: number): number {
+  const parsed = raw ? readUnknownValue(raw) : null
+  if (isRecord(parsed) && typeof parsed.forgeStreak === 'number' && Number.isFinite(parsed.forgeStreak)) {
+    return Math.max(0, Math.floor(parsed.forgeStreak))
+  }
+  return legacyCount
+}
+
 function readUnknownValue(raw: string): unknown {
   try {
     return JSON.parse(raw) as unknown
@@ -67,7 +81,8 @@ function readUnknownValue(raw: string): unknown {
 }
 
 const WEIGHT_CLASSES = ['Heavyweight (2.0x)', 'Cruiserweight (1.5x)', 'Middleweight (1.0x)', 'Lightweight (1.0x)', 'Lightweight (0.5x)'] as const
-const VAULT_CATEGORIES = ['Gaming', 'Items', 'Dining', 'Events'] as const
+const VAULT_CATEGORIES = ['gaming', 'streaming', 'social', 'dining', 'gear', 'outings', 'custom'] as const
+const LEGACY_SPEND = ['Gaming', 'Items', 'Dining', 'Events'] as const
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -82,7 +97,18 @@ function isVaultCategory(value: unknown): value is VaultCategory {
 }
 
 function isSpendCategory(value: unknown): value is SpendCategory {
-  return isVaultCategory(value) || value === 'Decay Audit'
+  return isVaultCategory(value) || (LEGACY_SPEND as readonly string[]).includes(String(value)) || value === 'Decay Audit'
+}
+
+function isMeasurement(value: unknown): value is VaultMeasurement {
+  return value === 'time' || value === 'money'
+}
+
+function isEconomy(value: unknown): value is EconomyConfig {
+  return isRecord(value)
+    && (value.difficulty === 'lenient' || value.difficulty === 'balanced' || value.difficulty === 'hardcore')
+    && typeof value.timeMultiplier === 'number'
+    && typeof value.cashMultiplier === 'number'
 }
 
 function finiteNumber(value: unknown): number | undefined {
@@ -141,21 +167,21 @@ export function parseTransactions(value: unknown): readonly Transaction[] | null
 export function parseVaultItem(value: unknown): VaultItem | null {
   if (!isRecord(value)) return null
   if (typeof value.id !== 'string' || typeof value.title !== 'string') return null
-  if (!isVaultCategory(value.category)) return null
-  const cost = finiteNumber(value.cost)
-  const usd = finiteNumber(value.usd)
-  const hrs = finiteNumber(value.hrs)
-  if (cost === undefined || usd === undefined || hrs === undefined) return null
-  if (typeof value.formulaTag !== 'string') return null
-  return {
-    id: value.id,
-    title: value.title,
-    cost,
-    category: value.category,
-    usd,
-    hrs,
-    formulaTag: value.formulaTag,
+  if (isVaultCategory(value.category) && isMeasurement(value.measurementType) && finiteNumber(value.baseCost) !== undefined) {
+    return {
+      id: value.id,
+      title: value.title,
+      category: value.category,
+      measurementType: value.measurementType,
+      durationMinutes: finiteNumber(value.durationMinutes),
+      priceDollars: finiteNumber(value.priceDollars),
+      baseCost: finiteNumber(value.baseCost) ?? 0,
+      createdAt: typeof value.createdAt === 'string' ? value.createdAt : new Date().toISOString(),
+    }
   }
+  const cost = finiteNumber(value.cost)
+  if (typeof value.category !== 'string' || cost === undefined) return null
+  return migrateLegacyVault(value.category, cost, value.id, value.title)
 }
 
 export function parseVaultItems(value: unknown): readonly VaultItem[] | null {
@@ -261,13 +287,14 @@ export function loadState(): PulseState {
     dailyGoal: DAILY_GOAL,
     theme: readStoredTheme(),
     demoMode: localStorage.getItem(KEYS.demo) === 'true',
-    streakCount: streak.streakCount,
     streakState: streak.streakState,
     username: localStorage.getItem(KEYS.username) ?? '',
     isOnboarded: localStorage.getItem(KEYS.onboarded) === 'true',
     transactions,
     vaultItems: storedVault === null ? [] : (parseVaultItems(readUnknown(KEYS.vault)) ?? []),
     ...readDiscipline(localStorage.getItem(KEYS.discipline)),
+    forgeStreak: savedForgeStreak(localStorage.getItem(KEYS.discipline), streak.streakCount),
+    streakCount: savedForgeStreak(localStorage.getItem(KEYS.discipline), streak.streakCount),
   }
 }
 
@@ -279,7 +306,7 @@ export function saveState(state: PulseState) {
   localStorage.setItem(KEYS.sound, String(state.soundEnabled))
   localStorage.removeItem('pulse_decay')
   localStorage.setItem(KEYS.audit, state.lastAuditDate)
-  localStorage.setItem(KEYS.streakCount, String(state.streakCount))
+  localStorage.setItem(KEYS.streakCount, String(state.forgeStreak))
   localStorage.setItem(KEYS.streakState, state.streakState)
   localStorage.setItem(KEYS.username, state.username)
   localStorage.setItem(KEYS.onboarded, String(state.isOnboarded))
@@ -318,13 +345,19 @@ export function readDemoSnapshot(): PulseState | null {
       dailyGoal: DAILY_GOAL,
       theme: parsed.theme === 'dark' ? 'dark' : 'light',
       demoMode: false,
-      streakCount: streak.streakCount,
       streakState: streak.streakState,
       username: typeof parsed.username === 'string' ? parsed.username : '',
       isOnboarded: parsed.isOnboarded === true,
       transactions,
       vaultItems,
       ...readDiscipline(parsed),
+      forgeStreak: typeof parsed.forgeStreak === 'number' && Number.isFinite(parsed.forgeStreak)
+        ? Math.max(0, Math.floor(parsed.forgeStreak))
+        : streak.streakCount,
+      streakCount: typeof parsed.forgeStreak === 'number' && Number.isFinite(parsed.forgeStreak)
+        ? Math.max(0, Math.floor(parsed.forgeStreak))
+        : streak.streakCount,
+      economy: isEconomy(parsed.economy) ? parsed.economy : readDiscipline(parsed).economy,
     }
   } catch {
     return null
@@ -387,7 +420,7 @@ export function serializeBackup(state: PulseState): string {
     [KEYS.anchor]: state.disciplineAnchor,
     [KEYS.sound]: String(state.soundEnabled),
     [KEYS.audit]: state.lastAuditDate,
-    [KEYS.streakCount]: String(state.streakCount),
+    [KEYS.streakCount]: String(state.forgeStreak),
     [KEYS.streakState]: state.streakState,
     [KEYS.username]: state.username,
     [KEYS.onboarded]: String(state.isOnboarded),

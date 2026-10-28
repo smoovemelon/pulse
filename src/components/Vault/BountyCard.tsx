@@ -1,3 +1,5 @@
+import { useCore } from '../../hooks/core'
+import { chargeCost, vaultTag } from '../../services/engine'
 import { CategoryIcon, EditIcon, TrashIcon } from '../Icons'
 import { Button } from '../Common/Button'
 import type { VaultItem } from '../../types'
@@ -18,8 +20,10 @@ export function BountyCard({
   readonly onDelete: () => void
   readonly onUnlock: () => void
 }) {
-  const canAfford = balance >= item.cost
-  const percent = item.cost <= 0 ? 100 : Math.min(100, Math.round((balance / item.cost) * 100))
+  const { state } = useCore()
+  const price = chargeCost(state, item.baseCost)
+  const canAfford = balance >= price
+  const percent = price <= 0 ? 100 : Math.min(100, Math.round((balance / price) * 100))
   const visual = categoryVisual(item.category)
 
   return (
@@ -35,16 +39,16 @@ export function BountyCard({
           </div>
         </div>
         <div className="text-right shrink-0">
-          <span className="text-base font-extrabold text-ink font-num">{item.cost.toLocaleString()}</span>
+          <span className="text-base font-extrabold text-ink font-num">{price.toLocaleString()}</span>
           <span className="text-[10px] font-extrabold text-faint ml-0.5 font-num">PTS</span>
         </div>
       </div>
 
       <VaultProgressBar
         percent={percent}
-        formulaTag={item.formulaTag}
+        formulaTag={vaultTag(item, state.economy)}
         canAfford={canAfford}
-        shortfall={item.cost - balance}
+        shortfall={price - balance}
       />
 
       <div className="flex items-center justify-between border-t border-line pt-4">

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useSettings } from '../../hooks/useSettings'
 import { pushEntry } from '../../lib/backStack'
 import { markIntroSeen } from '../../services/persistence'
 import { Button } from '../Common/Button'
@@ -25,20 +26,20 @@ const STEPS: readonly { readonly kicker: string; readonly title: string; readonl
   },
   {
     kicker: 'Daily line',
-    title: 'Fill the ring',
-    body: 'The ring is how close today is to 120 points.',
+    title: 'Fill the capsule',
+    body: 'The left meter is forge points against today’s target. The right meter is how many of the three decks are finished.',
     mark: <GoalMark />,
   },
   {
     kicker: 'Streak',
     title: 'Hold the line',
-    body: 'Clear 120 points and the streak adds a day. Land from 60 to 119 and it holds. Close under 60 and it resets, with a 15 point charge. New points pick up a bonus: 1.1× from day 3, 1.2× from day 7, and 1.3× from day 14.',
+    body: 'The forge streak grows when the day hits its target, holds in the grace band, and resets under half. The chain streak grows when all three decks are finished. Streaks change prices and protections. They do not multiply points.',
     mark: <StreakMark />,
   },
   {
     kicker: 'Spend',
     title: 'Park a bounty',
-    body: 'The vault holds rewards: gaming time, an item, a meal, or an event. Save one, then redeem it when the balance covers the cost.',
+    body: 'The vault prices time and money from the discipline dial. Balanced is 120 points an hour and 20 points a dollar. Lenient is cheaper. Hardcore costs more. The weaker streak sets the discount.',
     mark: <MarkTile><VaultIcon className="h-5 w-5" /></MarkTile>,
   },
   {
@@ -93,6 +94,7 @@ function GoalMark() {
 }
 
 export function IntroTour({ onClose }: { readonly onClose: () => void }) {
+  const { economy, saveDifficulty } = useSettings()
   const [step, setStep] = useState(0)
   const stepRef = useRef(0)
   const releases = useRef<Array<() => void>>([])
@@ -178,6 +180,20 @@ export function IntroTour({ onClose }: { readonly onClose: () => void }) {
             <h3 id="intro-heading" className="heading-athletic text-xl text-ink">{current.title}</h3>
           </div>
           <p className="text-sm font-semibold leading-relaxed text-body">{current.body}</p>
+          {current.title === 'Park a bounty' && (
+            <div className="grid w-full grid-cols-3 gap-2">
+              {(['lenient', 'balanced', 'hardcore'] as const).map((level) => (
+                <Button
+                  key={level}
+                  tone={economy.difficulty === level ? 'pillActive' : 'pill'}
+                  onClick={() => saveDifficulty(level)}
+                  className="rounded-xl py-2 text-[10px] font-extrabold uppercase"
+                >
+                  {level}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-center gap-1.5" aria-hidden="true">

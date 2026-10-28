@@ -8,7 +8,7 @@ import { DeckSettings } from '../Habits/DeckSettings'
 import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
-  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo, username, saveUsername } = useSettings()
+  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo, username, saveUsername, economy, saveDifficulty } = useSettings()
   const { feedback } = useSensory()
   const [key, setKey] = useState(apiKey)
   const [name, setName] = useState(username)
@@ -98,6 +98,25 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
         >
           Save Key
         </Button>
+      </div>
+
+      <div className="depth-well rounded-2xl p-4 flex flex-col gap-2">
+        <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted">Discipline dial</span>
+        <div className="grid grid-cols-3 gap-2">
+          {(['lenient', 'balanced', 'hardcore'] as const).map((level) => (
+            <Button
+              key={level}
+              tone={economy.difficulty === level ? 'pillActive' : 'pill'}
+              onClick={() => saveDifficulty(level)}
+              className="rounded-xl py-2 text-[10px] font-extrabold uppercase"
+            >
+              {level}
+            </Button>
+          ))}
+        </div>
+        <p className="text-[10px] font-bold text-faint">
+          {economy.timeMultiplier} PTS/hr · {economy.cashMultiplier} PTS/$
+        </p>
       </div>
 
       <DeckSettings />
@@ -234,32 +253,14 @@ function EconomyRules() {
       <section className="flex flex-col gap-2">
         <RuleTitle>2. Manual Vault Rules</RuleTitle>
         <Rule>
-          <Tag chip="chip-violet">Gaming</Tag>
-          <p>Time only. Price locked at <Figure>$0</Figure>. Duration must be above 0.</p>
-          <p><Figure tone="spend">Hours × 50 PTS</Figure></p>
+          <Tag chip="chip-violet">Time</Tag>
+          <p>Gaming, streaming, and social. Minutes divided by 60, times the dial.</p>
+          <p><Figure tone="spend">80 / 120 / 160 PTS per hour</Figure></p>
         </Rule>
         <Rule>
-          <Tag chip="chip-sky">Items</Tag>
-          <p>Price only. Duration locked at <Figure>0</Figure> hrs. Price must be above $0.</p>
-          <p><Figure tone="spend">USD × 20 PTS</Figure></p>
-        </Rule>
-        <Rule>
-          <span className="flex flex-wrap gap-1">
-            <Tag chip="chip-amber">Dining</Tag>
-            <Tag chip="chip-emerald">Events</Tag>
-          </span>
-          <p>Duration is required. Price is optional.</p>
-          <p>
-            <Figure tone="spend">(USD × 20) + (hours × 35)</Figure>
-            {' when price is above $0.'}
-          </p>
-          <p>
-            <Figure tone="spend">Hours × 50 PTS</Figure>
-            {' when price is $0.'}
-          </p>
-          <p>
-            A timed bounty floors at <Figure tone="spend">25 PTS</Figure>.
-          </p>
+          <Tag chip="chip-sky">Money</Tag>
+          <p>Dining, gear, and outings. Dollars times the dial.</p>
+          <p><Figure tone="spend">12 / 20 / 30 PTS per dollar</Figure></p>
         </Rule>
         <p>
           <span className="font-extrabold text-rose-600 dark:text-rose-300">Spend now</span>
@@ -269,11 +270,10 @@ function EconomyRules() {
 
       <section className="flex flex-col gap-1.5">
         <RuleTitle>3. Point Sink / Anti-Inflation</RuleTitle>
-        <Stat label="Daily target" value="120 PTS" tone="earn" />
-        <Stat label="Grace floor" value="60 PTS" tone="earn" />
-        <Stat label="Decay fee" value="−15 PTS" tone="spend" />
-        <p>60–119 PTS at midnight holds the streak. Under 60 PTS resets it and charges the decay fee once. 120 PTS adds a day.</p>
-        <p>The streak bonus multiplies action points as they hit the balance: 1.0× through 2 days, 1.1× at 3, 1.2× at 7, and 1.3× from 14 on.</p>
+        <Stat label="Forge baseline" value="120 PTS" tone="earn" />
+        <Stat label="Grace floor" value="50% of target" tone="earn" />
+        <Stat label="Decay fee" value="−15 / −20 PTS" tone="spend" />
+        <p>The forge target is the median judged day of the last 7 active days, held between 80 and 180. A day at the target grows the forge streak. The grace band holds it. Under the grace floor resets it. Tier 2 and above charges 20 points. Judged logs are not multiplied by a streak.</p>
       </section>
     </div>
   )

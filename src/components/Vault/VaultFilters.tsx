@@ -1,7 +1,16 @@
 import { Pill } from '../Common/Pill'
 import type { VaultFilter } from '../../types'
 
-const FILTERS: readonly VaultFilter[] = ['ALL', 'Gaming', 'Items', 'Dining', 'Events']
+const FILTERS: ReadonlyArray<readonly [VaultFilter, string]> = [
+  ['ALL', 'All'],
+  ['gaming', 'Game'],
+  ['streaming', 'Stream'],
+  ['social', 'Social'],
+  ['dining', 'Dining'],
+  ['gear', 'Gear'],
+  ['outings', 'Out'],
+  ['custom', 'Custom'],
+]
 
 export function VaultFilters({
   filter,
@@ -11,15 +20,10 @@ export function VaultFilters({
   readonly onFilter: (filter: VaultFilter) => void
 }) {
   return (
-    <div className="grid grid-cols-6 gap-1.5">
-      {FILTERS.map((cat) => (
-        <Pill
-          key={cat}
-          active={filter.toLowerCase() === cat.toLowerCase()}
-          onClick={() => onFilter(cat)}
-          className={`w-full justify-center px-1 ${cat === 'Dining' || cat === 'Events' ? 'col-span-3' : 'col-span-2'}`}
-        >
-          {cat === 'ALL' ? 'All Rewards' : cat}
+    <div className="flex flex-wrap gap-1.5">
+      {FILTERS.map(([id, label]) => (
+        <Pill key={id} active={filter === id} onClick={() => onFilter(id)} className="px-2.5">
+          {label}
         </Pill>
       ))}
     </div>

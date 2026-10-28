@@ -32,6 +32,7 @@ function sample(): PulseState {
     balance: 315,
     disciplineAnchor: 'Finish the problem set',
     streakCount: 4,
+    forgeStreak: 4,
     streakState: 'SAFE',
     username: 'melon',
     isOnboarded: true,

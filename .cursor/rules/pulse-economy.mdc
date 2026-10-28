@@ -40,22 +40,15 @@ A direct, specific log needs alignment of at least 4 to earn Middleweight or hig
 
 Default anchor text for a new user is `Your main goal`.
 
-Vault:
+Vault dial, default balanced:
 
-- Gaming: time only. Price locked at `$0`. `hours × 50` PTS. Duration must be `> 0`.
-- Items: price only. Duration locked at `0` hrs. `USD × 20` PTS. Price must be `> $0`.
-- Dining and Events: duration is required (`> 0` hrs). Price is optional. `(USD × 20) + (hours × 35)` when price `> 0`; `hours × 50` when price is `$0`. Timed quotes floor at 25 PTS.
+- Lenient: 80 PTS/hour, 12 PTS per dollar.
+- Balanced: 120 PTS/hour, 20 PTS per dollar.
+- Hardcore: 160 PTS/hour, 30 PTS per dollar.
+- Time: `round((minutes / 60) × timeMultiplier)`. Money: `round(dollars × cashMultiplier)`.
+- Categories: gaming, streaming, and social are time. Dining, gear, and outings are money. Custom is either.
 
-Anti-inflation: daily momentum target is 120 PTS earned. A day that closes at 60–119 PTS holds the streak and charges nothing. A day that closes under 60 PTS resets the streak and assesses −15 PTS once.
-
-Streak bonus, applied to action points when they are added to the balance:
-
-- 0–2 days → 1.0×
-- 3–6 days → 1.1×
-- 7–13 days → 1.2×
-- 14+ days → 1.3× cap
-
-A closed day at or above 120 PTS adds one to the streak. The anchor weight class is unchanged and is applied before this bonus.
+Forge target starts at 120. After that it is the median judged points of the last 7 active days, clamped to 80–180. Habit bounties are not judged points. Grace is half the active target. At or above the target, the forge streak grows. From half up to the target, it holds. Under half, it resets and charges 15 points, or 20 points at tier 2 or higher. The chain streak grows only when all 3 decks are complete. Privileges use `min(chainStreak, forgeStreak)`. Judged logs are not multiplied by a streak.
 
 ## UI
 

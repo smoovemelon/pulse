@@ -1,6 +1,6 @@
 export function categoryVisual(catName = '') {
   const name = catName.toLowerCase()
-  if (name.includes('game') || name.includes('valorant')) {
+  if (name.includes('game') || name.includes('stream') || name.includes('valorant')) {
     return {
       kind: 'gaming' as const,
       chip: 'chip-violet',
@@ -9,6 +9,9 @@ export function categoryVisual(catName = '') {
   }
   if (
     name.includes('item') ||
+    name.includes('gear') ||
+    name.includes('social') ||
+    name.includes('custom') ||
     name.includes('hard') ||
     name.includes('tech') ||
     name.includes('chassis') ||
@@ -27,7 +30,7 @@ export function categoryVisual(catName = '') {
       tag: 'Dining (Time+)',
     }
   }
-  if (name.includes('event') || name.includes('ticket') || name.includes('concert')) {
+  if (name.includes('event') || name.includes('outing') || name.includes('ticket') || name.includes('concert')) {
     return {
       kind: 'events' as const,
       chip: 'chip-emerald',
