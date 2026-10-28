@@ -1,4 +1,4 @@
-import { DAILY_GOAL, DEFAULT_ANCHOR, utcDateKey } from '../lib/dates'
+import { DAILY_GOAL, DEFAULT_ANCHOR, localDateKey } from '../lib/dates'
 import { resolveStreak } from './engine'
 import type {
   PulseState,
@@ -75,6 +75,7 @@ export function parseTransaction(value: unknown): Transaction | null {
     date: typeof value.date === 'string' ? value.date : '',
     reasoning: optionalText(value.reasoning),
     formula_breakdown: optionalText(value.formula_breakdown),
+    is_locked: value.is_locked === true ? true : undefined,
     effort_strain: finiteNumber(value.effort_strain),
     anchor_alignment: finiteNumber(value.anchor_alignment),
     multiplier: finiteNumber(value.multiplier),
@@ -144,7 +145,7 @@ export function freshState(): PulseState {
   return {
     balance: 0,
     soundEnabled: true,
-    lastAuditDate: utcDateKey(),
+    lastAuditDate: localDateKey(),
     apiKey: '',
     disciplineAnchor: DEFAULT_ANCHOR,
     dailyGoal: DAILY_GOAL,
@@ -187,12 +188,21 @@ function readAnchor(): string {
   return stored
 }
 
+function hasStoredLedger(): boolean {
+  return [KEYS.balance, KEYS.txs, KEYS.vault, KEYS.anchor, KEYS.username, KEYS.onboarded].some(
+    (key) => localStorage.getItem(key) !== null,
+  )
+}
+
 export function loadState(): PulseState {
   if (localStorage.getItem(KEYS.profile) !== FRESH_PROFILE) {
-    const next = freshState()
-    saveState(next)
+    if (!hasStoredLedger()) {
+      const next = freshState()
+      saveState(next)
+      localStorage.setItem(KEYS.profile, FRESH_PROFILE)
+      return next
+    }
     localStorage.setItem(KEYS.profile, FRESH_PROFILE)
-    return next
   }
 
   const balanceRaw = localStorage.getItem(KEYS.balance)
@@ -210,7 +220,7 @@ export function loadState(): PulseState {
   return {
     balance,
     soundEnabled: localStorage.getItem(KEYS.sound) !== 'false',
-    lastAuditDate: localStorage.getItem(KEYS.audit) || utcDateKey(),
+    lastAuditDate: localStorage.getItem(KEYS.audit) || localDateKey(),
     apiKey: localStorage.getItem(KEYS.apiKey) || '',
     disciplineAnchor: readAnchor(),
     dailyGoal: DAILY_GOAL,
@@ -262,7 +272,7 @@ export function readDemoSnapshot(): PulseState | null {
     return {
       balance,
       soundEnabled: parsed.soundEnabled !== false,
-      lastAuditDate: typeof parsed.lastAuditDate === 'string' ? parsed.lastAuditDate : utcDateKey(),
+      lastAuditDate: typeof parsed.lastAuditDate === 'string' ? parsed.lastAuditDate : localDateKey(),
       apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey : '',
       disciplineAnchor:
         typeof parsed.disciplineAnchor === 'string' && parsed.disciplineAnchor.trim()

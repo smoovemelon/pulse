@@ -1,7 +1,7 @@
 export { calculateActionPoints, evaluateAnchorAction, localActionFallback } from './actionPoints'
 export { auditDecay } from './decayAudit'
 export type { DecayAssessment } from './decayAudit'
-export { balanceAfterRemoval } from './history'
+export { balanceAfterRemoval, isLockedTransaction, removalShortfall } from './history'
 export { currentStreak, earnedOn, lifetimeStats } from './momentum'
 export {
   advanceStreak,

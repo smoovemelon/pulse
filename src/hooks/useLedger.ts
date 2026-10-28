@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react'
 import { celebrate } from '../lib/confetti'
-import { utcDateKey } from '../lib/dates'
-import { applyStreakBonus, balanceAfterRemoval, calculateVaultValuation, streakMultiplier, validateVaultDraft } from '../services/engine'
+import { localDateKey } from '../lib/dates'
+import { createId } from '../lib/id'
+import { applyStreakBonus, balanceAfterRemoval, calculateVaultValuation, isLockedTransaction, removalShortfall, replayStreak, streakMultiplier, validateVaultDraft } from '../services/engine'
 import type { EarnDraft, FeedFilter, SpendDraft, Transaction } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -41,21 +42,23 @@ export function useLedgerController(): LedgerApi {
       const bonus = streakMultiplier(current.streakCount)
       const points = applyStreakBonus(tx.points, current.streakCount)
       const breakdown = tx.formula_breakdown && bonus !== 1 ? `${tx.formula_breakdown} × ${bonus}x streak` : tx.formula_breakdown
+      const transactions = [
+        {
+          ...tx,
+          points,
+          formula_breakdown: breakdown,
+          id: createId('tx'),
+          type: 'EARN' as const,
+          timestamp: new Date().toISOString(),
+          date: localDateKey(),
+        },
+        ...current.transactions,
+      ]
       commit({
         ...current,
+        ...replayStreak(transactions),
         balance: current.balance + points,
-        transactions: [
-          {
-            ...tx,
-            points,
-            formula_breakdown: breakdown,
-            id: `tx-${Date.now()}`,
-            type: 'EARN',
-            timestamp: 'Today, Just now',
-            date: utcDateKey(),
-          },
-          ...current.transactions,
-        ],
+        transactions,
       })
       feedback('earn')
       celebrate()
@@ -90,22 +93,24 @@ export function useLedgerController(): LedgerApi {
         notify(`Need ${quote.cost - current.balance} more PTS`)
         return false
       }
+      const transactions = [
+        {
+          id: createId('tx'),
+          type: 'SPEND' as const,
+          title,
+          points: quote.cost,
+          category: draft.category,
+          formula_breakdown: quote.tag,
+          timestamp: new Date().toISOString(),
+          date: localDateKey(),
+        },
+        ...current.transactions,
+      ]
       commit({
         ...current,
+        ...replayStreak(transactions),
         balance: current.balance - quote.cost,
-        transactions: [
-          {
-            id: `tx-${Date.now()}`,
-            type: 'SPEND',
-            title,
-            points: quote.cost,
-            category: draft.category,
-            formula_breakdown: quote.tag,
-            timestamp: 'Today, Just now',
-            date: utcDateKey(),
-          },
-          ...current.transactions,
-        ],
+        transactions,
       })
       feedback('spend')
       celebrate()
@@ -120,16 +125,25 @@ export function useLedgerController(): LedgerApi {
       const current = read()
       const tx = current.transactions.find((item) => item.id === id)
       if (!tx) return
+      if (isLockedTransaction(tx)) {
+        feedback('error')
+        notify('Discipline decay stays on the ledger')
+        return
+      }
       const balance = balanceAfterRemoval(current.balance, tx)
+      const shortfall = removalShortfall(current.balance, tx)
+      const transactions = current.transactions.filter((item) => item.id !== id)
       const delta = balance - current.balance
       commit({
         ...current,
+        ...replayStreak(transactions),
         balance,
-        transactions: current.transactions.filter((item) => item.id !== id),
+        transactions,
       })
       feedback(tx.type === 'EARN' ? 'spend' : 'earn')
       const signed = delta > 0 ? `+${delta}` : `${delta}`
-      notify(`Removed "${tx.title}". ${signed} PTS`)
+      const unpaid = shortfall > 0 ? ` ${shortfall} PTS could not be recovered because the balance reached 0.` : ''
+      notify(`Removed "${tx.title}". ${signed} PTS.${unpaid}`)
     },
     [commit, feedback, notify, read],
   )

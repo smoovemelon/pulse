@@ -1,4 +1,4 @@
-import { utcDateKey } from '../../lib/dates'
+import { localDateKey } from '../../lib/dates'
 import type { LifetimeStats, Transaction } from '../../types'
 
 export function earnedOn(transactions: readonly Transaction[], checkDate: string): number {
@@ -24,7 +24,7 @@ function earnedOnDate(transactions: readonly Transaction[], date: string) {
     .reduce((sum, tx) => sum + (Number(tx.points) || 0), 0)
 }
 
-export function currentStreak(transactions: readonly Transaction[], today = utcDateKey(), goal = 120) {
+export function currentStreak(transactions: readonly Transaction[], today = localDateKey(), goal = 120) {
   const todayEarned = earnedOnDate(transactions, today)
   let day = todayEarned >= goal ? today : previousUtcDate(today)
   let streak = 0

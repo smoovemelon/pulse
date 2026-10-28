@@ -1,4 +1,4 @@
-import { utcDateKey } from '../lib/dates'
+import { localDateKey } from '../lib/dates'
 import type { PulseState, Transaction, VaultCategory, VaultItem } from '../types'
 import { calculateActionPoints, calculateVaultValuation, replayStreak } from './engine'
 import { clearDemoSnapshot, readDemoSnapshot, saveDemoSnapshot } from './persistence'
@@ -26,8 +26,8 @@ export const DEMO_BOUNTY = {
 
 function daysBefore(days: number) {
   const cursor = new Date()
-  cursor.setUTCDate(cursor.getUTCDate() - days)
-  return cursor.toISOString().slice(0, 10)
+  cursor.setDate(cursor.getDate() - days)
+  return localDateKey(cursor)
 }
 
 function earn(
@@ -138,13 +138,13 @@ function demoVault(): readonly VaultItem[] {
 export function buildDemoState(current: PulseState): PulseState {
   const transactions = demoTransactions()
   const balance = transactions.reduce((sum, tx) => sum + (tx.type === 'EARN' ? tx.points : -tx.points), 0)
-  const streak = replayStreak(transactions, utcDateKey())
+  const streak = replayStreak(transactions, localDateKey())
   return {
     ...current,
     demoMode: true,
     balance: Math.max(0, balance),
     disciplineAnchor: DEMO_ANCHOR,
-    lastAuditDate: utcDateKey(),
+    lastAuditDate: localDateKey(),
     streakCount: streak.streakCount,
     streakState: streak.streakState,
     transactions,

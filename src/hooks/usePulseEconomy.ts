@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { utcDateKey } from '../lib/dates'
+import { localDateKey } from '../lib/dates'
 import { runDecayAudit } from '../services/audit'
 import { earnedOn, streakMultiplier, streakStatusMessage, streakTier, weekStrip } from '../services/engine'
 import type { DecayAlert, StreakState, WeekDay } from '../types'
@@ -37,7 +37,7 @@ export function useEconomyController(): EconomyApi {
     runAudit()
   }, [runAudit])
 
-  const today = utcDateKey()
+  const today = localDateKey()
   const todayEarned = earnedOn(state.transactions, today)
   const multiplier = streakMultiplier(state.streakCount)
 

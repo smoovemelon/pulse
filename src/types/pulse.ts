@@ -17,6 +17,7 @@ interface TransactionBase {
   readonly date: string
   readonly reasoning?: string
   readonly formula_breakdown?: string
+  readonly is_locked?: boolean
 }
 
 export interface EarnTransaction extends TransactionBase {

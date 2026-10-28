@@ -1,4 +1,4 @@
-import { DAILY_GOAL, GRACE_FLOOR, utcDateKey } from '../../lib/dates'
+import { DAILY_GOAL, GRACE_FLOOR, localDateKey } from '../../lib/dates'
 import type { StreakState, Transaction, WeekDay } from '../../types'
 import { earnedOn } from './momentum'
 
@@ -56,7 +56,7 @@ function mondayOf(today: string) {
   return shiftUtcDate(today, -delta)
 }
 
-export function replayStreak(transactions: readonly Transaction[], today = utcDateKey()) {
+export function replayStreak(transactions: readonly Transaction[], today = localDateKey()) {
   const dates = transactions.map((tx) => tx.date).filter((date) => date && date < today).sort()
   if (dates.length === 0) return { streakCount: 0, streakState: 'STALLED' as const }
   let cursor = dates[0]
@@ -75,7 +75,7 @@ export function resolveStreak(
   count: number | undefined,
   state: unknown,
   transactions: readonly Transaction[],
-  today = utcDateKey(),
+  today = localDateKey(),
 ) {
   if (count !== undefined && Number.isFinite(count) && count >= 0 && isStreakState(state)) {
     return { streakCount: Math.floor(count), streakState: state }
@@ -83,7 +83,7 @@ export function resolveStreak(
   return replayStreak(transactions, today)
 }
 
-export function weekStrip(transactions: readonly Transaction[], today = utcDateKey(), goal = DAILY_GOAL): readonly WeekDay[] {
+export function weekStrip(transactions: readonly Transaction[], today = localDateKey(), goal = DAILY_GOAL): readonly WeekDay[] {
   const start = mondayOf(today)
   return WEEK_LABELS.map((label, index) => {
     const date = shiftUtcDate(start, index)

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PulseState } from '../../types'
-import { freshState, restoreStorageBackup, saveState, serializeBackup } from '../persistence'
+import { freshState, loadState, restoreStorageBackup, saveState, serializeBackup } from '../persistence'
 
 function memoryStorage() {
   const store = new Map<string, string>()
@@ -85,5 +85,18 @@ describe('storage backup', () => {
     expect(() => restoreStorageBackup({ storage: { pulse_balance: '1' } })).toThrow('Invalid backup JSON file')
     expect(localStorage.getItem('pulse_balance')).toBe('315')
     expect(localStorage.getItem('pulse_username')).toBe('melon')
+  })
+
+  it('keeps an existing ledger when the profile tag is old', () => {
+    memoryStorage()
+    saveState(sample())
+    localStorage.setItem('pulse_profile', 'legacy')
+
+    const loaded = loadState()
+
+    expect(loaded.balance).toBe(315)
+    expect(loaded.username).toBe('melon')
+    expect(loaded.transactions).toHaveLength(1)
+    expect(localStorage.getItem('pulse_profile')).toBe('fresh-1')
   })
 })

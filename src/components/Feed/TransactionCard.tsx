@@ -1,3 +1,5 @@
+import { formatTimestamp } from '../../lib/dates'
+import { isLockedTransaction } from '../../services/engine'
 import { SparkleIcon, TrashIcon } from '../Icons'
 import { Button } from '../Common/Button'
 import type { Transaction } from '../../types'
@@ -6,6 +8,7 @@ import { weightClassStyles } from './weightStyles'
 
 export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; readonly onDelete: () => void }) {
   const weight = weightClassStyles(tx.multiplier || 1)
+  const locked = isLockedTransaction(tx)
   return (
     <article className="depth-card rounded-2xl p-4 flex flex-col gap-2.5">
       <div className="flex items-start justify-between gap-3">
@@ -23,7 +26,7 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
                 Off anchor
               </span>
             )}
-            <span className="text-[10px] text-faint font-bold">{tx.timestamp}</span>
+            <span className="text-[10px] text-faint font-bold">{formatTimestamp(tx.timestamp)}</span>
           </div>
           <h4 className="text-sm font-extrabold text-ink mt-1.5 leading-snug tracking-tight break-words">{tx.title}</h4>
         </div>
@@ -34,15 +37,17 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
             </span>
             <span className="text-[10px] font-extrabold text-faint ml-0.5 font-num">PTS</span>
           </div>
-          <Button
-            tone="ghost"
-            aria-label={`Delete ${tx.title}`}
-            data-testid={`delete-${tx.id}`}
-            onClick={onDelete}
-            className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:text-rose-600 active:scale-90"
-          >
-            <TrashIcon />
-          </Button>
+          {!locked && (
+            <Button
+              tone="ghost"
+              aria-label={`Delete ${tx.title}`}
+              data-testid={`delete-${tx.id}`}
+              onClick={onDelete}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:text-rose-600 active:scale-90"
+            >
+              <TrashIcon />
+            </Button>
+          )}
         </div>
       </div>
 

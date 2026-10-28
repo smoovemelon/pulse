@@ -1,4 +1,4 @@
-import { DECAY_PENALTY, GRACE_FLOOR, utcDateKey } from '../../lib/dates'
+import { DECAY_PENALTY, GRACE_FLOOR, localDateKey } from '../../lib/dates'
 import type { StreakState, Transaction } from '../../types'
 import { earnedOn } from './momentum'
 import { streakTier } from './streak'
@@ -19,7 +19,7 @@ export function auditDecay(
   dailyGoal: number,
   options?: { readonly today?: string; readonly force?: boolean },
 ): DecayAssessment {
-  const today = options?.today ?? utcDateKey()
+  const today = options?.today ?? localDateKey()
   const force = options?.force ?? false
   const shouldApply = lastAuditDate < today || force
 

@@ -14,7 +14,7 @@ const STEPS: readonly { readonly kicker: string; readonly title: string; readonl
   {
     kicker: 'First move',
     title: 'Name the anchor',
-    body: 'Set a discipline anchor before you log anything. A direct match earns cruiserweight or heavyweight. Other productive work still earns lightweight, at half.',
+    body: 'Set a discipline anchor before you log anything. A direct match at 7 or higher earns cruiserweight or heavyweight. A direct log below that earns middleweight. Other productive work still earns lightweight, at half.',
     mark: <MarkTile><AnchorIcon className="h-5 w-5" /></MarkTile>,
   },
   {

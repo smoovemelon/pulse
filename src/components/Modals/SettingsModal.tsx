@@ -212,6 +212,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
 const ALIGNMENT = [
   { threshold: '≥ 8.0 direct', multiplier: '2.0×', name: 'Heavyweight', chip: 'chip-emerald' },
   { threshold: '≥ 7.0 direct', multiplier: '1.5×', name: 'Cruiserweight', chip: 'chip-indigo' },
+  { threshold: 'Direct, under 7', multiplier: '1.0×', name: 'Middleweight', chip: 'chip-sky' },
   { threshold: 'Off anchor', multiplier: '0.5×', name: 'Lightweight', chip: 'chip-zinc' },
 ] as const
 

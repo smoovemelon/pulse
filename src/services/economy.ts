@@ -1,5 +1,7 @@
 export {
   balanceAfterRemoval,
+  isLockedTransaction,
+  removalShortfall,
   calculateActionPoints,
   evaluateAnchorAction,
   calculateVaultValuation,

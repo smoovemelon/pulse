@@ -44,8 +44,18 @@ export function calculateActionPoints(
   }
 }
 
-const ANCHOR_QUALIFY = 7
+const CRUISER_FLOOR = 7
+const HEAVY_FLOOR = 8
 const OFF_ANCHOR_MULTIPLIER = 0.5
+
+function sessionTitle(rawAction: string, duration: number): string {
+  const cleaned = rawAction.trim().replace(/\s+/g, ' ').replace(/^["']|["']$/g, '')
+  if (!cleaned) {
+    const minutes = Math.max(5, Math.min(360, Math.round(Number(duration) || 45)))
+    return `${minutes}-Min Logged Session`
+  }
+  return cleaned.length > 42 ? `${cleaned.slice(0, 41).trimEnd()}…` : cleaned
+}
 
 function lacksConcreteProof(text: string): boolean {
   const trimmed = text.trim()
@@ -67,9 +77,23 @@ export function evaluateAnchorAction(input: {
 }): ActionScore {
   const reported = Math.max(0, Math.min(10, Number(input.alignment) || 0))
   const specific = !lacksConcreteProof(input.raw)
-  const full = input.valid && specific && reported >= ANCHOR_QUALIFY
-  if (full) {
-    return calculateActionPoints(input.strain, reported, input.duration, input.title, input.raw, input.reasoning)
+  if (input.valid && specific && reported >= CRUISER_FLOOR) {
+    const scored = reported >= HEAVY_FLOOR ? reported : Math.max(reported, CRUISER_FLOOR)
+    return calculateActionPoints(input.strain, scored, input.duration, input.title, input.raw, input.reasoning)
+  }
+
+  if (input.valid && specific) {
+    const base = calculateActionPoints(input.strain, 1, input.duration, input.title, input.raw, input.reasoning)
+    return {
+      ...base,
+      alignment: reported,
+      multiplier: 1,
+      weightClass: 'Middleweight (1.0x)',
+      partial: false,
+      points: Math.max(5, base.basePoints),
+      breakdown: `Base: ${base.basePoints} (Strain ${base.strain.toFixed(1)} @ ${base.duration}m) × 1x (Middleweight)`,
+      reasoning: input.reasoning,
+    }
   }
 
   const critique =
@@ -92,19 +116,15 @@ export function evaluateAnchorAction(input: {
 }
 
 export function localActionFallback(rawAction: string, duration: number, message: string): ActionScore {
-  const formattedTitle = rawAction.toLowerCase().includes('push')
-    ? `${duration}-Min Push Session w/ Brandon`
-    : `${duration}-Min ${rawAction.charAt(0).toUpperCase()}${rawAction.slice(1)}`
+  const note = message && message.length < 80 ? ` ${message}` : ''
   return evaluateAnchorAction({
-    strain: 7,
+    strain: 6,
     alignment: 3,
     valid: false,
     duration,
-    title: formattedTitle,
+    title: sessionTitle(rawAction, duration),
     raw: rawAction,
     reasoning: '',
-    rejectionReason: message && message.length < 80
-      ? `Scored without an anchor check, so this stays at half credit. ${message}`
-      : 'Scored without an anchor check, so this stays at half credit.',
+    rejectionReason: `Scored without an anchor check, so this stays at half credit.${note}`,
   })
 }

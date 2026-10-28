@@ -3,7 +3,7 @@ import { useLedger } from '../../hooks/useLedger'
 import { useNotice } from '../../hooks/useNotice'
 import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
-import { isNamedAnchor } from '../../lib/dates'
+import { formatTimestamp, isNamedAnchor } from '../../lib/dates'
 import { buildJudgmentPayload, callGemini, polishReasoning, type ActionJudgment } from '../../lib/gemini'
 import { DEMO_ACTION } from '../../services/demo'
 import { evaluateAnchorAction, localActionFallback } from '../../services/engine'
@@ -53,30 +53,35 @@ export function ActionModal({
 
     setPending(true)
     let score: ActionScore
-    try {
-      const history = entries
-        .filter((tx) => tx.type === 'EARN')
-        .slice(0, 4)
-        .map((tx) => `- ${tx.title} (${tx.effort_strain} strain, ${tx.timestamp})`)
-        .join('\n')
-      const payload = buildJudgmentPayload(anchor, rawAction, duration, history)
-      const { data, model } = await callGemini<ActionJudgment>(payload, apiKey)
-      if (!data?.reasoning) throw new Error('Empty response from model')
-      score = evaluateAnchorAction({
-        strain: data.effort_strain,
-        alignment: data.directAlignmentScore,
-        valid: data.isValidAnchorAction === true,
-        duration,
-        title: data.polished_title,
-        raw: rawAction,
-        reasoning: polishReasoning(data.reasoning),
-        rejectionReason: data.rejectionReason,
-      })
-      notify(`AI Judged via ${model}`)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Offline fallback used'
-      score = localActionFallback(rawAction, duration, message)
-      notify(`Notice: ${message}`)
+    if (!apiKey.trim()) {
+      score = localActionFallback(rawAction, duration, '')
+      notify('Scored on device without an anchor check')
+    } else {
+      try {
+        const history = entries
+          .filter((tx) => tx.type === 'EARN')
+          .slice(0, 4)
+          .map((tx) => `- ${tx.title} (${tx.effort_strain} strain, ${formatTimestamp(tx.timestamp)})`)
+          .join('\n')
+        const payload = buildJudgmentPayload(anchor, rawAction, duration, history)
+        const { data, model } = await callGemini<ActionJudgment>(payload, apiKey)
+        if (!data?.reasoning) throw new Error('Empty response from model')
+        score = evaluateAnchorAction({
+          strain: data.effort_strain,
+          alignment: data.directAlignmentScore,
+          valid: data.isValidAnchorAction === true,
+          duration,
+          title: data.polished_title,
+          raw: rawAction,
+          reasoning: polishReasoning(data.reasoning),
+          rejectionReason: data.rejectionReason,
+        })
+        notify(`AI Judged via ${model}`)
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Offline fallback used'
+        score = localActionFallback(rawAction, duration, message)
+        notify(`Notice: ${message}`)
+      }
     }
 
     appendEarn({

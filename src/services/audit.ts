@@ -1,6 +1,7 @@
-import { DECAY_PENALTY, utcDateKey } from '../lib/dates'
+import { DECAY_PENALTY, GRACE_FLOOR, localDateKey, localNoonIso, shiftDateKey } from '../lib/dates'
+import { createId } from '../lib/id'
 import type { DecayAlert, PulseState, SpendTransaction } from '../types'
-import { advanceStreak, auditDecay } from './engine'
+import { advanceStreak, earnedOn } from './engine'
 
 export interface AuditResult {
   readonly state: PulseState
@@ -10,59 +11,102 @@ export interface AuditResult {
   readonly earned: number
 }
 
-export function runDecayAudit(state: PulseState, force = false): AuditResult {
-  const today = utcDateKey()
-  const last = localStorage.getItem('pulse_last_audit') || state.lastAuditDate
-  const assessment = auditDecay(last, state.transactions, state.dailyGoal, {
-    today,
-    force,
-  })
+function datesUntil(start: string, endExclusive: string): string[] {
+  const days: string[] = []
+  let cursor = start
+  while (cursor < endExclusive) {
+    days.push(cursor)
+    cursor = shiftDateKey(cursor, 1)
+  }
+  return days
+}
 
-  if (!assessment.shouldApply) {
+function closeDay(state: PulseState, day: string): { state: PulseState; alert: DecayAlert | null; met: boolean; earned: number } {
+  const earned = earnedOn(state.transactions, day)
+  const nextStreak = advanceStreak(state.streakCount, earned, state.dailyGoal)
+  if (earned >= GRACE_FLOOR) {
+    return {
+      state: { ...state, ...nextStreak },
+      alert: null,
+      met: nextStreak.streakState === 'SECURED',
+      earned,
+    }
+  }
+
+  const collected = Math.min(DECAY_PENALTY, Math.max(0, state.balance))
+  const uncollected = DECAY_PENALTY - collected
+  const reasoning = uncollected > 0
+    ? `The day closed under 60 PTS. Streak reset. Collected ${collected} PTS of the 15 PTS fee. Uncollected ${uncollected} PTS because the balance reached 0.`
+    : 'The day closed under 60 PTS. Streak reset and accountability fee assessed.'
+  const penalty: SpendTransaction = {
+    id: createId('tx'),
+    type: 'SPEND',
+    title: 'Discipline Decay: Target Missed',
+    points: DECAY_PENALTY,
+    category: 'Decay Audit',
+    is_locked: true,
+    reasoning,
+    timestamp: localNoonIso(day),
+    date: day,
+  }
+  return {
+    state: {
+      ...state,
+      ...nextStreak,
+      balance: state.balance - collected,
+      transactions: [penalty, ...state.transactions],
+    },
+    alert: { earned },
+    met: false,
+    earned,
+  }
+}
+
+export function runDecayAudit(state: PulseState, force = false): AuditResult {
+  const today = localDateKey()
+  const last = localStorage.getItem('pulse_last_audit') || state.lastAuditDate
+
+  if (force) {
+    if (localStorage.getItem('pulse_streak_closed') === today) {
+      return { state, changed: false, alert: null, met: false, earned: 0 }
+    }
+    const closed = closeDay(state, today)
+    localStorage.setItem('pulse_last_audit', today)
+    localStorage.setItem('pulse_streak_closed', today)
+    return {
+      state: { ...closed.state, lastAuditDate: today },
+      changed: true,
+      alert: closed.alert,
+      met: closed.met,
+      earned: closed.earned,
+    }
+  }
+
+  if (last >= today) {
     return { state, changed: false, alert: null, met: false, earned: 0 }
   }
 
-  localStorage.setItem('pulse_last_audit', assessment.today)
-
-  const checkDate = force ? assessment.today : last
-  const alreadyClosed = localStorage.getItem('pulse_streak_closed') === checkDate
-  const nextStreak = alreadyClosed
-    ? { streakCount: state.streakCount, streakState: state.streakState }
-    : advanceStreak(state.streakCount, assessment.earned, state.dailyGoal)
-  if (!alreadyClosed) localStorage.setItem('pulse_streak_closed', checkDate)
-
-  const charge = !alreadyClosed && assessment.penalty > 0
-  if (charge) {
-    const penalty: SpendTransaction = {
-      id: `tx-decay-${Date.now()}`,
-      type: 'SPEND',
-      title: 'Discipline Decay: Target Missed',
-      points: assessment.penalty || DECAY_PENALTY,
-      category: 'Decay Audit',
-      reasoning: `The day closed under 60 PTS. Streak reset and accountability fee assessed.`,
-      timestamp: 'Today, Midnight Audit',
-      date: assessment.today,
-    }
-    return {
-      state: {
-        ...state,
-        ...nextStreak,
-        balance: Math.max(0, state.balance - (assessment.penalty || DECAY_PENALTY)),
-        lastAuditDate: assessment.today,
-        transactions: [penalty, ...state.transactions],
-      },
-      changed: true,
-      alert: { earned: assessment.earned },
-      met: false,
-      earned: assessment.earned,
-    }
+  const days = datesUntil(last, today)
+  let cursor = state
+  let alert: DecayAlert | null = null
+  let met = false
+  let earned = 0
+  for (const day of days) {
+    const closed = closeDay(cursor, day)
+    cursor = closed.state
+    met = closed.met
+    earned = closed.earned
+    if (closed.alert) alert = closed.alert
   }
 
+  const closedThrough = days[days.length - 1] ?? shiftDateKey(today, -1)
+  localStorage.setItem('pulse_last_audit', today)
+  localStorage.setItem('pulse_streak_closed', closedThrough)
   return {
-    state: { ...state, ...nextStreak, lastAuditDate: assessment.today },
+    state: { ...cursor, lastAuditDate: today },
     changed: true,
-    alert: null,
-    met: assessment.met,
-    earned: assessment.earned,
+    alert,
+    met,
+    earned,
   }
 }

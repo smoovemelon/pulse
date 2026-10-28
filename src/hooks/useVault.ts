@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react'
 import { celebrate } from '../lib/confetti'
-import { utcDateKey } from '../lib/dates'
-import { calculateVaultValuation, validateVaultDraft } from '../services/engine'
+import { localDateKey } from '../lib/dates'
+import { createId } from '../lib/id'
+import { calculateVaultValuation, replayStreak, validateVaultDraft } from '../services/engine'
 import type { BountyDraft, VaultFilter, VaultItem } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -52,7 +53,7 @@ export function useVaultController(): VaultApi {
 
       const current = read()
       const nextItem: VaultItem = {
-        id: draft.id || `v-${Date.now()}`,
+        id: draft.id || createId('v'),
         title,
         category: draft.category,
         cost: quote.cost,
@@ -92,21 +93,23 @@ export function useVaultController(): VaultApi {
         notify(`Need ${item.cost - current.balance} more PTS`)
         return
       }
+      const transactions = [
+        {
+          id: createId('tx'),
+          type: 'SPEND' as const,
+          title: item.title,
+          points: item.cost,
+          category: item.category,
+          timestamp: new Date().toISOString(),
+          date: localDateKey(),
+        },
+        ...current.transactions,
+      ]
       commit({
         ...current,
+        ...replayStreak(transactions),
         balance: current.balance - item.cost,
-        transactions: [
-          {
-            id: `tx-${Date.now()}`,
-            type: 'SPEND',
-            title: item.title,
-            points: item.cost,
-            category: item.category,
-            timestamp: 'Today, Just now',
-            date: utcDateKey(),
-          },
-          ...current.transactions,
-        ],
+        transactions,
       })
       feedback('spend')
       celebrate()

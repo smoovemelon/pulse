@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { DEFAULT_ANCHOR, utcDateKey } from '../../lib/dates'
+import { DEFAULT_ANCHOR, localDateKey } from '../../lib/dates'
 import { greetingDate, greetingLine } from '../../lib/greeting'
 import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
@@ -119,6 +119,24 @@ describe('action evaluation', () => {
     expect(cruiser.partial).toBe(false)
   })
 
+  it('pays middleweight baseline for a specific direct log under 7', () => {
+    const middle = evaluateAnchorAction({
+      strain: 10,
+      alignment: 5,
+      valid: true,
+      duration: 45,
+      title: 'Notes',
+      raw: 'Reviewed 4 pages of notes',
+      reasoning: 'Direct, but not a heavy session.',
+    })
+
+    expect(middle.partial).toBe(false)
+    expect(middle.multiplier).toBe(1)
+    expect(middle.weightClass).toBe('Middleweight (1.0x)')
+    expect(middle.points).toBe(80)
+    expect(middle.alignment).toBe(5)
+  })
+
   it('withholds the anchor bonus when the log names no concrete result', () => {
     const vague = evaluateAnchorAction({
       strain: 10,
@@ -139,6 +157,11 @@ describe('action evaluation', () => {
     const offline = localActionFallback('Morning study block on problem sets', 45, 'offline')
     expect(offline.multiplier).toBe(0.5)
     expect(offline.partial).toBe(true)
+    expect(offline.strain).toBe(6)
+    expect(offline.title).toBe('Morning study block on problem sets')
+    expect(offline.title).not.toContain('Brandon')
+    expect(localActionFallback('push day', 60, '').title).toBe('push day')
+    expect(localActionFallback('   ', 30, '').title).toBe('30-Min Logged Session')
     expect(offline.points).toBeGreaterThan(0)
   })
 })
@@ -260,6 +283,28 @@ describe('midnight decay', () => {
     const result = runDecayAudit(ledger({ balance: 10, transactions: [] }))
     expect(result.state.balance).toBe(0)
     expect(result.state.transactions[0]?.points).toBe(15)
+    expect(result.state.transactions[0]?.is_locked).toBe(true)
+    expect(result.state.transactions[0]?.reasoning).toContain('Uncollected 5 PTS')
+    expect(result.state.transactions[0]?.date).toBe('2026-10-20')
+  })
+
+  it('closes each missed day instead of skipping ahead', () => {
+    const result = runDecayAudit(
+      ledger({
+        balance: 200,
+        streakCount: 3,
+        lastAuditDate: '2026-10-18',
+        transactions: [earn('2026-10-18', 10), earn('2026-10-19', 70), earn('2026-10-20', 120)],
+      }),
+    )
+
+    expect(result.state.lastAuditDate).toBe('2026-10-21')
+    expect(result.state.balance).toBe(185)
+    expect(result.state.streakCount).toBe(1)
+    expect(result.state.streakState).toBe('SECURED')
+    const decays = result.state.transactions.filter((tx) => tx.category === 'Decay Audit')
+    expect(decays).toHaveLength(1)
+    expect(decays[0]).toMatchObject({ date: '2026-10-18', points: 15, is_locked: true })
   })
 })
 
@@ -298,6 +343,19 @@ describe('history removal', () => {
 
   it('does not drive the balance below zero', () => {
     expect(balanceAfterRemoval(10, earn('2026-10-21', 40))).toBe(0)
+  })
+
+  it('leaves the balance unchanged when a decay row is removed', () => {
+    const decay: Transaction = {
+      id: 'decay',
+      type: 'SPEND',
+      title: 'Discipline Decay: Target Missed',
+      points: 15,
+      timestamp: '2026-10-20T17:00:00.000Z',
+      date: '2026-10-20',
+      category: 'Decay Audit',
+    }
+    expect(balanceAfterRemoval(40, decay)).toBe(40)
   })
 })
 
@@ -420,7 +478,7 @@ describe('demo mode', () => {
       ],
     }
     const demo = enterDemo(current)
-    const today = utcDateKey()
+    const today = localDateKey()
 
     expect(demo.demoMode).toBe(true)
     expect(demo.apiKey).toBe('kept-key')
