@@ -386,9 +386,6 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
   animation: streakPulse 1.6s ease-out infinite;
 }
 
-.streak-today-fill {
-  background: conic-gradient(var(--ink) var(--turn, 0deg), var(--line) 0deg);
-}
 
 @keyframes catFloat {
   0%,
