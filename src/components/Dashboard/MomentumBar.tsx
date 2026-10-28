@@ -38,7 +38,7 @@ export function SplitCapsule({
           </div>
         </div>
         <div
-          className="relative h-8 overflow-hidden rounded-full bg-card"
+          className="relative h-8 overflow-hidden rounded-full border border-zinc-400 bg-card dark:border-zinc-500"
           role="img"
           aria-label={`Forge ${earned} of ${goal} points. Chain ${decksComplete} of 3 decks.`}
         >
