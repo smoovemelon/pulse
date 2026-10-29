@@ -267,7 +267,7 @@ export function SunIcon({ className = 'w-5 h-5' }: IconProps) {
 export function MoonIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
     <Svg className={className} strokeWidth={1.85}>
-      <path d="M17.6 4.7a7.75 7.75 0 1 0 0 14.6 6.15 6.15 0 0 1 0-14.6z" />
+      <path fill="currentColor" stroke="none" transform="rotate(-36 12 12)" d="M18.2 6.1a7.6 7.6 0 1 0 0 11.8 5.7 5.7 0 0 1 0-11.8z" />
     </Svg>
   )
 }
