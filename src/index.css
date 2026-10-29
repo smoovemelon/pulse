@@ -347,10 +347,43 @@ html[data-theme='dark'] .depth-pill-active {
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.28);
 }
 
+.field,
+.plain-input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .field {
   background: var(--field);
   border: 1px solid var(--line);
   color: var(--ink);
+  line-height: 1.35;
+}
+
+.field:focus,
+.field:focus-visible {
+  outline: none;
+  border-color: var(--ink);
+}
+
+.plain-input {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  line-height: 1.35;
+}
+
+.plain-input:focus,
+.plain-input:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .field:disabled {
@@ -394,8 +427,7 @@ html[data-theme='dark'] .depth-pill-active {
   filter: none;
 }
 
-.focus-ring:focus-visible,
-.field:focus-visible {
+.focus-ring:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }

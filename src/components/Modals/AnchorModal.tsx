@@ -29,7 +29,7 @@ export function AnchorModal({ onClose }: { readonly onClose: () => void }) {
             value={value}
             placeholder={DEFAULT_ANCHOR}
             onChange={(event) => setValue(event.target.value)}
-            className="field w-full rounded-2xl p-3.5 text-xs font-bold"
+            className="field w-full rounded-2xl px-3.5 py-3 text-base font-bold"
           />
         </div>
         <Button

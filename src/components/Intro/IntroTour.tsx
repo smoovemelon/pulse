@@ -56,7 +56,7 @@ const STEPS: readonly {
   {
     kicker: 'Photo',
     title: 'Add your photo',
-    body: 'The circle on the top right of the balance card is your photo. Choose one to continue. It stays centered in that circle.',
+    body: 'The circle on the top right of the balance card is your photo. Choose one, then drag it until the frame looks right.',
     target: 'balance',
     requireAvatar: true,
   },
@@ -317,7 +317,7 @@ export function IntroTour({
                 value={draft}
                 placeholder="Name the goal"
                 onChange={(event) => setDraft(event.target.value)}
-                className="field w-full rounded-2xl p-3.5 text-xs font-bold"
+                className="field w-full rounded-2xl px-3.5 py-3 text-base font-bold"
               />
             </label>
           )}

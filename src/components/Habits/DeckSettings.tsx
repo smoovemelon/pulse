@@ -61,7 +61,7 @@ export function DeckSettings() {
             </div>
             <div className="flex flex-col gap-1.5">
               {deck.habits.map((habit, habitIndex) => (
-                <div key={habit.id} className="habit-groove flex items-center justify-between gap-2 rounded-2xl border border-line px-2.5 py-2">
+                <div key={habit.id} className="habit-groove flex items-center justify-between gap-2 rounded-2xl border border-line px-2.5 py-2 focus-within:border-ink">
                   <span className="flex min-w-0 flex-1 items-center gap-2">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line font-num text-[10px] text-faint">
                       {habitIndex + 1}
@@ -71,7 +71,7 @@ export function DeckSettings() {
                       maxLength={60}
                       aria-label={`${deck.name} habit ${habitIndex + 1}`}
                       onChange={(event) => updateTitle(deckIndex, habitIndex, event.target.value)}
-                      className="focus-ring min-w-0 flex-1 bg-transparent text-xs font-bold text-ink outline-none"
+                      className="plain-input min-h-6 text-base font-bold text-ink"
                     />
                   </span>
                   <span className="shrink-0 rounded-full border border-line bg-well px-2 py-0.5 font-num text-[10px] text-muted">
