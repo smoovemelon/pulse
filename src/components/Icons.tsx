@@ -2,9 +2,9 @@ import type { ReactNode } from 'react'
 
 type IconProps = { className?: string }
 
-function Svg({ className, children }: IconProps & { children: ReactNode }) {
+function Svg({ className, children, strokeWidth = 2 }: IconProps & { children: ReactNode; strokeWidth?: number }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {children}
     </svg>
   )
@@ -12,39 +12,41 @@ function Svg({ className, children }: IconProps & { children: ReactNode }) {
 
 export function VolumeOn({ className = 'w-4 h-4' }: IconProps) {
   return (
-    <Svg className={className}>
-      <path d="M4.5 10v4h2.8l3.7 3V7l-3.7 3H4.5z" />
-      <path d="M14.2 9.4a3.2 3.2 0 0 1 0 5.2" />
-      <path d="M16.4 7.4a6 6 0 0 1 0 9.2" />
+    <Svg className={className} strokeWidth={1.75}>
+      <path d="M4.25 8.7h3.15L11.5 4.25v15.5L7.4 15.3H4.25z" />
+      <path d="M14.1 9.2a2.6 2.6 0 0 1 0 5.6" />
+      <path d="M14.1 6.4a5.4 5.4 0 0 1 0 11.2" />
     </Svg>
   )
 }
 
 export function VolumeOff({ className = 'w-4 h-4' }: IconProps) {
   return (
-    <Svg className={className}>
-      <path d="M4.5 10v4h2.8l3.7 3V7l-3.7 3H4.5z" />
-      <line x1="15.5" y1="10" x2="19.5" y2="14" />
-      <line x1="19.5" y1="10" x2="15.5" y2="14" />
+    <Svg className={className} strokeWidth={1.75}>
+      <path d="M4.25 8.7h3.15L11.5 4.25v15.5L7.4 15.3H4.25z" />
+      <path d="M14.2 7.1 19.4 16.9" />
+      <path d="M19.4 7.1 14.2 16.9" />
     </Svg>
   )
 }
 
 export function GuideIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
-    <Svg className={className}>
-      <circle cx="12" cy="12" r="8" />
-      <path d="M9.8 9.6a2.3 2.3 0 1 1 3.5 1.9c-.6.4-1.1.9-1.1 1.7" />
-      <circle cx="12" cy="16.2" r="0.7" fill="currentColor" stroke="none" />
+    <Svg className={className} strokeWidth={1.75}>
+      <circle cx="12" cy="12" r="7.75" />
+      <path d="M9.9 9.7a2.25 2.25 0 1 1 3.35 2c-.7.4-1.1.95-1.1 1.8" />
+      <circle cx="12.15" cy="16.35" r="0.7" fill="currentColor" stroke="none" />
     </Svg>
   )
 }
 
 export function SettingsIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
-    <Svg className={className}>
-      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-      <circle cx="12" cy="12" r="3" />
+    <Svg className={className} strokeWidth={1.75}>
+      <g transform="translate(12 12) scale(0.78) translate(-12 -12)">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+        <circle cx="12" cy="12" r="3" />
+      </g>
     </Svg>
   )
 }
@@ -260,17 +262,17 @@ export function TrashIcon({ className = 'w-3.5 h-3.5' }: IconProps) {
 
 export function SunIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
-    <Svg className={className}>
-      <circle cx="12" cy="12" r="3.5" />
-      <path d="M12 4v1.8M12 18.2V20M4 12h1.8M18.2 12H20M6.2 6.2l1.3 1.3M16.5 16.5l1.3 1.3M17.8 6.2l-1.3 1.3M7.5 16.5l-1.3 1.3" />
+    <Svg className={className} strokeWidth={1.75}>
+      <circle cx="12" cy="12" r="3.05" />
+      <path d="M12 4.25v3.35M12 16.4v3.35M4.25 12h3.35M16.4 12h3.35M6.52 6.52l2.37 2.37M15.11 15.11l2.37 2.37M17.48 6.52l-2.37 2.37M8.89 15.11 6.52 17.48" />
     </Svg>
   )
 }
 
 export function MoonIcon({ className = 'w-4 h-4' }: IconProps) {
   return (
-    <Svg className={className}>
-      <path d="M19.5 14.2A7.2 7.2 0 1 1 9.8 4.5a6 6 0 0 0 9.7 9.7z" />
+    <Svg className={className} strokeWidth={1.75}>
+      <path fill="currentColor" stroke="none" d="M18.38 6.06a7.75 7.75 0 1 0 0 11.88 6.2 6.2 0 0 1 0-11.88z" />
     </Svg>
   )
 }

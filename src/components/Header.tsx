@@ -27,20 +27,20 @@ export function Header({ onOpenSettings, onOpenIntro }: { onOpenSettings: () => 
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <HeaderButton label="Open tutorial" testId="open-intro" onClick={() => { feedback('click'); onOpenIntro() }}>
-          <GuideIcon />
+          <GuideIcon className="h-4 w-4" />
         </HeaderButton>
         <HeaderButton
           label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
           testId="theme-toggle"
           onClick={toggleTheme}
         >
-          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+          {theme === 'dark' ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
         </HeaderButton>
         <HeaderButton label="Toggle Sound" testId="sound-toggle" onClick={toggleSound}>
-          {soundEnabled ? <VolumeOn /> : <VolumeOff />}
+          {soundEnabled ? <VolumeOn className="h-4 w-4" /> : <VolumeOff className="h-4 w-4" />}
         </HeaderButton>
         <HeaderButton label="Settings" testId="open-settings" onClick={() => { feedback('click'); onOpenSettings() }}>
-          <SettingsIcon />
+          <SettingsIcon className="h-4 w-4" />
         </HeaderButton>
       </div>
     </header>
