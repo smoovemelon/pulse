@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useHabits } from '../../hooks/useHabits'
-import { clampHabitMinutes, deckComplete, nextOpenHabit } from '../../services/engine'
+import { deckComplete, nextOpenHabit } from '../../services/engine'
 import type { HabitDeck } from '../../types'
 import { Button } from '../Common/Button'
 import { Eyebrow, Surface, Well } from '../Common/primitives'
@@ -145,9 +145,6 @@ function DeckCard({
                   {complete ? <CheckIcon className="h-3 w-3" /> : habitIndex + 1}
                 </span>
                 <span className={`truncate ${complete ? 'line-through' : ''}`}>{habit.title}</span>
-              </span>
-              <span className={`shrink-0 font-num text-[10px] ${ready ? 'text-canvas/80' : 'text-faint'}`}>
-                {clampHabitMinutes(habit.minutes)}m
               </span>
               <span className={`shrink-0 rounded-full px-2 py-0.5 font-num text-[10px] ${
                 ready ? 'bg-canvas text-ink' : 'border border-line bg-well text-muted'

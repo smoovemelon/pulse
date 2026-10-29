@@ -248,7 +248,7 @@ function EconomyRules() {
         <p>
           Base = <Figure tone="earn">Strain (1–10) × 8 × (Duration / 45)<sup>0.45</sup></Figure>
         </p>
-        <p>Gemini rates the log. The app multiplies those ratings. Foundation decks share a 60–85 point pool. A habit’s share is its minutes times strain, relevance, and weight.</p>
+        <p>Gemini rates the log. The app multiplies those ratings by (duration / 45)<sup>0.45</sup>. Foundation decks share a 60–85 point pool by strain, relevance, and weight.</p>
         <ul className="flex flex-col gap-1">
           <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Strain</span><span className="font-num font-extrabold text-ink">60 / 40 / 20</span></li>
           <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Relevance</span><span className="font-num font-extrabold text-ink">1 / 0.75 / 0.5</span></li>

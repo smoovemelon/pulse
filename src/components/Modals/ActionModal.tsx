@@ -55,17 +55,17 @@ export function ActionModal({
     setPending(true)
     let score: ActionScore
     if (!apiKey.trim()) {
-      score = scoreJudgment(offlineJudgment(), rawAction)
+      score = scoreJudgment(offlineJudgment(), rawAction, duration)
       notify('Scored on device without an anchor check')
     } else {
       try {
         const payload = buildCategoricalPayload(anchor, rawAction, duration)
         const { data, model } = await callGemini<ActionJudgmentResult>(payload, apiKey)
-        score = scoreJudgment(coerceJudgment(data), rawAction)
+        score = scoreJudgment(coerceJudgment(data), rawAction, duration)
         notify(`AI Judged via ${model}`)
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Offline fallback used'
-        score = scoreJudgment(offlineJudgment(message), rawAction)
+        score = scoreJudgment(offlineJudgment(message), rawAction, duration)
         notify(`Notice: ${message}`)
       }
     }

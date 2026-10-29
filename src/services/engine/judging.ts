@@ -33,12 +33,14 @@ export function weightClassLabel(weight: JudgeWeight): WeightClass {
   return 'Lightweight (1.0x)'
 }
 
-export function scoreJudgment(result: ActionJudgmentResult, title: string) {
+export function scoreJudgment(result: ActionJudgmentResult, title: string, durationMinutes = 45) {
   const judged = coerceJudgment(result)
   const base = STRAIN_POINTS[judged.strain]
   const relevance = RELEVANCE_MULT[judged.relevance]
   const weight = WEIGHT_MULT[judged.weightClass]
-  const points = Math.round(base * relevance * weight)
+  const duration = Math.max(5, Math.min(360, Math.round(Number(durationMinutes) || 45)))
+  const durationFactor = Math.pow(duration / 45, 0.45)
+  const points = Math.round(base * relevance * weight * durationFactor)
   return {
     points,
     strain: judged.strain === 'HIGH' ? 8 : judged.strain === 'MEDIUM' ? 5 : 3,
@@ -46,9 +48,9 @@ export function scoreJudgment(result: ActionJudgmentResult, title: string) {
     multiplier: weight,
     weightClass: weightClassLabel(judged.weightClass),
     judgeWeight: judged.weightClass,
-    duration: 0,
+    duration,
     basePoints: base,
-    breakdown: `${base} × ${relevance} × ${weight} (${judged.strain} ${judged.relevance} ${judged.weightClass})`,
+    breakdown: `${base} × ${relevance} × ${weight} × (${duration}/45)^0.45 (${judged.strain} ${judged.relevance} ${judged.weightClass})`,
     title: title.trim().slice(0, 60) || 'Logged session',
     reasoning: judged.reasoning,
     partial: judged.relevance !== 'DIRECT',

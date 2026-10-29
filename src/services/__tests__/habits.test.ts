@@ -22,29 +22,11 @@ describe('habit decks', () => {
     expect(decks.every((deck) => deck.habits.every((habit) => habit.points >= 1))).toBe(true)
   })
 
-  it('pays a longer habit more when the multiplier matches', () => {
-    const habit = (id: string, minutes: number) => ({ id, title: 'Block', points: 0, minutes, strain: 'MEDIUM' as const, relevance: 'GENERAL' as const, weightClass: 'LIGHTWEIGHT' as const })
-    const deck = (id: string, minutes: readonly number[]) => ({
-      id,
-      name: id,
-      habits: minutes.map((value, index) => habit(`${id}-${index}`, value)),
-    })
-    const decks = distributeHabitPoints([
-      deck('deck-1', [5, 45, 15]),
-      deck('deck-2', [15, 15, 15]),
-      deck('deck-3', [15, 15, 15]),
-    ])
-    const [short, long, mid] = decks[0].habits
-    expect(long.points).toBeGreaterThan(mid.points)
-    expect(mid.points).toBeGreaterThan(short.points)
-  })
-
-  it('lets the weight multiplier raise a shorter habit', () => {
-    const habit = (id: string, minutes: number, relevance: 'DIRECT' | 'GENERAL', weightClass: 'HEAVYWEIGHT' | 'LIGHTWEIGHT') => ({
+  it('lets the weight multiplier raise a habit share', () => {
+    const habit = (id: string, relevance: 'DIRECT' | 'GENERAL', weightClass: 'HEAVYWEIGHT' | 'LIGHTWEIGHT') => ({
       id,
       title: 'Block',
       points: 0,
-      minutes,
       strain: 'MEDIUM' as const,
       relevance,
       weightClass,
@@ -54,16 +36,17 @@ describe('habit decks', () => {
         id: 'deck-1',
         name: 'Morning',
         habits: [
-          habit('short', 5, 'DIRECT', 'HEAVYWEIGHT'),
-          habit('long', 15, 'GENERAL', 'LIGHTWEIGHT'),
-          habit('mid', 15, 'GENERAL', 'LIGHTWEIGHT'),
+          habit('heavy', 'DIRECT', 'HEAVYWEIGHT'),
+          habit('light', 'GENERAL', 'LIGHTWEIGHT'),
+          habit('other', 'GENERAL', 'LIGHTWEIGHT'),
         ],
       },
-      { id: 'deck-2', name: 'Midday', habits: [habit('a', 15, 'GENERAL', 'LIGHTWEIGHT'), habit('b', 15, 'GENERAL', 'LIGHTWEIGHT'), habit('c', 15, 'GENERAL', 'LIGHTWEIGHT')] },
-      { id: 'deck-3', name: 'Evening', habits: [habit('d', 15, 'GENERAL', 'LIGHTWEIGHT'), habit('e', 15, 'GENERAL', 'LIGHTWEIGHT'), habit('f', 15, 'GENERAL', 'LIGHTWEIGHT')] },
+      { id: 'deck-2', name: 'Midday', habits: [habit('a', 'GENERAL', 'LIGHTWEIGHT'), habit('b', 'GENERAL', 'LIGHTWEIGHT'), habit('c', 'GENERAL', 'LIGHTWEIGHT')] },
+      { id: 'deck-3', name: 'Evening', habits: [habit('d', 'GENERAL', 'LIGHTWEIGHT'), habit('e', 'GENERAL', 'LIGHTWEIGHT'), habit('f', 'GENERAL', 'LIGHTWEIGHT')] },
     ])
-    const [short, long] = decks[0].habits
-    expect(short.points).toBeGreaterThan(long.points)
+    const [heavy, light] = decks[0].habits
+    expect(heavy.points).toBeGreaterThan(light.points)
+    expect(decks[0].habits.every((item) => !('minutes' in item))).toBe(true)
   })
 
   it('lands a full deck on the pool after rounding', () => {
