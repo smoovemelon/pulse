@@ -276,6 +276,33 @@ html[data-theme='dark'] .depth-pill-active {
   border-color: #fafafa;
 }
 
+.deck-status {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
+.deck-status-open {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--canvas);
+  box-shadow:
+    0 2px 6px rgb(0 0 0 / 0.16),
+    inset 0 1px 0 rgb(255 255 255 / 0.16);
+}
+
+.deck-status-clear {
+  background: #10b981;
+  border-color: #059669;
+  color: #fff;
+  box-shadow:
+    0 2px 6px rgb(16 185 129 / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 0.28);
+}
+
 .cat-tag {
   background: var(--well);
   color: var(--ink);

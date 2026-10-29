@@ -102,11 +102,7 @@ function DeckCard({
   const face = DECK_FACE[index] ?? DECK_FACE[0]
   const done = deckComplete(deck, completedIds)
   const status = done ? 'Clear' : locked ? 'Locked' : 'Open'
-  const statusClass = done
-    ? 'chip-emerald'
-    : locked
-      ? 'border-line bg-card text-faint'
-      : 'border-ink bg-ink text-canvas'
+  const statusClass = done ? 'deck-status-clear' : locked ? 'deck-status' : 'deck-status-open'
 
   return (
     <Well className="flex flex-col gap-2 px-3 py-3">
@@ -125,7 +121,7 @@ function DeckCard({
             ))}
           </div>
         </div>
-        <span className={`shrink-0 rounded-full border px-2 py-1 font-num text-[9px] font-extrabold uppercase tracking-wide ${statusClass}`}>
+        <span className={`shrink-0 rounded-xl px-2.5 py-1 text-[10px] font-extrabold ${statusClass}`}>
           {status}
         </span>
       </div>
