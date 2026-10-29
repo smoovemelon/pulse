@@ -483,16 +483,6 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
 }
 
 
-@keyframes catFloat {
-  0%,
-  100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
-}
-
-.cat-float {
-  animation: catFloat 3.4s ease-in-out infinite;
-}
-
 .notice-pop {
   background: var(--card);
   border: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
@@ -513,7 +503,6 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
 @media (prefers-reduced-motion: reduce) {
   .intro-step,
   .streak-today-ring,
-  .cat-float,
   .alert-in {
     animation: none;
   }

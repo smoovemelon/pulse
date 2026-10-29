@@ -44,6 +44,7 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     vaultItems: [],
     ...disciplineDefaults(new Date('2026-10-21T15:00:00Z')),
     ...partial,
+    avatar: partial.avatar ?? '',
     forgeStreak: partial.forgeStreak ?? partial.streakCount ?? 0,
     streakCount: partial.streakCount ?? partial.forgeStreak ?? 0,
   }

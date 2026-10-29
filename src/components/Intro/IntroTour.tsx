@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { isNamedAnchor } from '../../lib/dates'
 import { pushEntry } from '../../lib/backStack'
+import { useNotice } from '../../hooks/useNotice'
 import { useSettings } from '../../hooks/useSettings'
 import { markIntroSeen } from '../../services/persistence'
 import { Button } from '../Common/Button'
 import { Eyebrow } from '../Common/primitives'
+import { ProfilePhoto } from '../Dashboard/ProfilePhoto'
 
 export type TourTarget = 'balance' | 'day' | 'foundation' | 'log' | 'bounty'
 
@@ -14,6 +16,7 @@ const STEPS: readonly {
   readonly body: string
   readonly target?: TourTarget
   readonly requireAnchor?: boolean
+  readonly requireAvatar?: boolean
 }[] = [
   {
     kicker: 'Get started',
@@ -35,7 +38,7 @@ const STEPS: readonly {
   {
     kicker: 'Decks',
     title: 'Open Foundation',
-    body: 'The three decks live here. Finish habits in order. Edit opens the names, and each cutoff opens a time slider. Use PTO asks you to confirm before it spends a token. Habit points stay separate from judged logs.',
+    body: 'The three decks live here. Finish habits in order. Edit opens the habits, and each cutoff opens a time slider. Use PTO asks you to confirm before it spends a token. Habit points stay separate from judged logs.',
     target: 'foundation',
   },
   {
@@ -49,6 +52,13 @@ const STEPS: readonly {
     title: 'Park a bounty',
     body: 'Spend and Add sit together. Add parks a reward. Spend uses points now. Prices follow the discipline dial in Settings. Confirm the first change. After that, Start fresh is how the dial moves.',
     target: 'bounty',
+  },
+  {
+    kicker: 'Photo',
+    title: 'Add your photo',
+    body: 'The circle on the top right of the balance card is your photo. Choose one to continue. It stays centered in that circle.',
+    target: 'balance',
+    requireAvatar: true,
   },
   {
     kicker: 'Anchor',
@@ -76,7 +86,8 @@ export function IntroTour({
   readonly onClose: () => void
   readonly onTarget?: (target: TourTarget | undefined) => void
 }) {
-  const { anchor, saveAnchor } = useSettings()
+  const { anchor, avatar, saveAnchor, saveAvatar } = useSettings()
+  const { notify } = useNotice()
   const [step, setStep] = useState(0)
   const [draft, setDraft] = useState('')
   const [spot, setSpot] = useState<Spot | null>(null)
@@ -99,8 +110,25 @@ export function IntroTour({
   }
 
   const dismiss = () => {
-    if (STEPS[stepRef.current]?.requireAnchor) return
+    const gate = STEPS[stepRef.current]
+    if (gate?.requireAnchor || gate?.requireAvatar) return
     finish()
+  }
+
+  const skip = () => {
+    if (avatar) {
+      finish()
+      return
+    }
+    const index = STEPS.findIndex((item) => item.requireAvatar)
+    const leaving = stepRef.current
+    const release = pushEntry(() => {
+      stepRef.current = leaving
+      setStep(leaving)
+    })
+    releases.current.push(release)
+    stepRef.current = index
+    setStep(index)
   }
 
   useEffect(() => {
@@ -123,7 +151,7 @@ export function IntroTour({
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
-      if (STEPS[stepRef.current]?.requireAnchor) return
+      if (STEPS[stepRef.current]?.requireAnchor || STEPS[stepRef.current]?.requireAvatar) return
       markIntroSeen()
       onCloseRef.current()
     }
@@ -249,11 +277,11 @@ export function IntroTour({
           <span className="font-num text-[10px] font-extrabold tracking-widest text-faint">
             {step + 1} / {STEPS.length}
           </span>
-          {!current.requireAnchor && (
+          {!current.requireAnchor && !current.requireAvatar && (
             <button
               type="button"
               data-testid="intro-skip"
-              onClick={finish}
+              onClick={skip}
               className="press focus-ring text-[11px] font-extrabold uppercase tracking-wider text-muted"
             >
               Skip
@@ -272,6 +300,15 @@ export function IntroTour({
             <h3 id="intro-heading" className="heading-athletic text-xl text-ink">{current.title}</h3>
           </div>
           <p className="w-full text-sm font-semibold leading-relaxed text-body">{current.body}</p>
+          {current.requireAvatar && (
+            <ProfilePhoto
+              avatar={avatar}
+              size="lg"
+              testId="intro-avatar"
+              onChange={(dataUrl) => saveAvatar(dataUrl, { quiet: true })}
+              onError={() => notify('Choose an image')}
+            />
+          )}
           {current.requireAnchor && (
             <label className="flex w-full flex-col gap-1.5 text-left">
               <span className="eyebrow eyebrow-muted">Your goal</span>
@@ -309,8 +346,13 @@ export function IntroTour({
           <Button
             tone="dark"
             data-testid="intro-next"
-            disabled={current.requireAnchor && !anchorReady}
+            disabled={(current.requireAnchor && !anchorReady) || (current.requireAvatar && !avatar)}
             onClick={() => {
+              if (current.requireAvatar) {
+                if (!avatar) return
+                advance()
+                return
+              }
               if (current.requireAnchor) {
                 const trimmed = draft.trim()
                 if (!isNamedAnchor(trimmed)) return
@@ -323,7 +365,7 @@ export function IntroTour({
             }}
             className="flex-1 rounded-2xl py-3.5 text-xs font-extrabold uppercase tracking-wider disabled:opacity-40"
           >
-            {current.requireAnchor ? 'Set anchor' : last ? 'Get started' : 'Next'}
+            {current.requireAnchor ? 'Set anchor' : current.requireAvatar ? 'Use photo' : last ? 'Get started' : 'Next'}
           </Button>
         </div>
       </div>

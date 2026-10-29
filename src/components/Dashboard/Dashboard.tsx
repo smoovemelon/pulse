@@ -1,35 +1,42 @@
+import { useNotice } from '../../hooks/useNotice'
 import { usePulseEconomy } from '../../hooks/usePulseEconomy'
 import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
 import { Surface } from '../Common/primitives'
-import { FloatingCat } from '../FloatingCat'
 import { AnchorCard } from './AnchorCard'
 import { BalanceDisplay } from './BalanceDisplay'
+import { ProfilePhoto } from './ProfilePhoto'
 import { SplitCapsule } from './MomentumBar'
 import { StreakBadge } from './StreakBadge'
 
 export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void }) {
   const economy = usePulseEconomy()
-  const { anchor } = useSettings()
+  const { anchor, avatar, saveAvatar } = useSettings()
   const { feedback } = useSensory()
+  const { notify } = useNotice()
 
   return (
     <>
-      <div className="relative">
-        <FloatingCat />
-        <Surface data-tour="balance" className="relative z-10 flex flex-col gap-4 overflow-hidden p-5">
-          <div className="relative">
-            <BalanceDisplay balance={economy.balance} />
-          </div>
-          <AnchorCard
-            anchor={anchor}
-            onEdit={() => {
-              feedback('click')
-              onEditAnchor()
+      <Surface data-tour="balance" className="flex flex-col gap-4 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <BalanceDisplay balance={economy.balance} />
+          <ProfilePhoto
+            avatar={avatar}
+            onChange={(dataUrl) => saveAvatar(dataUrl)}
+            onError={() => {
+              feedback('error')
+              notify('Choose an image')
             }}
           />
-        </Surface>
-      </div>
+        </div>
+        <AnchorCard
+          anchor={anchor}
+          onEdit={() => {
+            feedback('click')
+            onEditAnchor()
+          }}
+        />
+      </Surface>
       <Surface data-tour="day" className="flex flex-col gap-3 p-4">
         <SplitCapsule
           earned={economy.todayEarned}

@@ -16,7 +16,9 @@ export interface SettingsApi {
   saveApiKey: (value: string) => void
   saveAnchor: (value: string) => boolean
   readonly username: string
+  readonly avatar: string
   saveUsername: (value: string, options?: { readonly quiet?: boolean }) => boolean
+  saveAvatar: (value: string, options?: { readonly quiet?: boolean }) => boolean
   toggleTheme: () => void
   checkKey: (candidate?: string) => Promise<void>
   readonly demoMode: boolean
@@ -94,6 +96,14 @@ export function useSettingsController(): SettingsApi {
     [commit, feedback, notify, read],
   )
 
+  const saveAvatar = useCallback((value: string, options?: { readonly quiet?: boolean }) => {
+    if (!value.startsWith('data:image/')) return false
+    commit({ ...read(), avatar: value })
+    feedback('click')
+    if (!options?.quiet) notify('Photo updated')
+    return true
+  }, [commit, feedback, notify, read])
+
   const toggleTheme = useCallback(() => {
     feedback('click')
     commit({
@@ -116,6 +126,7 @@ export function useSettingsController(): SettingsApi {
       ...freshState(),
       demoMode: current.demoMode,
       username: current.username,
+      avatar: current.avatar,
       isOnboarded: current.isOnboarded,
     })
     setDecayAlert(null)
@@ -184,7 +195,9 @@ export function useSettingsController(): SettingsApi {
     saveApiKey,
     saveAnchor,
     username: state.username,
+    avatar: state.avatar,
     saveUsername,
+    saveAvatar,
     toggleTheme,
     checkKey,
     demoMode: state.demoMode,

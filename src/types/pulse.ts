@@ -81,6 +81,7 @@ export interface PulseState {
   readonly difficultyLocked: boolean
   readonly streakState: StreakState
   readonly username: string
+  readonly avatar: string
   readonly isOnboarded: boolean
   readonly transactions: readonly Transaction[]
   readonly vaultItems: readonly VaultItem[]

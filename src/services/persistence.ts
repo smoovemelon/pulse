@@ -28,6 +28,7 @@ const KEYS = {
   streakCount: 'pulse_streak_count',
   streakState: 'pulse_streak_state',
   username: 'pulse_username',
+  avatar: 'pulse_avatar',
   onboarded: 'pulse_onboarded',
   discipline: 'pulse_discipline',
 } as const
@@ -222,6 +223,7 @@ export function freshState(): PulseState {
     streakCount: 0,
     streakState: 'STALLED',
     username: '',
+    avatar: '',
     isOnboarded: false,
     transactions: [],
     vaultItems: [],
@@ -297,6 +299,7 @@ export function loadState(): PulseState {
     demoMode: localStorage.getItem(KEYS.demo) === 'true',
     streakState: streak.streakState,
     username: localStorage.getItem(KEYS.username) ?? '',
+    avatar: localStorage.getItem(KEYS.avatar) ?? '',
     isOnboarded: localStorage.getItem(KEYS.onboarded) === 'true',
     transactions,
     vaultItems: storedVault === null ? [] : (parseVaultItems(readUnknown(KEYS.vault)) ?? []),
@@ -317,6 +320,8 @@ export function saveState(state: PulseState) {
   localStorage.setItem(KEYS.streakCount, String(state.forgeStreak))
   localStorage.setItem(KEYS.streakState, state.streakState)
   localStorage.setItem(KEYS.username, state.username)
+  if (state.avatar) localStorage.setItem(KEYS.avatar, state.avatar)
+  else localStorage.removeItem(KEYS.avatar)
   localStorage.setItem(KEYS.onboarded, String(state.isOnboarded))
   localStorage.setItem(KEYS.theme, state.theme)
   localStorage.setItem(KEYS.discipline, JSON.stringify(disciplineSlice(state)))
@@ -355,6 +360,7 @@ export function readDemoSnapshot(): PulseState | null {
       demoMode: false,
       streakState: streak.streakState,
       username: typeof parsed.username === 'string' ? parsed.username : '',
+      avatar: typeof parsed.avatar === 'string' ? parsed.avatar : '',
       isOnboarded: parsed.isOnboarded === true,
       transactions,
       vaultItems,
@@ -440,6 +446,8 @@ export function serializeBackup(state: PulseState): string {
   else delete storage[KEYS.demo]
   if (state.apiKey) storage[KEYS.apiKey] = state.apiKey
   else delete storage[KEYS.apiKey]
+  if (state.avatar) storage[KEYS.avatar] = state.avatar
+  else delete storage[KEYS.avatar]
 
   return JSON.stringify(
     {
@@ -535,6 +543,7 @@ export function mergeBackup(current: PulseState, parsed: unknown): PulseState {
     vaultItems: vaultItems ?? current.vaultItems,
     soundEnabled: typeof source.soundEnabled === 'boolean' ? source.soundEnabled : current.soundEnabled,
     username: typeof source.username === 'string' ? source.username : current.username,
+    avatar: typeof source.avatar === 'string' && source.avatar.startsWith('data:image/') ? source.avatar : current.avatar,
     isOnboarded: typeof source.isOnboarded === 'boolean' ? source.isOnboarded : current.isOnboarded,
   }
 }

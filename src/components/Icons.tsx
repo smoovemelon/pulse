@@ -356,6 +356,15 @@ export function FoundationIcon({ className = 'w-5 h-5' }: IconProps) {
   )
 }
 
+export function ProfileIcon({ className = 'w-5 h-5' }: IconProps) {
+  return (
+    <Svg className={className} strokeWidth={1.85}>
+      <circle cx="12" cy="8.6" r="3" />
+      <path d="M5.4 19.2a6.6 6.6 0 0 1 13.2 0" />
+    </Svg>
+  )
+}
+
 export function CategoryIcon({ kind, className = 'w-4 h-4' }: IconProps & { kind: 'gaming' | 'food' | 'items' | 'events' }) {
   if (kind === 'gaming') return <GamingIcon className={className} />
   if (kind === 'food') return <FoodIcon className={className} />
