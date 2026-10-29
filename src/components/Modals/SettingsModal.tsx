@@ -6,11 +6,11 @@ import { Button } from '../Common/Button'
 import { DifficultyDial } from '../Common/DifficultyDial'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
 import { Well } from '../Common/primitives'
-import { CheckIcon, ChevronIcon, DownloadIcon, UploadIcon } from '../Icons'
+import { CheckIcon, ChevronIcon, DownloadIcon, MoonIcon, SunIcon, UploadIcon, VolumeOff, VolumeOn } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
-  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo, username, saveUsername } = useSettings()
-  const { feedback } = useSensory()
+  const { saveApiKey, checkKey, apiKey, keyBadge, keyBadgeClass, exportBackup, importBackup, startFresh, demoMode, toggleDemo, username, saveUsername, theme, toggleTheme } = useSettings()
+  const { feedback, soundEnabled, toggleSound } = useSensory()
   const [key, setKey] = useState(apiKey)
   const [name, setName] = useState(username)
   const [formulasOpen, setFormulasOpen] = useState(false)
@@ -34,6 +34,39 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
           <CloseButton onClick={onClose} />
         </div>
       </div>
+
+      <Well className="flex flex-col gap-3 px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2 text-xs font-extrabold tracking-tight text-ink">
+            {theme === 'dark' ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+            Appearance
+          </span>
+          <Button
+            tone="card"
+            data-testid="theme-toggle"
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            onClick={toggleTheme}
+            className="shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-black text-ink"
+          >
+            {theme === 'dark' ? 'Dark' : 'Light'}
+          </Button>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2 text-xs font-extrabold tracking-tight text-ink">
+            {soundEnabled ? <VolumeOn className="h-4 w-4" /> : <VolumeOff className="h-4 w-4" />}
+            Sound
+          </span>
+          <Button
+            tone="card"
+            data-testid="sound-toggle"
+            aria-label="Toggle Sound"
+            onClick={toggleSound}
+            className={`shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-black ${soundEnabled ? 'text-ink' : 'text-muted'}`}
+          >
+            {soundEnabled ? 'On' : 'Muted'}
+          </Button>
+        </div>
+      </Well>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="display-name" className="eyebrow eyebrow-muted">

@@ -3,11 +3,11 @@ import { useSensory } from '../hooks/useSensory'
 import { useSettings } from '../hooks/useSettings'
 import { greetingDate, greetingLine } from '../lib/greeting'
 import { Button } from './Common/Button'
-import { GuideIcon, MoonIcon, SettingsIcon, SunIcon, VolumeOff, VolumeOn } from './Icons'
+import { GuideIcon, SettingsIcon } from './Icons'
 
 export function Header({ onOpenSettings, onOpenIntro }: { onOpenSettings: () => void; onOpenIntro: () => void }) {
-  const { theme, toggleTheme, username } = useSettings()
-  const { soundEnabled, toggleSound, feedback } = useSensory()
+  const { username } = useSettings()
+  const { feedback } = useSensory()
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
@@ -28,16 +28,6 @@ export function Header({ onOpenSettings, onOpenIntro }: { onOpenSettings: () => 
       <div className="flex shrink-0 items-center gap-2">
         <HeaderButton label="Open tutorial" testId="open-intro" onClick={() => { feedback('click'); onOpenIntro() }}>
           <GuideIcon className="h-5 w-5" />
-        </HeaderButton>
-        <HeaderButton
-          label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          testId="theme-toggle"
-          onClick={toggleTheme}
-        >
-          {theme === 'dark' ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
-        </HeaderButton>
-        <HeaderButton label="Toggle Sound" testId="sound-toggle" onClick={toggleSound}>
-          {soundEnabled ? <VolumeOn className="h-5 w-5" /> : <VolumeOff className="h-5 w-5" />}
         </HeaderButton>
         <HeaderButton label="Settings" testId="open-settings" onClick={() => { feedback('click'); onOpenSettings() }}>
           <SettingsIcon className="h-5 w-5" />
