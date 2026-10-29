@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useHabits } from '../../hooks/useHabits'
 import { createId } from '../../lib/id'
-import { deckComplete } from '../../services/engine'
+import { clampHabitMinutes, deckComplete, HABIT_MINUTES_DEFAULT, HABIT_MINUTES_MAX, HABIT_MINUTES_MIN, HABIT_MINUTES_STEP } from '../../services/engine'
 import type { HabitDeck } from '../../types'
 import { Button } from '../Common/Button'
+import { MinusIcon, PlusIcon } from '../Icons'
 import { Well } from '../Common/primitives'
 import { TimePop } from '../Common/TimePop'
 import { DECK_FACE } from './deckFace'
@@ -28,6 +29,13 @@ export function DeckSettings() {
     setDecks((current) => current.map((deck, index) => index === deckIndex
       ? { ...deck, habits: deck.habits.map((habit, item) => item === habitIndex ? { ...habit, title: title.slice(0, 60) } : habit) }
       : deck))
+  }
+
+  const updateMinutes = (deckIndex: number, habitIndex: number, minutes: number) => {
+    const next = decks.map((deck, index) => index === deckIndex
+      ? { ...deck, habits: deck.habits.map((habit, item) => item === habitIndex ? { ...habit, minutes } : habit) }
+      : deck)
+    setDecks(habits.saveHabitDraft(next).map((deck) => ({ ...deck, habits: deck.habits.map((habit) => ({ ...habit })) })))
   }
 
   return (
@@ -61,8 +69,8 @@ export function DeckSettings() {
             </div>
             <div className="flex flex-col gap-1.5">
               {deck.habits.map((habit, habitIndex) => (
-                <div key={habit.id} className="habit-groove flex items-center justify-between gap-2 rounded-2xl border border-line px-2.5 py-2 focus-within:border-ink">
-                  <span className="flex min-w-0 flex-1 items-center gap-2">
+                <div key={habit.id} className="habit-groove flex flex-col gap-1.5 rounded-2xl border border-line px-2.5 py-2 focus-within:border-ink">
+                  <span className="flex min-w-0 items-center gap-2">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line font-num text-[10px] text-faint">
                       {habitIndex + 1}
                     </span>
@@ -73,9 +81,32 @@ export function DeckSettings() {
                       onChange={(event) => updateTitle(deckIndex, habitIndex, event.target.value)}
                       className="plain-input min-h-5 text-xs font-bold text-ink"
                     />
+                    <span className="shrink-0 rounded-full border border-line bg-well px-2 py-0.5 font-num text-[10px] text-muted">
+                      {habit.points > 0 ? habit.points : '—'}
+                    </span>
                   </span>
-                  <span className="shrink-0 rounded-full border border-line bg-well px-2 py-0.5 font-num text-[10px] text-muted">
-                    {habit.points > 0 ? habit.points : '—'}
+                  <span className="flex items-center justify-end gap-1.5">
+                    <button
+                      type="button"
+                      aria-label={`Decrease ${deck.name} habit ${habitIndex + 1} duration`}
+                      disabled={clampHabitMinutes(habit.minutes) <= HABIT_MINUTES_MIN}
+                      onClick={() => updateMinutes(deckIndex, habitIndex, clampHabitMinutes(habit.minutes) - HABIT_MINUTES_STEP)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-body depth-well active:scale-90 disabled:opacity-40"
+                    >
+                      <MinusIcon />
+                    </button>
+                    <span className="min-w-[42px] text-center font-num text-xs font-extrabold text-ink">
+                      {clampHabitMinutes(habit.minutes)}m
+                    </span>
+                    <button
+                      type="button"
+                      aria-label={`Increase ${deck.name} habit ${habitIndex + 1} duration`}
+                      disabled={clampHabitMinutes(habit.minutes) >= HABIT_MINUTES_MAX}
+                      onClick={() => updateMinutes(deckIndex, habitIndex, clampHabitMinutes(habit.minutes) + HABIT_MINUTES_STEP)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-body depth-well active:scale-90 disabled:opacity-40"
+                    >
+                      <PlusIcon className="h-3.5 w-3.5" />
+                    </button>
                   </span>
                 </div>
               ))}
@@ -84,7 +115,7 @@ export function DeckSettings() {
               <Button
                 tone="card"
                 disabled={deck.habits.length >= 5}
-                onClick={() => setDecks((current) => current.map((item, index) => index === deckIndex ? { ...item, habits: [...item.habits, { id: createId('h'), title: 'New habit', points: 0, strain: 'MEDIUM', relevance: 'GENERAL' }] } : item))}
+                onClick={() => setDecks((current) => current.map((item, index) => index === deckIndex ? { ...item, habits: [...item.habits, { id: createId('h'), title: 'New habit', points: 0, strain: 'MEDIUM', relevance: 'GENERAL', minutes: HABIT_MINUTES_DEFAULT }] } : item))}
                 className="rounded-xl px-3 py-2 text-[10px] font-extrabold disabled:opacity-40"
               >
                 Add
@@ -105,7 +136,7 @@ export function DeckSettings() {
         {judging ? 'Judging habits' : blocked ? 'Decks locked today' : 'Judge habits'}
       </Button>
       <p className="text-[10px] font-bold leading-relaxed text-faint">
-        Judge habits scores every card and writes a point value on each habit.
+        A longer habit earns a larger share. Strain, relevance, and weight still multiply that time. Judge habits scores every card.
         {habits.habitsNeedScore ? ' Scores stay on-device until a Gemini key can rate them.' : ''}
       </p>
       <Well className="flex flex-col gap-2 px-3 py-3">

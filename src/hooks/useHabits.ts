@@ -3,6 +3,7 @@ import { localDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
 import { buildHabitPayload, callGemini } from '../lib/gemini'
 import {
+  clampHabitMinutes,
   clampHabitTitle,
   clearDeckWarning,
   cooldownRemaining,
@@ -66,7 +67,7 @@ export function useHabitsController() {
           timestamp: new Date().toISOString(),
           date: localDateKey(),
           reasoning: 'Habit deck bounty',
-          formula_breakdown: `${open.habit.points} PTS habit share`,
+          formula_breakdown: `${open.habit.points} PTS · ${clampHabitMinutes(open.habit.minutes)}m`,
         },
         ...current.transactions,
       ]
@@ -118,6 +119,21 @@ export function useHabitsController() {
     [commit, feedback, notify, read],
   )
 
+  const saveHabitDraft = useCallback(
+    (decks: readonly HabitDeck[]) => {
+      const cleaned = decks.map((deck) => ({
+        ...deck,
+        name: deck.name.trim(),
+        habits: deck.habits.map((habit) => ({ ...habit, title: clampHabitTitle(habit.title), minutes: clampHabitMinutes(habit.minutes) })),
+      }))
+      const scored = distributeHabitPoints(cleaned)
+      if (!decksAreValid(cleaned)) return scored
+      commit({ ...read(), decks: scored })
+      return scored
+    },
+    [commit, read],
+  )
+
   const saveDecks = useCallback(
     async (decks: readonly HabitDeck[]) => {
       const current = read()
@@ -129,7 +145,7 @@ export function useHabitsController() {
       const cleaned = decks.map((deck) => ({
         ...deck,
         name: deck.name.trim(),
-        habits: deck.habits.map((habit) => ({ ...habit, title: clampHabitTitle(habit.title) })),
+        habits: deck.habits.map((habit) => ({ ...habit, title: clampHabitTitle(habit.title), minutes: clampHabitMinutes(habit.minutes) })),
       }))
       const invalid = decksAreValid(cleaned)
       if (invalid) {
@@ -190,6 +206,7 @@ export function useHabitsController() {
     usePto,
     savePacing,
     saveDecks,
+    saveHabitDraft,
   }
 }
 

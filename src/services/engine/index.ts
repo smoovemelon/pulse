@@ -2,12 +2,17 @@ export { calculateActionPoints, evaluateAnchorAction, localActionFallback } from
 export { coerceJudgment, offlineJudgment, scoreJudgment, weightClassLabel } from './judging'
 export {
   allDecksComplete,
+  clampHabitMinutes,
   clampHabitTitle,
   deckComplete,
   decksAreValid,
   defaultDecks,
   distributeHabitPoints,
   emptyHabitDay,
+  HABIT_MINUTES_DEFAULT,
+  HABIT_MINUTES_MAX,
+  HABIT_MINUTES_MIN,
+  HABIT_MINUTES_STEP,
   habitWeight,
   nextOpenHabit,
   unfinishedHabits,

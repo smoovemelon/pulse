@@ -5,8 +5,13 @@ const STRAIN_POINTS = { HIGH: 60, MEDIUM: 40, LOW: 20 } as const
 const RELEVANCE_MULT = { DIRECT: 1, ENABLING: 0.75, GENERAL: 0.5 } as const
 const WEIGHT_MULT = { HEAVYWEIGHT: 2, CRUISERWEIGHT: 1.5, LIGHTWEIGHT: 1 } as const
 
+export const HABIT_MINUTES_MIN = 5
+export const HABIT_MINUTES_MAX = 360
+export const HABIT_MINUTES_STEP = 5
+export const HABIT_MINUTES_DEFAULT = 15
+
 function habit(id: string, title: string, strain: StrainBand = 'MEDIUM', relevance: Relevance = 'GENERAL'): MicroHabit {
-  return { id, title, points: 0, strain, relevance }
+  return { id, title, points: 0, strain, relevance, minutes: HABIT_MINUTES_DEFAULT }
 }
 
 export function defaultDecks(): HabitDeck[] {
@@ -45,16 +50,17 @@ export function emptyHabitDay(date = localDateKey()): HabitDay {
   return { date, completedIds: [], clearedWarnings: [], shielded: false }
 }
 
-export function habitWordCount(title: string): number {
-  const words = clampHabitTitle(typeof title === 'string' ? title : '').split(' ').filter(Boolean)
-  return Math.max(1, words.length)
+export function clampHabitMinutes(value: unknown): number {
+  const rounded = Math.round(Number(value) / HABIT_MINUTES_STEP) * HABIT_MINUTES_STEP
+  if (!Number.isFinite(rounded)) return HABIT_MINUTES_DEFAULT
+  return Math.min(HABIT_MINUTES_MAX, Math.max(HABIT_MINUTES_MIN, rounded))
 }
 
-export function habitWeight(habit: Pick<MicroHabit, 'strain' | 'relevance' | 'title' | 'weightClass'>): number {
+export function habitWeight(habit: Pick<MicroHabit, 'strain' | 'relevance' | 'weightClass' | 'minutes'>): number {
   const strain = STRAIN_POINTS[habit.strain] ?? STRAIN_POINTS.MEDIUM
   const relevance = RELEVANCE_MULT[habit.relevance] ?? RELEVANCE_MULT.GENERAL
   const weight = WEIGHT_MULT[habit.weightClass ?? 'LIGHTWEIGHT'] ?? WEIGHT_MULT.LIGHTWEIGHT
-  return strain * relevance * weight * habitWordCount(habit.title)
+  return strain * relevance * weight * clampHabitMinutes(habit.minutes)
 }
 
 export function distributeHabitPoints(decks: readonly HabitDeck[]): HabitDeck[] {
@@ -88,7 +94,7 @@ export function distributeHabitPoints(decks: readonly HabitDeck[]): HabitDeck[] 
   return decks.map((deck) => ({
     ...deck,
     habits: deck.habits.map((item) => {
-      const next = { ...item, points: points[offset] ?? 1 }
+      const next = { ...item, minutes: clampHabitMinutes(item.minutes), points: points[offset] ?? 1 }
       offset += 1
       return next
     }),
