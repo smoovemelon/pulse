@@ -18,7 +18,6 @@ export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void 
       <div className="relative">
         <FloatingCat />
         <Surface data-tour="balance" className="relative z-10 flex flex-col gap-4 overflow-hidden p-5">
-          <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-gradient-to-br from-zinc-200/40 to-transparent blur-2xl" />
           <div className="relative">
             <BalanceDisplay balance={economy.balance} />
           </div>
