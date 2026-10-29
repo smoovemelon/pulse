@@ -357,6 +357,7 @@ html[data-theme='dark'] .depth-pill-active {
   background: var(--field);
   border: 1px solid var(--line);
   color: var(--ink);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.35;
 }
 
@@ -376,7 +377,10 @@ html[data-theme='dark'] .depth-pill-active {
   background: transparent;
   box-shadow: none;
   color: inherit;
-  font: inherit;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-style: normal;
   line-height: 1.35;
 }
 

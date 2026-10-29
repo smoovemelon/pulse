@@ -71,7 +71,7 @@ export function DeckSettings() {
                       maxLength={60}
                       aria-label={`${deck.name} habit ${habitIndex + 1}`}
                       onChange={(event) => updateTitle(deckIndex, habitIndex, event.target.value)}
-                      className="plain-input min-h-6 text-base font-bold text-ink"
+                      className="plain-input min-h-5 text-xs font-bold text-ink"
                     />
                   </span>
                   <span className="shrink-0 rounded-full border border-line bg-well px-2 py-0.5 font-num text-[10px] text-muted">
