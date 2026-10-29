@@ -84,17 +84,15 @@ export function repriceVault(items: readonly VaultItem[], config: EconomyConfig)
 }
 
 export function migrateLegacyVault(category: string, cost: number, id: string, title: string): VaultItem | null {
+  const mapped = canonicalVaultCategory(category)
+  if (!mapped) return null
   const createdAt = new Date().toISOString()
-  if (category === 'Gaming') {
+  if (mapped === 'gaming') {
     const durationMinutes = Math.round((cost / 120) * 60)
     const baseCost = calculateVaultValuation('time', durationMinutes, BALANCED_ECONOMY).cost
     return { id, title, category: 'gaming', measurementType: 'time', durationMinutes, priceDollars: 0, baseCost, createdAt }
   }
-  if (category === 'Items' || category === 'Dining' || category === 'Events') {
-    const priceDollars = Math.round(cost / 20)
-    const mapped = canonicalVaultCategory(category) ?? 'items'
-    const baseCost = calculateVaultValuation('money', priceDollars, BALANCED_ECONOMY).cost
-    return { id, title, category: mapped, measurementType: 'money', durationMinutes: 0, priceDollars, baseCost, createdAt }
-  }
-  return null
+  const priceDollars = Math.round(cost / 20)
+  const baseCost = calculateVaultValuation('money', priceDollars, BALANCED_ECONOMY).cost
+  return { id, title, category: mapped, measurementType: 'money', durationMinutes: 0, priceDollars, baseCost, createdAt }
 }

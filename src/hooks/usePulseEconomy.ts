@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { localDateKey } from '../lib/dates'
 import { runDecayAudit } from '../services/audit'
-import { deckComplete, decayPenalty, earnedOn, forgeTarget, perkTier, streakStatusMessage, streakTier, weekStrip } from '../services/engine'
+import { deckComplete, decayPenalty, discountRate, earnedOn, forgeTarget, perkTier, streakStatusMessage, streakTier, weekStrip } from '../services/engine'
 import type { DecayAlert, StreakState, WeekDay } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -16,6 +16,7 @@ export interface EconomyApi {
   readonly chainStreak: number
   readonly tier: number
   readonly discountPercent: number
+  readonly warnings: number
   readonly decksComplete: number
   readonly graceFloor: number
   readonly streakMultiplier: number
@@ -58,7 +59,8 @@ export function useEconomyController(): EconomyApi {
     forgeStreak: state.forgeStreak,
     chainStreak: state.chainStreak,
     tier: perk.tier,
-    discountPercent: Math.round(perk.discount * 100),
+    discountPercent: Math.round(discountRate(state) * 100),
+    warnings: state.warnings.length,
     decksComplete: state.decks.filter((deck) => deckComplete(deck, state.habitDay.completedIds)).length,
     graceFloor: target * 0.5,
     streakMultiplier: 1,

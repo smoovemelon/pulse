@@ -4,7 +4,7 @@ import { deckComplete, nextOpenHabit } from '../../services/engine'
 import type { HabitDeck } from '../../types'
 import { Button } from '../Common/Button'
 import { Eyebrow, Surface, Well } from '../Common/primitives'
-import { EveningIcon, MiddayIcon, MorningIcon } from '../Icons'
+import { CheckIcon, EveningIcon, MiddayIcon, MorningIcon } from '../Icons'
 import { DeckSettings } from './DeckSettings'
 
 const DECK_FACE = [
@@ -151,7 +151,7 @@ function DeckCard({
                 <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-num text-[10px] ${
                   ready ? 'bg-canvas text-ink' : complete ? 'bg-ink text-canvas' : 'border border-line text-faint'
                 }`}>
-                  {complete ? '✓' : habitIndex + 1}
+                  {complete ? <CheckIcon className="h-3 w-3" /> : habitIndex + 1}
                 </span>
                 <span className={`truncate ${complete ? 'line-through' : ''}`}>{habit.title}</span>
               </span>

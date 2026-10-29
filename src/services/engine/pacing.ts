@@ -76,12 +76,17 @@ export function decayPenalty(chainStreak: number, forgeStreak: number): number {
   return perkTier(chainStreak, forgeStreak).tier >= 2 ? 20 : 15
 }
 
-export function discountRate(state: Pick<PulseState, 'chainStreak' | 'forgeStreak' | 'discountFrozenUntil'>, now = new Date()): number {
+type DiscountState = Pick<PulseState, 'chainStreak' | 'forgeStreak' | 'discountFrozenUntil'> & {
+  readonly warnings?: readonly WarningId[]
+}
+
+export function discountRate(state: DiscountState, now = new Date()): number {
+  if (state.warnings && state.warnings.length > 0) return 0
   if (state.discountFrozenUntil && Date.parse(state.discountFrozenUntil) > now.getTime()) return 0
   return perkTier(state.chainStreak, state.forgeStreak).discount
 }
 
-export function chargeCost(state: Pick<PulseState, 'chainStreak' | 'forgeStreak' | 'discountFrozenUntil'>, cost: number, now = new Date()): number {
+export function chargeCost(state: DiscountState, cost: number, now = new Date()): number {
   return Math.max(1, Math.round(cost * (1 - discountRate(state, now))))
 }
 

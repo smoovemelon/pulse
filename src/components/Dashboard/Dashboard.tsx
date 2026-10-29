@@ -40,6 +40,7 @@ export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void 
           chainStreak={economy.chainStreak}
           tier={economy.tier}
           discountPercent={economy.discountPercent}
+          warnings={economy.warnings}
         />
         <StreakBadge
           streak={economy.streak}
