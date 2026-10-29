@@ -31,11 +31,7 @@ export function DeckSettings() {
     <div className="flex flex-col gap-3">
       {decks.map((deck, deckIndex) => (
         <div key={deck.id} className="flex flex-col gap-1.5">
-          <input
-            value={deck.name}
-            onChange={(event) => setDecks((current) => current.map((item, index) => index === deckIndex ? { ...item, name: event.target.value } : item))}
-            className="field w-full rounded-xl px-3 py-2 text-xs font-extrabold"
-          />
+          <p className="px-1 text-xs font-extrabold tracking-tight text-ink">{deck.name}</p>
           {deck.habits.map((habit, habitIndex) => (
             <div key={habit.id} className="flex items-center gap-2">
               <input
