@@ -173,7 +173,7 @@ export function buildHabitPayload(anchor: string, habits: readonly { id: string;
     contents: [{ parts: [{ text: lines }] }],
     systemInstruction: {
       parts: [{
-        text: `Rate each habit against the anchor "${anchor}". Return JSON {"habits":[{"id":"...","strain":"HIGH|MEDIUM|LOW","relevance":"DIRECT|ENABLING|GENERAL"}]}. Use HIGH strain for hard friction and DIRECT only for a causal habit.`,
+        text: `Rate each habit against the anchor "${anchor}". Return JSON {"habits":[{"id":"...","strain":"HIGH|MEDIUM|LOW","relevance":"DIRECT|ENABLING|GENERAL","weightClass":"HEAVYWEIGHT|CRUISERWEIGHT|LIGHTWEIGHT"}]}. Use HIGH strain for hard friction, DIRECT only for a causal habit, and HEAVYWEIGHT only for a strong direct effort.`,
       }],
     },
     generationConfig: {

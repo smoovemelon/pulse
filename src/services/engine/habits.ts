@@ -3,6 +3,7 @@ import type { HabitDay, HabitDeck, MicroHabit, Relevance, StrainBand } from '../
 
 const STRAIN_POINTS = { HIGH: 60, MEDIUM: 40, LOW: 20 } as const
 const RELEVANCE_MULT = { DIRECT: 1, ENABLING: 0.75, GENERAL: 0.5 } as const
+const WEIGHT_MULT = { HEAVYWEIGHT: 2, CRUISERWEIGHT: 1.5, LIGHTWEIGHT: 1 } as const
 
 function habit(id: string, title: string, strain: StrainBand = 'MEDIUM', relevance: Relevance = 'GENERAL'): MicroHabit {
   return { id, title, points: 0, strain, relevance }
@@ -44,13 +45,21 @@ export function emptyHabitDay(date = localDateKey()): HabitDay {
   return { date, completedIds: [], clearedWarnings: [], shielded: false }
 }
 
-export function habitWeight(strain: StrainBand, relevance: Relevance): number {
-  return STRAIN_POINTS[strain] * RELEVANCE_MULT[relevance]
+export function habitWordCount(title: string): number {
+  const words = clampHabitTitle(typeof title === 'string' ? title : '').split(' ').filter(Boolean)
+  return Math.max(1, words.length)
+}
+
+export function habitWeight(habit: Pick<MicroHabit, 'strain' | 'relevance' | 'title' | 'weightClass'>): number {
+  const strain = STRAIN_POINTS[habit.strain] ?? STRAIN_POINTS.MEDIUM
+  const relevance = RELEVANCE_MULT[habit.relevance] ?? RELEVANCE_MULT.GENERAL
+  const weight = WEIGHT_MULT[habit.weightClass ?? 'LIGHTWEIGHT'] ?? WEIGHT_MULT.LIGHTWEIGHT
+  return strain * relevance * weight * habitWordCount(habit.title)
 }
 
 export function distributeHabitPoints(decks: readonly HabitDeck[]): HabitDeck[] {
   const habits = decks.flatMap((deck) => deck.habits)
-  const weights = habits.map((item) => habitWeight(item.strain, item.relevance))
+  const weights = habits.map((item) => habitWeight(item))
   const raw = weights.reduce((sum, weight) => sum + weight, 0) || 1
   const target = Math.min(85, Math.max(60, Math.round(raw)))
   const scale = target / raw

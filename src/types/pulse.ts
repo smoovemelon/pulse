@@ -103,6 +103,7 @@ export interface MicroHabit {
   readonly points: number
   readonly relevance: Relevance
   readonly strain: StrainBand
+  readonly weightClass?: JudgeWeight
 }
 
 export interface HabitDeck {

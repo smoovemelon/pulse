@@ -13,7 +13,7 @@ import {
   proposePacing,
   syncLiveDiscipline,
 } from '../services/engine'
-import type { HabitDeck, PulseState, Relevance, StrainBand } from '../types'
+import type { HabitDeck, JudgeWeight, PulseState, Relevance, StrainBand } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
 
@@ -23,6 +23,10 @@ function isStrain(value: unknown): value is StrainBand {
 
 function isRelevance(value: unknown): value is Relevance {
   return value === 'DIRECT' || value === 'ENABLING' || value === 'GENERAL'
+}
+
+function isWeight(value: unknown): value is JudgeWeight {
+  return value === 'HEAVYWEIGHT' || value === 'CRUISERWEIGHT' || value === 'LIGHTWEIGHT'
 }
 
 export function useHabitsController() {
@@ -62,7 +66,7 @@ export function useHabitsController() {
           timestamp: new Date().toISOString(),
           date: localDateKey(),
           reasoning: 'Habit deck bounty',
-          formula_breakdown: `${open.habit.points} PTS flat`,
+          formula_breakdown: `${open.habit.points} PTS habit share`,
         },
         ...current.transactions,
       ]
@@ -138,7 +142,7 @@ export function useHabitsController() {
       let offline = true
       if (current.apiKey.trim()) {
         try {
-          const { data } = await callGemini<{ habits?: { id?: string; strain?: StrainBand; relevance?: Relevance }[] }>(
+          const { data } = await callGemini<{ habits?: { id?: string; strain?: StrainBand; relevance?: Relevance; weightClass?: JudgeWeight }[] }>(
             buildHabitPayload(current.disciplineAnchor, habits),
             current.apiKey,
           )
@@ -151,6 +155,7 @@ export function useHabitsController() {
                 ...habit,
                 strain: isStrain(score?.strain) ? score.strain : 'MEDIUM',
                 relevance: isRelevance(score?.relevance) ? score.relevance : 'GENERAL',
+                weightClass: isWeight(score?.weightClass) ? score.weightClass : 'LIGHTWEIGHT',
               }
             }),
           }))

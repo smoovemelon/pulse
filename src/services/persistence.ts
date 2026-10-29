@@ -1,5 +1,5 @@
 import { DAILY_GOAL, DEFAULT_ANCHOR, localDateKey } from '../lib/dates'
-import { canonicalVaultCategory, disciplineDefaults, migrateLegacyVault, resolveStreak } from './engine'
+import { canonicalVaultCategory, disciplineDefaults, distributeHabitPoints, migrateLegacyVault, resolveStreak } from './engine'
 import type {
   EconomyConfig,
   PulseState,
@@ -55,6 +55,13 @@ function disciplineSlice(state: PulseState) {
   }
 }
 
+function canScoreDecks(decks: unknown): decks is PulseState['decks'] {
+  return Array.isArray(decks) && decks.every((deck) => {
+    if (!isRecord(deck) || !Array.isArray(deck.habits)) return false
+    return deck.habits.every((habit) => isRecord(habit) && typeof habit.title === 'string')
+  })
+}
+
 function readDiscipline(value: unknown) {
   const fallback = disciplineDefaults()
   const parsed = typeof value === 'string' ? readUnknownValue(value) : value
@@ -62,7 +69,7 @@ function readDiscipline(value: unknown) {
   return {
     ...fallback,
     ...(parsed as Partial<ReturnType<typeof disciplineDefaults>>),
-    decks: parsed.decks as PulseState['decks'],
+    decks: canScoreDecks(parsed.decks) ? distributeHabitPoints(parsed.decks) : (parsed.decks as PulseState['decks']),
     difficultyLocked: parsed.difficultyLocked === true,
     joinedAt: typeof parsed.joinedAt === 'string' ? parsed.joinedAt : '',
   }
