@@ -10,9 +10,9 @@ function Svg({ className, children, strokeWidth = 2 }: IconProps & { children: R
   )
 }
 
-export function VolumeOn({ className = 'w-4 h-4' }: IconProps) {
+export function VolumeOn({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className} strokeWidth={1.75}>
+    <Svg className={className} strokeWidth={1.85}>
       <path d="M4.25 8.7h3.15L11.5 4.25v15.5L7.4 15.3H4.25z" />
       <path d="M14.1 9.2a2.6 2.6 0 0 1 0 5.6" />
       <path d="M14.1 6.4a5.4 5.4 0 0 1 0 11.2" />
@@ -20,9 +20,9 @@ export function VolumeOn({ className = 'w-4 h-4' }: IconProps) {
   )
 }
 
-export function VolumeOff({ className = 'w-4 h-4' }: IconProps) {
+export function VolumeOff({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className} strokeWidth={1.75}>
+    <Svg className={className} strokeWidth={1.85}>
       <path d="M4.25 8.7h3.15L11.5 4.25v15.5L7.4 15.3H4.25z" />
       <path d="M14.2 7.1 19.4 16.9" />
       <path d="M19.4 7.1 14.2 16.9" />
@@ -30,23 +30,22 @@ export function VolumeOff({ className = 'w-4 h-4' }: IconProps) {
   )
 }
 
-export function GuideIcon({ className = 'w-4 h-4' }: IconProps) {
+export function GuideIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className} strokeWidth={1.75}>
+    <Svg className={className} strokeWidth={1.85}>
       <circle cx="12" cy="12" r="7.75" />
-      <path d="M9.9 9.7a2.25 2.25 0 1 1 3.35 2c-.7.4-1.1.95-1.1 1.8" />
-      <circle cx="12.15" cy="16.35" r="0.7" fill="currentColor" stroke="none" />
+      <path d="M9.85 9.65a2.3 2.3 0 1 1 3.4 2.05c-.7.42-1.1.95-1.1 1.85" />
+      <circle cx="12.15" cy="16.4" r="0.85" fill="currentColor" stroke="none" />
     </Svg>
   )
 }
 
-export function SettingsIcon({ className = 'w-4 h-4' }: IconProps) {
+export function SettingsIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className} strokeWidth={1.75}>
-      <g transform="translate(12 12) scale(0.78) translate(-12 -12)">
-        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-        <circle cx="12" cy="12" r="3" />
-      </g>
+    <Svg className={className} strokeWidth={1.85}>
+      <circle cx="12" cy="12" r="2.1" />
+      <circle cx="12" cy="12" r="4.65" />
+      <path d="M19.75 12h-1.35M17.48 6.52l-.95.95M12 4.25v1.35M6.52 6.52l.95.95M4.25 12h1.35M6.52 17.48l.95-.95M12 19.75v-1.35M17.48 17.48l-.95-.95" />
     </Svg>
   )
 }
@@ -257,19 +256,19 @@ export function TrashIcon({ className = 'w-3.5 h-3.5' }: IconProps) {
   )
 }
 
-export function SunIcon({ className = 'w-4 h-4' }: IconProps) {
+export function SunIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className} strokeWidth={1.75}>
-      <circle cx="12" cy="12" r="3.05" />
-      <path d="M12 4.25v3.35M12 16.4v3.35M4.25 12h3.35M16.4 12h3.35M6.52 6.52l2.37 2.37M15.11 15.11l2.37 2.37M17.48 6.52l-2.37 2.37M8.89 15.11 6.52 17.48" />
+    <Svg className={className} strokeWidth={1.85}>
+      <circle cx="12" cy="12" r="3.15" />
+      <path d="M12 4.25v3.2M12 16.55v3.2M4.25 12h3.2M16.55 12h3.2M6.52 6.52l2.26 2.26M15.22 15.22l2.26 2.26M17.48 6.52l-2.26 2.26M8.78 15.22 6.52 17.48" />
     </Svg>
   )
 }
 
-export function MoonIcon({ className = 'w-4 h-4' }: IconProps) {
+export function MoonIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className} strokeWidth={1.75}>
-      <path fill="currentColor" stroke="none" d="M18.38 6.06a7.75 7.75 0 1 0 0 11.88 6.2 6.2 0 0 1 0-11.88z" />
+    <Svg className={className} strokeWidth={1.85}>
+      <path d="M18.38 6.06a7.75 7.75 0 1 0 0 11.88" />
     </Svg>
   )
 }
