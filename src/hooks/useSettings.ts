@@ -3,7 +3,7 @@ import { callGemini } from '../lib/gemini'
 import { enterDemo, exitDemo } from '../services/demo'
 import { applyDifficulty, economyPreset } from '../services/engine'
 import type { EconomyDifficulty } from '../types'
-import { clearDemoSnapshot, clearIntroSeen, exportBackup as downloadBackup, freshState, mergeBackup, restoreStorageBackup } from '../services/persistence'
+import { clearDemoSnapshot, clearIntroSeen, deliverBackup, freshState, mergeBackup, restoreStorageBackup } from '../services/persistence'
 import { useCore } from './core'
 import { useSlices } from './slices'
 
@@ -114,8 +114,14 @@ export function useSettingsController(): SettingsApi {
 
   const exportBackup = useCallback(() => {
     feedback('click')
-    downloadBackup(read())
-    notify('Backup JSON exported successfully')
+    void deliverBackup(read())
+      .then((where) => {
+        notify(where === 'downloads' ? 'Backup saved to Downloads in the Files app' : 'Backup JSON exported successfully')
+      })
+      .catch(() => {
+        feedback('error')
+        notify('Could not save the backup')
+      })
   }, [feedback, notify, read])
 
   const startFresh = useCallback(() => {

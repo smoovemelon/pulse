@@ -461,16 +461,45 @@ export function serializeBackup(state: PulseState): string {
   )
 }
 
-export function exportBackup(state: PulseState) {
-  const blob = new Blob([serializeBackup(state)], { type: 'application/json' })
+const BACKUP_FILE = 'altius-backup.json'
+
+type AndroidBridge = {
+  isNativePlatform?: () => boolean
+  getPlatform?: () => string
+  nativePromise?: (plugin: string, method: string, options: { filename: string; data: string }) => Promise<{ uri?: string }>
+}
+
+function androidBridge(): AndroidBridge | null {
+  const cap = (globalThis as { Capacitor?: AndroidBridge }).Capacitor
+  if (!cap?.isNativePlatform?.() || cap.getPlatform?.() !== 'android' || !cap.nativePromise) return null
+  return cap
+}
+
+function downloadBackupJson(json: string) {
+  const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = 'altius-backup.json'
+  link.download = BACKUP_FILE
   document.body.appendChild(link)
   link.click()
   link.remove()
   URL.revokeObjectURL(url)
+}
+
+export function exportBackup(state: PulseState) {
+  downloadBackupJson(serializeBackup(state))
+}
+
+export async function deliverBackup(state: PulseState): Promise<'downloads' | 'download'> {
+  const json = serializeBackup(state)
+  const cap = androidBridge()
+  if (cap?.nativePromise) {
+    await cap.nativePromise('SaveBackup', 'save', { filename: BACKUP_FILE, data: json })
+    return 'downloads'
+  }
+  downloadBackupJson(json)
+  return 'download'
 }
 
 function assertStorageBackup(parsed: unknown): Record<string, string> {

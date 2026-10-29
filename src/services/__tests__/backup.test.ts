@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PulseState } from '../../types'
-import { freshState, loadState, restoreStorageBackup, saveState, serializeBackup } from '../persistence'
+import { deliverBackup, freshState, loadState, restoreStorageBackup, saveState, serializeBackup } from '../persistence'
 
 function memoryStorage() {
   const store = new Map<string, string>()
@@ -86,6 +86,40 @@ describe('storage backup', () => {
     expect(() => restoreStorageBackup({ storage: { pulse_balance: '1' } })).toThrow('Invalid backup JSON file')
     expect(localStorage.getItem('pulse_balance')).toBe('315')
     expect(localStorage.getItem('pulse_username')).toBe('melon')
+  })
+
+  it('downloads altius-backup.json in the browser', async () => {
+    memoryStorage()
+    const link = { href: '', download: '', click: vi.fn(), remove: vi.fn() }
+    vi.stubGlobal('document', { createElement: () => link, body: { appendChild: vi.fn() } })
+    vi.stubGlobal('URL', { createObjectURL: () => 'blob:backup', revokeObjectURL: vi.fn() })
+
+    const where = await deliverBackup(sample())
+
+    expect(where).toBe('download')
+    expect(link.download).toBe('altius-backup.json')
+    expect(link.href).toBe('blob:backup')
+    expect(link.click).toHaveBeenCalledOnce()
+  })
+
+  it('writes the Android backup into Downloads', async () => {
+    memoryStorage()
+    const nativePromise = vi.fn().mockResolvedValue({ uri: 'content://downloads/altius-backup.json' })
+    vi.stubGlobal('Capacitor', {
+      isNativePlatform: () => true,
+      getPlatform: () => 'android',
+      nativePromise,
+    })
+
+    const where = await deliverBackup(sample())
+
+    expect(where).toBe('downloads')
+    expect(nativePromise).toHaveBeenCalledOnce()
+    const [plugin, method, options] = nativePromise.mock.calls[0] as [string, string, { filename: string; data: string }]
+    expect(plugin).toBe('SaveBackup')
+    expect(method).toBe('save')
+    expect(options.filename).toBe('altius-backup.json')
+    expect(JSON.parse(options.data).storage.pulse_balance).toBe('315')
   })
 
   it('keeps an existing ledger when the profile tag is old', () => {

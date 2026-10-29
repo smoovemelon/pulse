@@ -157,8 +157,8 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
             <input
               data-testid="import-backup"
               type="file"
-              accept=".json"
-              className="hidden"
+              accept="application/json,.json,text/plain"
+              className="sr-only"
               onChange={(event) => {
                 const file = event.target.files?.[0]
                 event.target.value = ''
