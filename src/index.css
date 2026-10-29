@@ -406,25 +406,11 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
   animation: alertIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.warn-outline {
-  box-shadow:
-    0 0 0 1px rgb(245 158 11 / 0.7),
-    0 8px 24px -4px rgb(0 0 0 / 0.06);
-  animation: warnPulse 1.6s ease-in-out infinite;
-}
-
-@keyframes warnPulse {
-  0%,
-  100% { box-shadow: 0 0 0 1px rgb(245 158 11 / 0.7), 0 8px 24px -4px rgb(0 0 0 / 0.06); }
-  50% { box-shadow: 0 0 0 3px rgb(245 158 11 / 0.15), 0 8px 24px -4px rgb(0 0 0 / 0.06); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .intro-step,
   .streak-today-ring,
   .cat-float,
-  .alert-in,
-  .warn-outline {
+  .alert-in {
     animation: none;
   }
 }

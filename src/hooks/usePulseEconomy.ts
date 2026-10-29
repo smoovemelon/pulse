@@ -16,7 +16,6 @@ export interface EconomyApi {
   readonly chainStreak: number
   readonly tier: number
   readonly discountPercent: number
-  readonly warnings: number
   readonly decksComplete: number
   readonly graceFloor: number
   readonly streakMultiplier: number
@@ -60,7 +59,6 @@ export function useEconomyController(): EconomyApi {
     chainStreak: state.chainStreak,
     tier: perk.tier,
     discountPercent: Math.round(discountRate(state) * 100),
-    warnings: state.warnings.length,
     decksComplete: state.decks.filter((deck) => deckComplete(deck, state.habitDay.completedIds)).length,
     graceFloor: target * 0.5,
     streakMultiplier: 1,
