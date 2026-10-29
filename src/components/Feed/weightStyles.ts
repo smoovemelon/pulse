@@ -11,7 +11,7 @@ export function weightClassStyles(multiplier = 1) {
     return {
       badge: 'chip-indigo',
       dot: 'bg-indigo-500',
-      bar: 'bg-indigo-500',
+      bar: 'bg-emerald-500',
       label: 'Cruiserweight (1.5x)',
     }
   }
@@ -19,14 +19,14 @@ export function weightClassStyles(multiplier = 1) {
     return {
       badge: 'chip-zinc',
       dot: 'bg-zinc-500',
-      bar: 'bg-zinc-400',
+      bar: 'bg-emerald-500',
       label: 'Lightweight (0.5x)',
     }
   }
   return {
       badge: 'chip-zinc',
       dot: 'bg-zinc-400',
-      bar: 'bg-ink',
+      bar: 'bg-emerald-500',
     label: 'Middleweight (1.0x)',
   }
 }

@@ -45,8 +45,8 @@ export function SplitCapsule({
           role="img"
           aria-label={`Output ${earned} of ${goal} points. Foundation ${decksComplete} of 3 decks.`}
         >
-          <span className="absolute inset-y-0 right-1/2 bg-ink" style={{ width: `${forge / 2}%` }} />
-          <span className="absolute inset-y-0 left-1/2 bg-ink" style={{ width: `${chain / 2}%` }} />
+          <span className="absolute inset-y-0 right-1/2 bg-emerald-500" style={{ width: `${forge / 2}%` }} />
+          <span className="absolute inset-y-0 left-1/2 bg-emerald-500" style={{ width: `${chain / 2}%` }} />
         </div>
         <div data-testid="streak-chip" className="grid grid-cols-2 gap-2 border-t border-line pt-2.5">
           <div>

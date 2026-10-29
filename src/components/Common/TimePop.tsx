@@ -85,7 +85,7 @@ export function TimePop({
               aria-valuetext={spoken(draft)}
               onChange={(event) => setDraft(snap(Number(event.target.value)))}
               className="time-slider mt-4"
-              style={{ background: `linear-gradient(90deg, var(--ink) ${percent}%, var(--line) ${percent}%)` }}
+              style={{ background: `linear-gradient(90deg, #10b981 ${percent}%, var(--line) ${percent}%)` }}
             />
             <div className="mt-1 flex justify-between font-num text-[10px] font-bold text-faint">
               <span>12:00 AM</span>

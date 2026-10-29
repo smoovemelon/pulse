@@ -21,7 +21,7 @@ export function VaultProgressBar({
       </div>
       <div className="w-full bg-line h-1.5 rounded-full overflow-hidden">
         <div
-          className={`h-full transition-all duration-500 ${canAfford ? 'bg-emerald-500' : 'bg-ink'}`}
+          className="h-full bg-emerald-500 transition-all duration-500"
           style={{ width: `${percent}%` }}
         />
       </div>

@@ -290,7 +290,7 @@ export function IntroTour({
           {STEPS.map((item, index) => (
             <span
               key={item.title}
-              className={`h-1.5 rounded-full transition-all duration-300 ${index === step ? 'w-5 bg-ink' : 'w-1.5 bg-line'}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${index === step ? 'w-5 bg-emerald-500' : 'w-1.5 bg-line'}`}
             />
           ))}
         </div>

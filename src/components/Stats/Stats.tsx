@@ -46,7 +46,7 @@ export function Stats() {
                   <span className="absolute bottom-0 h-full w-2.5 rounded-full bg-well" />
                   <span className="absolute left-1/2 h-px w-3.5 -translate-x-1/2 bg-faint" style={{ bottom: `${goal}%` }} />
                   <span
-                    className="relative w-2.5 rounded-full bg-ink"
+                    className="relative w-2.5 rounded-full bg-emerald-500"
                     style={{ height: `${bar}%`, opacity: current ? 1 : 0.55 }}
                   />
                 </div>
@@ -59,7 +59,7 @@ export function Stats() {
         </div>
         <div className="flex items-center gap-4 text-[10px] font-bold text-muted">
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-ink" />
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
             Earned
           </span>
           <span className="inline-flex items-center gap-1.5">

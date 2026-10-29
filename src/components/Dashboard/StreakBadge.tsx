@@ -40,7 +40,7 @@ function DayMark({ day, goal }: { readonly day: WeekDay; readonly goal: number }
     : day.mark === 'today' || day.mark === 'missed'
       ? `${Math.round(ratio * 100)}%`
       : '0%'
-  const fill = day.mark === 'secured' || day.mark === 'today' ? 'bg-ink' : 'bg-faint'
+  const fill = day.mark === 'secured' || day.mark === 'today' ? 'bg-emerald-500' : 'bg-emerald-500/45'
   const track = day.mark === 'today' ? 'streak-today-ring bg-line' : 'bg-well'
 
   return (

@@ -120,7 +120,7 @@ function DeckCard({
             {deck.habits.map((habit) => (
               <span
                 key={habit.id}
-                className={`h-1 flex-1 rounded-full ${completedIds.includes(habit.id) ? 'bg-ink' : 'bg-line'}`}
+                className={`h-1 flex-1 rounded-full ${completedIds.includes(habit.id) ? 'bg-emerald-500' : 'bg-line'}`}
               />
             ))}
           </div>

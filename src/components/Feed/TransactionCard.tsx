@@ -77,7 +77,7 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
           </div>
           <div className="grid grid-cols-2 gap-2 h-1.5">
             <div className="bg-line rounded-full overflow-hidden">
-              <div className="bg-ink h-full rounded-full" style={{ width: `${(tx.effort_strain / 10) * 100}%` }} />
+              <div className="h-full rounded-full bg-emerald-500" style={{ width: `${(tx.effort_strain / 10) * 100}%` }} />
             </div>
             <div className="bg-line rounded-full overflow-hidden">
               <div className={`${weight.bar} h-full rounded-full`} style={{ width: `${((tx.anchor_alignment || 0) / 10) * 100}%` }} />
