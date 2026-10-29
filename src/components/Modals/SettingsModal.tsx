@@ -38,7 +38,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       <Well className="flex flex-col gap-3 px-4 py-3">
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 text-xs font-extrabold tracking-tight text-ink">
-            {theme === 'dark' ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+            {theme === 'dark' ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
             Appearance
           </span>
           <Button
@@ -53,7 +53,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
         </div>
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 text-xs font-extrabold tracking-tight text-ink">
-            {soundEnabled ? <VolumeOn className="h-4 w-4" /> : <VolumeOff className="h-4 w-4" />}
+            {soundEnabled ? <VolumeOn className="h-5 w-5" /> : <VolumeOff className="h-5 w-5" />}
             Sound
           </span>
           <Button

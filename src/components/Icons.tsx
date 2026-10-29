@@ -13,9 +13,9 @@ function Svg({ className, children, strokeWidth = 2 }: IconProps & { children: R
 export function VolumeOn({ className = 'w-5 h-5' }: IconProps) {
   return (
     <Svg className={className} strokeWidth={1.85}>
-      <path d="M4.25 8.7h3.15L11.5 4.25v15.5L7.4 15.3H4.25z" />
-      <path d="M14.1 9.2a2.6 2.6 0 0 1 0 5.6" />
-      <path d="M14.1 6.4a5.4 5.4 0 0 1 0 11.2" />
+      <path d="M4.5 8.7h3.1L12.1 4.4v15.2L7.6 15.3H4.5z" />
+      <path d="M14.8 9.6a3 3 0 0 1 0 4.8" />
+      <path d="M17.2 8.5a4.2 4.2 0 0 1 0 7" />
     </Svg>
   )
 }
@@ -23,9 +23,9 @@ export function VolumeOn({ className = 'w-5 h-5' }: IconProps) {
 export function VolumeOff({ className = 'w-5 h-5' }: IconProps) {
   return (
     <Svg className={className} strokeWidth={1.85}>
-      <path d="M4.25 8.7h3.15L11.5 4.25v15.5L7.4 15.3H4.25z" />
-      <path d="M14.2 7.1 19.4 16.9" />
-      <path d="M19.4 7.1 14.2 16.9" />
+      <path d="M4.5 8.7h3.1L12.1 4.4v15.2L7.6 15.3H4.5z" />
+      <path d="M14.8 8.4 19.4 15.6" />
+      <path d="M19.4 8.4 14.8 15.6" />
     </Svg>
   )
 }
@@ -34,8 +34,8 @@ export function GuideIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
     <Svg className={className} strokeWidth={1.85}>
       <circle cx="12" cy="12" r="7.75" />
-      <path d="M9.85 9.65a2.3 2.3 0 1 1 3.4 2.05c-.7.42-1.1.95-1.1 1.85" />
-      <circle cx="12.15" cy="16.4" r="0.85" fill="currentColor" stroke="none" />
+      <path d="M9.7 9.65a2.4 2.4 0 1 1 3.55 2.1C12.45 12.2 12 12.75 12 13.7" />
+      <circle cx="12" cy="16.2" r="0.9" fill="currentColor" stroke="none" />
     </Svg>
   )
 }
@@ -43,8 +43,8 @@ export function GuideIcon({ className = 'w-5 h-5' }: IconProps) {
 export function SettingsIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
     <Svg className={className} strokeWidth={1.85}>
-      <path d="M9.93 3.04h4.14l-.62 2.42 2.15.89 1.28-2.15 2.92 2.92-2.15 1.28.89 2.15 2.42-.62v4.14l-2.42-.62-.89 2.15 2.15 1.28-2.92 2.92-1.28-2.15-2.15.89.62 2.42H9.93l.62-2.42-2.15-.89-1.28 2.15-2.92-2.92 2.15-1.28-.89-2.15-2.42.62V9.93l2.42.62.89-2.15-2.15-1.28 2.92-2.92 1.28 2.15 2.15-.89z" />
-      <circle cx="12" cy="12" r="3.35" />
+      <path d="M10.52 4.39h2.96l.38 2.49 1.64.95 2.35-.91 1.48 2.56-1.96 1.57v1.9l1.96 1.57-1.48 2.56-2.35-.91-1.64.95-.38 2.49h-2.96l-.38-2.49-1.64-.95-2.35.91-1.48-2.56 1.96-1.57v-1.9l-1.96-1.57 1.48-2.56 2.35.91 1.64-.95z" />
+      <circle cx="12" cy="12" r="2.45" />
     </Svg>
   )
 }
@@ -190,12 +190,12 @@ export function AlertIcon({ className = 'w-6 h-6' }: IconProps) {
   )
 }
 
-export function InfoIcon({ className = 'w-3.5 h-3.5' }: IconProps) {
+export function InfoIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className}>
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="16" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
+    <Svg className={className} strokeWidth={1.85}>
+      <circle cx="12" cy="12" r="7.75" />
+      <path d="M12 11v5.15" />
+      <circle cx="12" cy="8.15" r="0.9" fill="currentColor" stroke="none" />
     </Svg>
   )
 }
@@ -259,7 +259,7 @@ export function SunIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
     <Svg className={className} strokeWidth={1.85}>
       <circle cx="12" cy="12" r="3.15" />
-      <path d="M12 4.25v3.2M12 16.55v3.2M4.25 12h3.2M16.55 12h3.2M6.52 6.52l2.26 2.26M15.22 15.22l2.26 2.26M17.48 6.52l-2.26 2.26M8.78 15.22 6.52 17.48" />
+      <path d="M12 4.25v2.55M12 17.2v2.55M4.25 12h2.55M17.2 12h2.55M6.55 6.55l1.8 1.8M15.65 15.65l1.8 1.8M17.45 6.55l-1.8 1.8M8.35 15.65l-1.8 1.8" />
     </Svg>
   )
 }
@@ -267,7 +267,7 @@ export function SunIcon({ className = 'w-5 h-5' }: IconProps) {
 export function MoonIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
     <Svg className={className} strokeWidth={1.85}>
-      <path d="M18.38 6.06a7.75 7.75 0 1 0 0 11.88" />
+      <path d="M17.6 4.7a7.75 7.75 0 1 0 0 14.6 6.15 6.15 0 0 1 0-14.6z" />
     </Svg>
   )
 }
