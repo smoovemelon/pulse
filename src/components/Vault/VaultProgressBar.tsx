@@ -19,7 +19,7 @@ export function VaultProgressBar({
           {canAfford ? 'Ready' : `Need ${shortfall} PTS`}
         </span>
       </div>
-      <div className="w-full bg-line h-1.5 rounded-full overflow-hidden">
+      <div className="meter-track h-1.5 w-full overflow-hidden rounded-full bg-line">
         <div
           className="h-full bg-emerald-500 transition-all duration-500"
           style={{ width: `${percent}%` }}

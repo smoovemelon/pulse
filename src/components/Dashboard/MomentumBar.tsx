@@ -41,12 +41,13 @@ export function SplitCapsule({
           </div>
         </div>
         <div
-          className="relative h-8 overflow-hidden rounded-full border border-zinc-400 bg-card dark:border-zinc-500"
+          className="capsule-channel relative h-8 overflow-hidden rounded-full border border-zinc-400/80 dark:border-zinc-600"
           role="img"
           aria-label={`Output ${earned} of ${goal} points. Foundation ${decksComplete} of 3 decks.`}
         >
-          <span className="absolute inset-y-0 right-1/2 bg-emerald-500" style={{ width: `${forge / 2}%` }} />
-          <span className="absolute inset-y-0 left-1/2 bg-emerald-500" style={{ width: `${chain / 2}%` }} />
+          <span className={`meter-fill absolute inset-y-0 right-1/2 bg-emerald-500 ${forge > 0 ? '' : 'opacity-0'}`} style={{ width: `${forge / 2}%` }} />
+          <span className={`meter-fill absolute inset-y-0 left-1/2 bg-emerald-500 ${chain > 0 ? '' : 'opacity-0'}`} style={{ width: `${chain / 2}%` }} />
+          <span className="capsule-seam absolute inset-y-1 left-1/2 z-[2] w-px -translate-x-1/2" aria-hidden="true" />
         </div>
         <div data-testid="streak-chip" className="grid grid-cols-2 gap-2 border-t border-line pt-2.5">
           <div>

@@ -44,7 +44,7 @@ function DayMark({ day, goal }: { readonly day: WeekDay; readonly goal: number }
   const track = day.mark === 'today' ? 'streak-today-ring bg-line' : 'bg-well'
 
   return (
-    <span aria-hidden="true" className={`relative block h-1.5 w-full overflow-hidden rounded-full ${track}`}>
+    <span aria-hidden="true" className={`meter-track relative block h-1.5 w-full overflow-hidden rounded-full ${track}`}>
       <span className={`absolute inset-y-0 left-0 rounded-full ${fill}`} style={{ width }} />
     </span>
   )

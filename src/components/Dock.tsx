@@ -18,8 +18,7 @@ export function Dock({
   return (
     <nav className="dock-bar">
       <div
-        className="pointer-events-auto relative grid w-full max-w-[430px] grid-cols-[1fr_1fr_72px_1fr_1fr] items-center rounded-[32px] border border-line p-2 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14)]"
-        style={{ background: 'var(--dock)', backdropFilter: 'blur(24px)' }}
+        className="dock-shell pointer-events-auto relative grid w-full max-w-[430px] grid-cols-[1fr_1fr_72px_1fr_1fr] items-center rounded-[32px] p-2"
       >
         <DockTabButton
           label="Feed"

@@ -43,7 +43,7 @@ export function Stats() {
             return (
               <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
                 <div className="relative flex h-28 w-full items-end justify-center">
-                  <span className="absolute bottom-0 h-full w-2.5 rounded-full bg-well" />
+                  <span className="meter-track absolute bottom-0 h-full w-2.5 rounded-full bg-well" />
                   <span className="absolute left-1/2 h-px w-3.5 -translate-x-1/2 bg-faint" style={{ bottom: `${goal}%` }} />
                   <span
                     className="relative w-2.5 rounded-full bg-emerald-500"

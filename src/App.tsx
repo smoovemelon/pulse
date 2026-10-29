@@ -94,7 +94,7 @@ function Shell() {
   }, [])
 
   return (
-    <div className="dock-clearance min-h-dvh bg-canvas text-ink">
+    <div className="dock-clearance min-h-dvh text-ink">
       <Toast />
       <div className="w-full max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4">
         <Header

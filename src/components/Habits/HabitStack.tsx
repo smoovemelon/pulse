@@ -120,7 +120,7 @@ function DeckCard({
             {deck.habits.map((habit) => (
               <span
                 key={habit.id}
-                className={`h-1 flex-1 rounded-full ${completedIds.includes(habit.id) ? 'bg-emerald-500' : 'bg-line'}`}
+                className={`meter-track h-1 flex-1 rounded-full ${completedIds.includes(habit.id) ? 'meter-fill bg-emerald-500' : 'bg-line'}`}
               />
             ))}
           </div>
@@ -143,8 +143,8 @@ function DeckCard({
                 ready
                   ? 'border-ink bg-ink text-canvas shadow-[0_8px_16px_-8px_rgba(0,0,0,0.45)]'
                   : complete
-                    ? 'border-line bg-card text-muted'
-                    : 'border-line bg-card text-faint'
+                    ? 'habit-groove border-line text-muted'
+                    : 'habit-groove border-line text-faint'
               }`}
             >
               <span className="flex min-w-0 items-center gap-2">
