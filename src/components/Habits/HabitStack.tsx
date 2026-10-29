@@ -4,14 +4,9 @@ import { deckComplete, nextOpenHabit } from '../../services/engine'
 import type { HabitDeck } from '../../types'
 import { Button } from '../Common/Button'
 import { Eyebrow, Surface, Well } from '../Common/primitives'
-import { CheckIcon, EveningIcon, MiddayIcon, MorningIcon } from '../Icons'
+import { CheckIcon } from '../Icons'
 import { DeckSettings } from './DeckSettings'
-
-const DECK_FACE = [
-  { chip: 'chip-amber', Icon: MorningIcon },
-  { chip: 'chip-sky', Icon: MiddayIcon },
-  { chip: 'chip-violet', Icon: EveningIcon },
-] as const
+import { DECK_FACE } from './deckFace'
 
 export function HabitStack() {
   const habits = useHabits()
@@ -61,7 +56,7 @@ export function HabitStack() {
         </div>
       </div>
       {habits.warnings.length > 0 && (
-        <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700">
+        <p className="chip-rose rounded-xl border px-3 py-2 text-[11px] font-bold">
           {habits.warnings.length} warning{habits.warnings.length === 1 ? '' : 's'} open. A heavyweight anchor log clears one.
         </p>
       )}

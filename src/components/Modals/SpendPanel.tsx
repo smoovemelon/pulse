@@ -94,10 +94,10 @@ function SpendPanel({ onSpent }: { readonly onSpent: () => void }) {
             Balance {balance.toLocaleString()}
           </span>
           {shortfall > 0 && (
-            <span className="text-[11px] font-extrabold text-rose-600 font-num text-center">Need {shortfall} more</span>
+            <span className="pts-spend text-center font-num text-[11px] font-extrabold">Need {shortfall} more</span>
           )}
           <span className="whitespace-nowrap text-right">
-            <span data-testid="spend-cost" className="text-2xl font-extrabold text-rose-600 font-num">
+            <span data-testid="spend-cost" className="pts-spend font-num text-2xl font-extrabold">
               {quote.cost > 0 ? `-${quote.cost.toLocaleString()}` : '0'}
             </span>
             <span className="text-xs font-extrabold text-faint font-num ml-0.5">PTS</span>

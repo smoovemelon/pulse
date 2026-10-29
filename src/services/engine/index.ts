@@ -30,8 +30,6 @@ export {
   syncLiveDiscipline,
 } from './pacing'
 export { forgeTarget, graceFloor } from './forge'
-export { auditDecay } from './decayAudit'
-export type { DecayAssessment } from './decayAudit'
 export { balanceAfterRemoval, isLockedTransaction, removalShortfall } from './history'
 export { currentStreak, earnedOn, lifetimeStats } from './momentum'
 export { progressWindow } from './progress'

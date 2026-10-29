@@ -41,7 +41,7 @@ export function SplitCapsule({
           </div>
         </div>
         <div
-          className="capsule-channel relative h-8 overflow-hidden rounded-full border border-zinc-400/80 dark:border-zinc-600"
+          className="capsule-channel relative h-8 overflow-hidden rounded-full border border-line"
           role="img"
           aria-label={`Output ${earned} of ${goal} points. Foundation ${decksComplete} of 3 decks.`}
         >

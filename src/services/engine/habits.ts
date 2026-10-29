@@ -57,18 +57,23 @@ export function distributeHabitPoints(decks: readonly HabitDeck[]): HabitDeck[] 
   const points = weights.map((weight) => Math.max(1, Math.round(weight * scale)))
   let drift = target - points.reduce((sum, value) => sum + value, 0)
   const order = points.map((_, index) => index).sort((a, b) => points[b] - points[a])
-  let cursor = 0
-  while (drift !== 0 && order.length > 0) {
-    const index = order[cursor % order.length]
-    if (drift > 0) {
-      points[index] += 1
-      drift -= 1
-    } else if (points[index] > 1) {
-      points[index] -= 1
-      drift += 1
+  let guard = 0
+  while (drift !== 0 && guard < habits.length) {
+    let moved = false
+    for (const index of order) {
+      if (drift === 0) break
+      if (drift > 0) {
+        points[index] += 1
+        drift -= 1
+        moved = true
+      } else if (points[index] > 1) {
+        points[index] -= 1
+        drift += 1
+        moved = true
+      }
     }
-    cursor += 1
-    if (cursor > habits.length * 4) break
+    if (!moved) break
+    guard += 1
   }
   let offset = 0
   return decks.map((deck) => ({

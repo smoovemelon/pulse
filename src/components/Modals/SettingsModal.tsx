@@ -272,7 +272,7 @@ function EconomyRules() {
           <p><Figure tone="spend">12 / 20 / 30 PTS per dollar</Figure></p>
         </Rule>
         <p>
-          <span className="font-extrabold text-rose-600 dark:text-rose-300">Spend now</span>
+          <span className="pts-spend font-extrabold">Spend now</span>
           {' uses these same prices and removes the points immediately.'}
         </p>
       </section>
@@ -305,16 +305,12 @@ function Tag({ chip, children }: { readonly chip: string; readonly children: str
 }
 
 function Figure({ tone = 'ink', children }: { readonly tone?: 'ink' | 'earn' | 'spend'; readonly children: ReactNode }) {
-  const color = tone === 'earn'
-    ? 'text-emerald-700 dark:text-emerald-300'
-    : tone === 'spend'
-      ? 'text-rose-600 dark:text-rose-300'
-      : 'text-ink'
+  const color = tone === 'earn' ? 'pts-earn' : tone === 'spend' ? 'pts-spend' : 'text-ink'
   return <span className={`font-num font-bold ${color}`}>{children}</span>
 }
 
 function Stat({ label, value, tone }: { readonly label: string; readonly value: string; readonly tone: 'earn' | 'spend' }) {
-  const color = tone === 'earn' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300'
+  const color = tone === 'earn' ? 'pts-earn' : 'pts-spend'
   return (
     <p className="flex items-center justify-between gap-3">
       <span>{label}</span>

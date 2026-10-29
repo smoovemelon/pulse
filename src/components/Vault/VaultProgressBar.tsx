@@ -15,7 +15,7 @@ export function VaultProgressBar({
         <span className="text-muted uppercase tracking-wider">
           Funded: {percent}% ({formulaTag})
         </span>
-        <span className={canAfford ? 'text-emerald-600 font-extrabold dark:text-emerald-300' : 'text-faint'}>
+        <span className={canAfford ? 'pts-earn font-extrabold' : 'text-faint'}>
           {canAfford ? 'Ready' : `Need ${shortfall} PTS`}
         </span>
       </div>

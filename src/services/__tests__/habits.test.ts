@@ -18,8 +18,20 @@ describe('habit decks', () => {
     const total = decks.reduce((sum, deck) => sum + deck.habits.reduce((inner, habit) => inner + habit.points, 0), 0)
     expect(decks).toHaveLength(3)
     expect(decks.every((deck) => deck.habits.length >= 3 && deck.habits.length <= 5)).toBe(true)
-    expect(total).toBeGreaterThanOrEqual(60)
-    expect(total).toBeLessThanOrEqual(85)
+    expect(total).toBe(85)
     expect(decks.every((deck) => deck.habits.every((habit) => habit.points >= 1))).toBe(true)
+  })
+
+  it('lands a full deck on the pool after rounding', () => {
+    const habit = (id: string) => ({ id, title: 'Block', points: 0, strain: 'LOW' as const, relevance: 'GENERAL' as const })
+    const deck = (id: string) => ({
+      id,
+      name: id,
+      habits: [habit(`${id}-1`), habit(`${id}-2`), habit(`${id}-3`), habit(`${id}-4`), habit(`${id}-5`)],
+    })
+    const decks = distributeHabitPoints([deck('deck-1'), deck('deck-2'), deck('deck-3')])
+    const total = decks.reduce((sum, item) => sum + item.habits.reduce((inner, entry) => inner + entry.points, 0), 0)
+    expect(total).toBe(85)
+    expect(decks.every((item) => item.habits.every((entry) => entry.points >= 1))).toBe(true)
   })
 })

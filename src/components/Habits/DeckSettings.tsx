@@ -6,13 +6,7 @@ import type { HabitDeck } from '../../types'
 import { Button } from '../Common/Button'
 import { Well } from '../Common/primitives'
 import { TimePop } from '../Common/TimePop'
-import { EveningIcon, MiddayIcon, MorningIcon } from '../Icons'
-
-const DECK_FACE = [
-  { chip: 'chip-amber', Icon: MorningIcon },
-  { chip: 'chip-sky', Icon: MiddayIcon },
-  { chip: 'chip-violet', Icon: EveningIcon },
-] as const
+import { DECK_FACE } from './deckFace'
 
 export function DeckSettings() {
   const habits = useHabits()

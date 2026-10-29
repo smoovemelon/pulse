@@ -43,7 +43,7 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
         </div>
         <div className="flex items-start gap-1 shrink-0">
           <div className="text-right">
-            <span className={`text-base font-extrabold font-num ${tx.type === 'EARN' ? 'text-emerald-600' : 'text-rose-600'}`}>
+            <span className={`text-base font-extrabold font-num ${tx.type === 'EARN' ? 'pts-earn' : 'pts-spend'}`}>
               {tx.type === 'EARN' ? `+${tx.points}` : `-${tx.points}`}
             </span>
             <span className="text-[10px] font-extrabold text-faint ml-0.5 font-num">PTS</span>
