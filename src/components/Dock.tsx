@@ -29,7 +29,7 @@ export function Dock({
             onTab('feed')
           }}
         >
-          <FeedIcon className="mb-0.5 h-5 w-5" />
+          <FeedIcon className="h-5 w-5" />
         </DockTabButton>
         <DockTabButton
           label="Foundation"
@@ -40,7 +40,7 @@ export function Dock({
             onTab('foundation')
           }}
         >
-          <FoundationIcon className="mb-0.5 h-5 w-5" />
+          <FoundationIcon className="h-5 w-5" />
         </DockTabButton>
         <div className="relative -top-3.5 flex items-center justify-center">
           <button
@@ -66,7 +66,7 @@ export function Dock({
             onTab('stats')
           }}
         >
-          <StatsIcon className="mb-0.5 h-5 w-5" />
+          <StatsIcon className="h-5 w-5" />
         </DockTabButton>
         <DockTabButton
           label="Vault"
@@ -77,7 +77,7 @@ export function Dock({
             onTab('vault')
           }}
         >
-          <VaultIcon className="mb-0.5 h-5 w-5" />
+          <VaultIcon className="h-5 w-5" />
         </DockTabButton>
       </div>
     </nav>
@@ -106,8 +106,10 @@ function DockTabButton({
         active ? 'text-ink' : 'text-faint'
       }`}
     >
-      <span className="dock-tab-mark flex flex-col items-center">
-        {children}
+      <span className="dock-tab-mark flex flex-col items-center gap-1">
+        <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${active ? 'bg-well' : ''}`}>
+          {children}
+        </span>
         <span className="max-w-full truncate text-[8px] font-extrabold uppercase tracking-wide">{label}</span>
       </span>
     </button>

@@ -165,22 +165,19 @@ export function SparkleIcon({ className = 'w-3.5 h-3.5' }: IconProps) {
 
 export function FeedIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className}>
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-      <polyline points="10 9 9 9 8 9" />
+    <Svg className={className} strokeWidth={1.85}>
+      <rect x="4.75" y="4.25" width="14.5" height="15.5" rx="3" />
+      <path d="M8 9.15h8M8 12.15h8M8 15.15h8" />
     </Svg>
   )
 }
 
 export function VaultIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className}>
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-      <circle cx="12" cy="16" r="1.5" />
+    <Svg className={className} strokeWidth={1.85}>
+      <rect x="5.25" y="10.5" width="13.5" height="9" rx="2.2" />
+      <path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" />
+      <circle cx="12" cy="15" r="1" fill="currentColor" stroke="none" />
     </Svg>
   )
 }
@@ -342,21 +339,21 @@ export function FoodIcon({ className = 'w-4 h-4' }: IconProps) {
 
 export function StatsIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className}>
-      <path d="M4 19V10" />
-      <path d="M10 19V5" />
-      <path d="M16 19v-6" />
-      <path d="M3 19h18" />
+    <Svg className={className} strokeWidth={1.85}>
+      <path d="M5 19.25h14" />
+      <path d="M7.5 18V10.5" />
+      <path d="M12 18V4.75" />
+      <path d="M16.5 18V12.5" />
     </Svg>
   )
 }
 
 export function FoundationIcon({ className = 'w-5 h-5' }: IconProps) {
   return (
-    <Svg className={className}>
-      <path d="M4 8h16" />
-      <path d="M6 12h12" />
-      <path d="M8 16h8" />
+    <Svg className={className} strokeWidth={1.85}>
+      <rect x="4.75" y="4.25" width="14.5" height="3.6" rx="1.8" />
+      <rect x="4.75" y="10.2" width="14.5" height="3.6" rx="1.8" />
+      <rect x="4.75" y="16.15" width="14.5" height="3.6" rx="1.8" />
     </Svg>
   )
 }
