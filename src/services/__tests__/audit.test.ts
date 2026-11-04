@@ -69,4 +69,40 @@ describe('output target and grace', () => {
     expect(settled.transactions[0]?.title).toBe('Elimination: Unfinished habits')
     expect(settled.balance).toBeGreaterThanOrEqual(0)
   })
+
+  it('clears yesterday foundation completions when the day rolls over', () => {
+    const bag = new Map<string, string>()
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => bag.get(key) ?? null,
+      setItem: (key: string, value: string) => { bag.set(key, value) },
+      removeItem: (key: string) => { bag.delete(key) },
+      clear: () => bag.clear(),
+    })
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-21T08:00:00'))
+    const habits = freshState().decks[0].habits.map((habit) => habit.id)
+    const result = runDecayAudit({
+      ...freshState(),
+      balance: 200,
+      lastAuditDate: '2026-10-20',
+      warnings: ['deck2'],
+      habitDay: {
+        date: '2026-10-20',
+        completedIds: habits,
+        clearedWarnings: [],
+        shielded: false,
+      },
+      transactions: [earn('2026-10-20', 120)],
+    })
+    expect(result.state.lastAuditDate).toBe('2026-10-21')
+    expect(result.state.habitDay).toEqual({
+      date: '2026-10-21',
+      completedIds: [],
+      clearedWarnings: [],
+      shielded: false,
+    })
+    expect(result.state.warnings).toEqual([])
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
 })

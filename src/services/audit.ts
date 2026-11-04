@@ -1,7 +1,7 @@
 import { localDateKey, localNoonIso, shiftDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
 import type { DecayAlert, PulseState, SpendTransaction } from '../types'
-import { advanceStreak, decayPenalty, earnedOn, forgeTarget, graceFloor, settleDiscipline } from './engine'
+import { advanceStreak, decayPenalty, earnedOn, emptyHabitDay, forgeTarget, graceFloor, settleDiscipline } from './engine'
 
 export interface AuditResult {
   readonly state: PulseState
@@ -116,8 +116,14 @@ export function runDecayAudit(state: PulseState, force = false): AuditResult {
   const closedThrough = days[days.length - 1] ?? shiftDateKey(today, -1)
   localStorage.setItem('pulse_last_audit', today)
   localStorage.setItem('pulse_streak_closed', closedThrough)
+  const rolled = cursor.habitDay.date < today
   return {
-    state: { ...cursor, lastAuditDate: today },
+    state: {
+      ...cursor,
+      lastAuditDate: today,
+      habitDay: rolled ? emptyHabitDay(today) : cursor.habitDay,
+      warnings: rolled ? [] : cursor.warnings,
+    },
     changed: true,
     alert,
     met,

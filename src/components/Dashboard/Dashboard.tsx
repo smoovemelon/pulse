@@ -16,8 +16,8 @@ export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void 
   const { notify } = useNotice()
 
   return (
-    <>
-      <Surface data-tour="balance" className="flex flex-col gap-4 p-5">
+    <Surface className="flex flex-col gap-4 p-5">
+      <div data-tour="balance" className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <BalanceDisplay balance={economy.balance} />
           <ProfilePhoto
@@ -36,8 +36,8 @@ export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void 
             onEditAnchor()
           }}
         />
-      </Surface>
-      <Surface data-tour="day" className="flex flex-col gap-3 p-4">
+      </div>
+      <div data-tour="day" className="flex flex-col gap-3">
         <SplitCapsule
           earned={economy.todayEarned}
           goal={economy.dailyGoal}
@@ -55,7 +55,7 @@ export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void 
           week={economy.week}
           goal={economy.dailyGoal}
         />
-      </Surface>
-    </>
+      </div>
+    </Surface>
   )
 }

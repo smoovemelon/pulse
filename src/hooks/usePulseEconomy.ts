@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { localDateKey } from '../lib/dates'
 import { runDecayAudit } from '../services/audit'
-import { deckComplete, decayPenalty, discountRate, earnedOn, forgeTarget, perkTier, streakStatusMessage, streakTier, weekStrip } from '../services/engine'
+import { deckComplete, decayPenalty, discountRate, earnedOn, forgeTarget, perkTier, streakStatusMessage, streakTier, syncLiveDiscipline, weekStrip } from '../services/engine'
 import type { DecayAlert, StreakState, WeekDay } from '../types'
 import { useCore } from './core'
 import { useSlices } from './slices'
@@ -30,8 +30,17 @@ export function useEconomyController(): EconomyApi {
   const { state, read, commit, notify, feedback, decayAlert, setDecayAlert } = useCore()
 
   const runAudit = useCallback(() => {
-    const result = runDecayAudit(read())
-    if (result.changed) commit(result.state)
+    const before = read()
+    const result = runDecayAudit(before)
+    const synced = syncLiveDiscipline(result.changed ? result.state : before)
+    const changed = result.changed
+      || synced.habitDay.date !== before.habitDay.date
+      || synced.habitDay.completedIds.join() !== before.habitDay.completedIds.join()
+      || synced.habitDay.clearedWarnings.join() !== before.habitDay.clearedWarnings.join()
+      || synced.warnings.join() !== before.warnings.join()
+      || synced.pacing.auditCutoff !== before.pacing.auditCutoff
+      || synced.joinedAt !== before.joinedAt
+    if (changed) commit(synced)
     if (result.alert) {
       setDecayAlert(result.alert)
       feedback('spend')
@@ -41,6 +50,8 @@ export function useEconomyController(): EconomyApi {
 
   useEffect(() => {
     runAudit()
+    const id = window.setInterval(runAudit, 30_000)
+    return () => window.clearInterval(id)
   }, [runAudit])
 
   const today = localDateKey()
