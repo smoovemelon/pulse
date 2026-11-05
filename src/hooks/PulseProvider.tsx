@@ -4,6 +4,7 @@ import { applyDocumentTheme, loadState, saveState } from '../services/persistenc
 import type { DecayAlert, FeedbackKind, PulseState } from '../types'
 import { CoreContext, useCore, type PulseCore } from './core'
 import { SliceContext, type PulseSlices } from './slices'
+import { TOAST_MS } from './useNotice'
 import { useHabitsController } from './useHabits'
 import { useEconomyController } from './usePulseEconomy'
 import { useLedgerController } from './useLedger'
@@ -58,7 +59,7 @@ export function PulseProvider({ children }: { children: ReactNode }) {
   const notify = useCallback((message: string) => {
     setToast(message)
     if (toastTimer.current) window.clearTimeout(toastTimer.current)
-    toastTimer.current = window.setTimeout(() => setToast(null), 4200)
+    toastTimer.current = window.setTimeout(() => setToast(null), TOAST_MS)
   }, [])
 
   const feedback = useCallback((type: FeedbackKind) => {

@@ -1,6 +1,6 @@
 import { localDateKey } from '../lib/dates'
-import type { PulseState, Transaction, VaultCategory, VaultItem } from '../types'
-import { BALANCED_ECONOMY, calculateActionPoints, calculateVaultValuation, replayStreak } from './engine'
+import type { ActionJudgmentResult, PulseState, Transaction, VaultCategory, VaultItem } from '../types'
+import { BALANCED_ECONOMY, calculateVaultValuation, replayStreak, scoreJudgment } from './engine'
 import { clearDemoSnapshot, readDemoSnapshot, saveDemoSnapshot } from './persistence'
 
 export const DEMO_ANCHOR = 'Be a studious student.'
@@ -30,24 +30,29 @@ function daysBefore(days: number) {
   return localDateKey(cursor)
 }
 
+function atLocal(dateKey: string, hours: number, minutes: number) {
+  const [year, month, day] = dateKey.split('-').map(Number)
+  return new Date(year, month - 1, day, hours, minutes).toISOString()
+}
+
 function earn(
   id: string,
   title: string,
-  strain: number,
-  alignment: number,
+  judgment: ActionJudgmentResult,
   minutes: number,
   daysAgo: number,
-  timestamp: string,
-  reasoning: string,
+  hours: number,
+  minutesOfDay: number,
 ): Transaction {
-  const score = calculateActionPoints(strain, alignment, minutes, title, title, reasoning)
+  const date = daysBefore(daysAgo)
+  const score = scoreJudgment(judgment, title, minutes)
   return {
     id,
     type: 'EARN',
     title: score.title,
     points: score.points,
-    timestamp,
-    date: daysBefore(daysAgo),
+    timestamp: atLocal(date, hours, minutesOfDay),
+    date,
     reasoning: score.reasoning,
     formula_breakdown: score.breakdown,
     effort_strain: score.strain,
@@ -81,48 +86,44 @@ function demoTransactions(): readonly Transaction[] {
       points: coffee.cost,
       category: 'items',
       formula_breakdown: coffee.tag,
-      timestamp: 'Today, 8:05 AM',
+      timestamp: atLocal(daysBefore(0), 8, 5),
       date: daysBefore(0),
     },
     earn(
       'demo-earn-problems',
       'Problem set block',
-      9,
-      9,
+      { strain: 'HIGH', relevance: 'DIRECT', weightClass: 'HEAVYWEIGHT', reasoning: 'Heavy session. The work sat directly on the anchor.' },
       60,
       0,
-      'Today, 9:00 AM',
-      'Heavy session. The work sat directly on the anchor.',
+      9,
+      0,
     ),
     earn(
       'demo-earn-review',
       'Review notes',
-      6,
-      6,
+      { strain: 'MEDIUM', relevance: 'DIRECT', weightClass: 'CRUISERWEIGHT', reasoning: 'Cruiserweight review. Useful, and shorter than the morning block.' },
       45,
       0,
-      'Today, 4:15 PM',
-      'Cruiserweight review. Useful, and shorter than the morning block.',
+      16,
+      15,
     ),
     earn(
       'demo-earn-library',
       'Library session',
-      8,
-      8.5,
+      { strain: 'HIGH', relevance: 'DIRECT', weightClass: 'HEAVYWEIGHT', reasoning: 'Yesterday cleared the daily target.' },
       75,
       1,
-      'Yesterday, 7:10 PM',
-      'Yesterday cleared the daily target.',
+      19,
+      10,
     ),
     earn(
       'demo-earn-stretch',
       'Short stretch',
-      3,
-      5,
+      { strain: 'LOW', relevance: 'GENERAL', weightClass: 'LIGHTWEIGHT', reasoning: 'Light work. It did not clear the daily target.' },
       20,
       2,
-      '2 days ago, 6:00 PM',
-      'Light middleweight work. It did not clear the daily target.',
+      18,
+      0,
     ),
   ]
 }

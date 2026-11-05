@@ -1,4 +1,4 @@
-import { formatTimestamp } from '../../lib/dates'
+import { formatHistoryTime } from '../../lib/dates'
 import { isLockedTransaction } from '../../services/engine'
 import { SparkleIcon, TrashIcon } from '../Icons'
 import { Button } from '../Common/Button'
@@ -37,7 +37,7 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
                 Off anchor
               </span>
             )}
-            <span className="text-[10px] text-faint font-bold">{formatTimestamp(tx.timestamp)}</span>
+            <span className="text-[10px] text-faint font-bold">{formatHistoryTime(tx.timestamp, tx.date)}</span>
           </div>
           <h4 className="text-sm font-extrabold text-ink mt-1.5 leading-snug tracking-tight break-words">{tx.title}</h4>
         </div>

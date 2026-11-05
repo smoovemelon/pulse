@@ -27,16 +27,7 @@ export function calculateVaultValuation(measurement: VaultMeasurement, amount: n
 
 These are the current numbers. Use them when a prompt does not state a different figure. A specific user prompt that sets a different number replaces the one below.
 
-Live Gemini judging uses categorical ratings only. Points are `round(strainPoints × relevance × weight × (duration / 45)^0.45)` with strain HIGH 60, MEDIUM 40, LOW 20; relevance DIRECT 1, ENABLING 0.75, GENERAL 0.5; weight HEAVYWEIGHT 2, CRUISERWEIGHT 1.5, LIGHTWEIGHT 1. Duration is clamped to 5–360 minutes. A 45-minute session leaves the rating product unchanged. An empty key or a failed call scores on device as GENERAL, MEDIUM, LIGHTWEIGHT, then that same formula. It does not call the network without a key.
-
-The alignment bands below only build the demo sample ledger in `calculateActionPoints`. They are not the live judge and not the on-device fallback:
-
-`Base = Strain (1–10) × 8 × (Duration_min / 45)^0.45`, then round. Alignment multiplies the base:
-
-- `>= 8.0` → 2.0× Heavyweight
-- `>= 6.0` and `< 8.0` → 1.5× Cruiserweight
-- `>= 4.0` and `< 6.0` → 1.0× Middleweight
-- `< 4.0` → 0.5× Lightweight, still at least 5 PTS
+Live Gemini judging uses categorical ratings only. Points are `round(strainPoints × relevance × weight × (duration / 45)^0.45)` with strain HIGH 60, MEDIUM 40, LOW 20; relevance DIRECT 1, ENABLING 0.75, GENERAL 0.5; weight HEAVYWEIGHT 2, CRUISERWEIGHT 1.5, LIGHTWEIGHT 1. Duration is clamped to 5–360 minutes. A 45-minute session leaves the rating product unchanged. An empty key or a failed call scores on device as GENERAL, MEDIUM, LIGHTWEIGHT, then that same formula. It does not call the network without a key. Demo earn rows use this formula.
 
 Default anchor text for a new user is `Your main goal`.
 

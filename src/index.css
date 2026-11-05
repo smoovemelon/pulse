@@ -534,11 +534,31 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
 
 
 .notice-pop {
-  background: var(--card);
-  border: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
   box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.05),
-    0 18px 40px -14px rgb(0 0 0 / 0.32);
+    inset 0 1px 0 #fff,
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 22px 44px -16px rgb(0 0 0 / 0.38);
+}
+
+html[data-theme='dark'] .notice-pop {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 2px 6px rgb(0 0 0 / 0.35),
+    0 22px 44px -16px rgb(0 0 0 / 0.72);
+}
+
+.notice-rail-earn { background: #047857; }
+.notice-rail-spend { background: #e11d48; }
+html[data-theme='dark'] .notice-rail-earn { background: #6ee7b7; }
+html[data-theme='dark'] .notice-rail-spend { background: #fda4af; }
+
+.notice-life {
+  animation: noticeLife 4.2s linear forwards;
+}
+
+@keyframes noticeLife {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }
 
 @keyframes alertIn {
@@ -550,10 +570,21 @@ html[data-theme='dark'] .chip-zinc { background: #27272a; color: #e4e4e7; border
   animation: alertIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.notice-pop.alert-in {
+  animation: noticeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes noticeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .intro-step,
   .streak-today-ring,
-  .alert-in {
+  .alert-in,
+  .notice-pop.alert-in,
+  .notice-life {
     animation: none;
   }
 }

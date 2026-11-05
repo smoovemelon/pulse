@@ -36,6 +36,17 @@ export function formatTimestamp(value: string, now = new Date()): string {
   return `${when}, ${time}`
 }
 
+export function formatHistoryTime(timestamp: string, dateKey: string, now = new Date()): string {
+  if (!Number.isNaN(Date.parse(timestamp))) return formatTimestamp(timestamp, now)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+    const [year, month, day] = dateKey.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
+    if (localDateKey(date) === localDateKey(now)) return 'Today'
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+  return timestamp
+}
+
 export const DAILY_GOAL = 120
 export const DEFAULT_ANCHOR = 'Your main goal'
 

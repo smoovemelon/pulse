@@ -5,15 +5,9 @@ import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
 import { disciplineDefaults } from '../engine'
 import { DEMO_ACTION, DEMO_ANCHOR, DEMO_BOUNTY, DEMO_SPEND, enterDemo, exitDemo } from '../demo'
-import { balanceAfterRemoval, calculateActionPoints, earnedOn, lifetimeStats, validateVaultDraft, weekStrip } from '../engine'
+import { balanceAfterRemoval, earnedOn, lifetimeStats, validateVaultDraft, weekStrip } from '../engine'
 import { shouldIntroduce } from '../intro'
 import { clearIntroSeen, freshState, hasSeenIntro, markIntroSeen, readDemoSnapshot } from '../persistence'
-
-const JUDGED = ['Session', 'Session', 'Logged work'] as const
-
-function score(strain: number, alignment: number, minutes: number) {
-  return calculateActionPoints(strain, alignment, minutes, ...JUDGED)
-}
 
 function earn(date: string, points: number): Transaction {
   return {
@@ -48,34 +42,6 @@ function ledger(partial: Partial<PulseState> = {}): PulseState {
     streakCount: partial.streakCount ?? partial.forgeStreak ?? 0,
   }
 }
-
-describe('action evaluation', () => {
-  it('scales a middleweight session from 15m through 45m to 90m', () => {
-    const short = score(8, 5, 15)
-    const baseline = score(8, 5, 45)
-    const long = score(8, 5, 90)
-
-    expect(short).toMatchObject({ duration: 15, basePoints: 39, multiplier: 1, points: 39, weightClass: 'Middleweight (1.0x)' })
-    expect(baseline).toMatchObject({ duration: 45, basePoints: 64, multiplier: 1, points: 64 })
-    expect(long).toMatchObject({ duration: 90, basePoints: 87, multiplier: 1, points: 87 })
-    expect(short.points).toBeLessThan(baseline.points)
-    expect(baseline.points).toBeLessThan(long.points)
-    expect(baseline.breakdown).toBe('Base: 64 (Strain 8.0 @ 45m) × 1x (Middleweight)')
-  })
-
-  it('applies heavyweight, cruiserweight, and middleweight multipliers at a 45m baseline', () => {
-    const heavy = score(10, 8, 45)
-    const cruiser = score(10, 6, 45)
-    const middle = score(10, 4, 45)
-
-    expect(heavy).toMatchObject({ basePoints: 80, multiplier: 2, points: 160, weightClass: 'Heavyweight (2.0x)' })
-    expect(cruiser).toMatchObject({ basePoints: 80, multiplier: 1.5, points: 120, weightClass: 'Cruiserweight (1.5x)' })
-    expect(middle).toMatchObject({ basePoints: 80, multiplier: 1, points: 80, weightClass: 'Middleweight (1.0x)' })
-    expect(score(10, 3.99, 45)).toMatchObject({ multiplier: 0.5, points: 40, weightClass: 'Lightweight (0.5x)' })
-    expect(score(10, 7.99, 45).multiplier).toBe(1.5)
-    expect(score(10, 10, 45).points).toBe(160)
-  })
-})
 
 describe('midnight decay', () => {
   beforeEach(() => {
@@ -339,9 +305,10 @@ describe('demo mode', () => {
     expect(earnedOn(demo.transactions, today)).toBeGreaterThanOrEqual(120)
     expect(demo.forgeStreak).toBe(1)
     expect(demo.streakState).toBe('SECURED')
-    expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Heavyweight'))).toBe(true)
-    expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Cruiserweight'))).toBe(true)
-    expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Middleweight'))).toBe(true)
+    expect(demo.transactions.some((tx) => tx.weight_class === 'Heavyweight (2.0x)')).toBe(true)
+    expect(demo.transactions.some((tx) => tx.weight_class === 'Cruiserweight (1.5x)')).toBe(true)
+    expect(demo.transactions.some((tx) => tx.weight_class === 'Lightweight (1.0x)')).toBe(true)
+    expect(demo.transactions.every((tx) => !Number.isNaN(Date.parse(tx.timestamp)))).toBe(true)
     expect(demo.transactions.some((tx) => tx.type === 'SPEND')).toBe(true)
     expect(demo.vaultItems.map((item) => item.category).sort()).toEqual(['events', 'food', 'gaming', 'items'])
     const net = demo.transactions.reduce((sum, tx) => sum + (tx.type === 'EARN' ? tx.points : -tx.points), 0)

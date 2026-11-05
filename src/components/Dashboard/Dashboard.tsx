@@ -71,13 +71,13 @@ export function Dashboard({
               feedback('click')
               onOpenFoundation()
             }}
-            className="press focus-ring flex items-center justify-between gap-3 rounded-2xl border border-line bg-well px-3 py-2.5 text-left"
+            className="press focus-ring depth-well w-full rounded-2xl px-3.5 py-3 text-left"
           >
-            <span className="min-w-0">
-              <Eyebrow>Next habit</Eyebrow>
-              <span className="mt-0.5 block truncate text-xs font-extrabold text-ink">{next.habit.title}</span>
+            <Eyebrow>Next habit</Eyebrow>
+            <span className="mt-1 flex items-baseline justify-between gap-3">
+              <span className="min-w-0 truncate text-[13px] font-extrabold tracking-tight text-ink">{next.habit.title}</span>
+              <span className="shrink-0 font-num text-[11px] font-extrabold text-ink">{next.habit.points} PTS</span>
             </span>
-            <span className="shrink-0 font-num text-[11px] font-extrabold text-muted">{next.habit.points} PTS</span>
           </button>
         )}
       </div>

@@ -98,9 +98,10 @@ export function useHabitsController() {
     const lastId = current.habitDay.completedIds[current.habitDay.completedIds.length - 1]
     const habit = current.decks.flatMap((deck) => deck.habits).find((item) => item.id === lastId)
     const returned = current.balance - next.balance
+    const title = habit?.title ?? 'habit'
     commit(syncLiveDiscipline(next))
     feedback('click')
-    notify(`Undid "${habit?.title ?? 'habit'}". -${returned} PTS.`)
+    notify(returned > 0 ? `Returned ${returned} PTS for "${title}".` : `Undid "${title}".`)
   }, [commit, feedback, notify, read])
 
   const usePto = useCallback(() => {
