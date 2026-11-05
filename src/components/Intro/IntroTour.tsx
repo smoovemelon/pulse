@@ -44,7 +44,7 @@ const STEPS: readonly {
   {
     kicker: 'Earn',
     title: 'Log it with plus',
-    body: 'Describe the work, then pick the minutes or start a timer. The timer keeps running if you close the sheet. The score lands on the balance and in History.',
+    body: 'Describe the work, then pick the minutes or start a timer. The timer keeps running if you leave the app. The score lands on the balance and in History.',
     target: 'log',
   },
   {

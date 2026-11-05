@@ -4,4 +4,10 @@
     <string name="title_activity_main">Altius</string>
     <string name="package_name">com.altius.app</string>
     <string name="custom_url_scheme">com.altius.app</string>
+    <string name="session_timer_channel">Session</string>
+    <string name="session_timer_running">Session</string>
+    <string name="session_timer_paused">Paused</string>
+    <string name="session_timer_pause">Pause</string>
+    <string name="session_timer_resume">Resume</string>
+    <string name="session_timer_reset">Reset</string>
 </resources>

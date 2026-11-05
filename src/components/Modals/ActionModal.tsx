@@ -246,7 +246,7 @@ export function ActionModal({
               </Button>
             </div>
             <p className="text-[10px] leading-relaxed text-muted">
-              The timer keeps running if you close this sheet. Scoring still floors at 5 minutes.
+              The timer keeps running if you leave the app. Scoring still floors at 5 minutes.
             </p>
           </div>
         )}
