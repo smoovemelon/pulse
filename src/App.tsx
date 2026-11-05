@@ -26,6 +26,8 @@ import type { VaultItem } from './types'
 
 type OpenModal = 'action' | 'settings' | 'anchor' | 'vault' | 'spend' | null
 
+const TAB_ORDER: readonly DockTab[] = ['feed', 'foundation', 'stats', 'vault']
+
 function Shell() {
   const { state } = useCore()
   const { decayAlert, dismissDecay } = usePulseEconomy()
@@ -74,6 +76,11 @@ function Shell() {
   useBackLayer(decayAlert !== null, dismissDecay)
 
   const sheetOpen = modal !== null || decayAlert !== null || identityOpen
+  const [pane, setPane] = useState<{ tab: DockTab; dir: 'forward' | 'back' | null }>({ tab: shown, dir: null })
+  if (pane.tab !== shown) {
+    const dir = TAB_ORDER.indexOf(shown) >= TAB_ORDER.indexOf(pane.tab) ? 'forward' : 'back'
+    setPane({ tab: shown, dir })
+  }
 
   useEffect(() => {
     document.body.style.overflow = sheetOpen ? 'hidden' : ''
@@ -96,7 +103,7 @@ function Shell() {
   return (
     <div className="dock-clearance min-h-dvh text-ink">
       <Toast />
-      <div className="w-full max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4">
+      <div className="mx-auto flex w-full max-w-[430px] flex-col gap-4 overflow-x-clip px-4 pt-4">
         <Header
           onOpenSettings={() => setModal('settings')}
           onOpenIntro={() => {
@@ -105,34 +112,36 @@ function Shell() {
             setIntroOpen(true)
           }}
         />
-        {shown === 'feed' ? (
-          <>
-            <Dashboard
-              onEditAnchor={() => {
-                setResumeAction(false)
-                setModal('anchor')
+        <div key={shown} className={`flex flex-col gap-4 ${pane.dir ? `tab-pane tab-pane-${pane.dir}` : ''}`}>
+          {shown === 'feed' ? (
+            <>
+              <Dashboard
+                onEditAnchor={() => {
+                  setResumeAction(false)
+                  setModal('anchor')
+                }}
+                onOpenFoundation={() => setTab('foundation')}
+              />
+              <Feed />
+            </>
+          ) : shown === 'foundation' ? (
+            <HabitStack />
+          ) : shown === 'stats' ? (
+            <Stats />
+          ) : (
+            <Vault
+              onAdd={() => {
+                setEditing(null)
+                setModal('vault')
               }}
-              onOpenFoundation={() => setTab('foundation')}
+              onSpend={() => setModal('spend')}
+              onEdit={(item) => {
+                setEditing(item)
+                setModal('vault')
+              }}
             />
-            <Feed />
-          </>
-        ) : shown === 'foundation' ? (
-          <HabitStack />
-        ) : shown === 'stats' ? (
-          <Stats />
-        ) : (
-          <Vault
-            onAdd={() => {
-              setEditing(null)
-              setModal('vault')
-            }}
-            onSpend={() => setModal('spend')}
-            onEdit={(item) => {
-              setEditing(item)
-              setModal('vault')
-            }}
-          />
-        )}
+          )}
+        </div>
       </div>
       <Dock tab={shown} onTab={setTab} onAction={() => setModal('action')} />
       {(modal === 'action' || resumeAction) && (

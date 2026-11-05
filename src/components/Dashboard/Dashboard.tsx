@@ -26,44 +26,43 @@ export function Dashboard({
   const { notify } = useNotice()
 
   return (
-    <Surface className="flex flex-col gap-4 p-5">
-      <div data-tour="balance" className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <BalanceDisplay balance={economy.balance} />
-          <ProfilePhoto
-            avatar={avatar}
-            onChange={(dataUrl) => saveAvatar(dataUrl)}
-            onError={() => {
-              feedback('error')
-              notify('Choose an image')
+    <>
+      <Surface className="flex flex-col gap-4 p-5">
+        <div data-tour="balance" className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-3">
+            <BalanceDisplay balance={economy.balance} />
+            <ProfilePhoto
+              avatar={avatar}
+              onChange={(dataUrl) => saveAvatar(dataUrl)}
+              onError={() => {
+                feedback('error')
+                notify('Choose an image')
+              }}
+            />
+          </div>
+          <AnchorCard
+            anchor={anchor}
+            onEdit={() => {
+              feedback('click')
+              onEditAnchor()
             }}
           />
         </div>
-        <AnchorCard
-          anchor={anchor}
-          onEdit={() => {
-            feedback('click')
-            onEditAnchor()
-          }}
-        />
-      </div>
-      <div data-tour="day" className="flex flex-col gap-3">
-        <SplitCapsule
-          earned={economy.todayEarned}
-          goal={economy.dailyGoal}
-          decksComplete={economy.decksComplete}
-          forgeStreak={economy.forgeStreak}
-          chainStreak={economy.chainStreak}
-          tier={economy.tier}
-          discountPercent={economy.discountPercent}
-        />
-        <StreakBadge
-          state={economy.streakState}
-          status={economy.streakStatus}
-          week={economy.week}
-          goal={economy.dailyGoal}
-        />
-        {next && (
+        <div data-tour="day" className="flex flex-col gap-3">
+          <SplitCapsule
+            earned={economy.todayEarned}
+            goal={economy.dailyGoal}
+            decksComplete={economy.decksComplete}
+            forgeStreak={economy.forgeStreak}
+            chainStreak={economy.chainStreak}
+            tier={economy.tier}
+            discountPercent={economy.discountPercent}
+          />
+          <StreakBadge status={economy.streakStatus} week={economy.week} goal={economy.dailyGoal} />
+        </div>
+      </Surface>
+      {next && (
+        <Surface className="p-4">
           <button
             type="button"
             data-testid="next-habit"
@@ -79,8 +78,8 @@ export function Dashboard({
               <span className="shrink-0 font-num text-[11px] font-extrabold text-ink">{next.habit.points} PTS</span>
             </span>
           </button>
-        )}
-      </div>
-    </Surface>
+        </Surface>
+      )}
+    </>
   )
 }

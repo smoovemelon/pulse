@@ -1,30 +1,26 @@
-import type { StreakState, WeekDay } from '../../types'
+import type { WeekDay } from '../../types'
 import { Eyebrow } from '../Common/primitives'
 
 export function StreakBadge({
-  state,
   status,
   week,
   goal,
 }: {
-  readonly state: StreakState
   readonly status: string
   readonly week: readonly WeekDay[]
   readonly goal: number
 }) {
-  const statusClass = state === 'SECURED' ? 'text-ink' : 'text-muted'
-
   return (
-    <div className="flex flex-col gap-3 text-ink" role="region" aria-label="Streak">
+    <div className="flex flex-col gap-2.5 text-ink" role="region" aria-label="Streak">
       <div className="flex items-start justify-between gap-1.5">
         {week.map((day) => (
-          <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1">
+          <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
             <Eyebrow>{day.label}</Eyebrow>
             <DayMark day={day} goal={goal} />
           </div>
         ))}
       </div>
-      <p data-testid="streak-status" className={`text-center text-[11px] font-semibold leading-relaxed ${statusClass}`}>
+      <p data-testid="streak-status" className="text-center text-[12px] font-semibold leading-snug text-muted">
         {status}
       </p>
     </div>
@@ -42,7 +38,7 @@ function DayMark({ day, goal }: { readonly day: WeekDay; readonly goal: number }
   const track = day.mark === 'today' ? 'streak-today-ring bg-line' : 'bg-well'
 
   return (
-    <span aria-hidden="true" className={`meter-track relative block h-1.5 w-full overflow-hidden rounded-full ${track}`}>
+    <span aria-hidden="true" className={`meter-track relative block w-full overflow-hidden rounded-full ${day.mark === 'today' ? 'h-2.5' : 'h-1'} ${track}`}>
       <span className={`absolute inset-y-0 left-0 rounded-full ${fill}`} style={{ width }} />
     </span>
   )
