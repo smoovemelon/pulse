@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useHabits } from '../../hooks/useHabits'
+import { localDateKey } from '../../lib/dates'
 import { deckComplete, nextOpenHabit } from '../../services/engine'
 import type { HabitDeck } from '../../types'
 import { Button } from '../Common/Button'
@@ -13,6 +14,7 @@ export function HabitStack() {
   const [editing, setEditing] = useState(false)
   const [ptoConfirm, setPtoConfirm] = useState(false)
   const open = nextOpenHabit(habits.decks, habits.habitDay.completedIds)
+  const lastId = habits.habitDay.date === localDateKey() ? habits.habitDay.completedIds.at(-1) : undefined
   const locked = habits.cooldownMs > 0
   const hours = Math.ceil(habits.cooldownMs / 3600000)
 
@@ -71,7 +73,9 @@ export function HabitStack() {
           completedIds={habits.habitDay.completedIds}
           locked={index > 0 && !deckComplete(habits.decks[index - 1], habits.habitDay.completedIds)}
           readyId={open?.habit.id}
+          undoId={lastId}
           onComplete={habits.completeHabit}
+          onUndo={habits.undoHabit}
         />
       ))}
       {locked && <p className="text-[10px] font-bold text-faint">Cutoff edits unlock in {hours}h.</p>}
@@ -85,14 +89,18 @@ function DeckCard({
   completedIds,
   locked,
   readyId,
+  undoId,
   onComplete,
+  onUndo,
 }: {
   readonly deck: HabitDeck
   readonly index: number
   readonly completedIds: readonly string[]
   readonly locked: boolean
   readonly readyId: string | undefined
+  readonly undoId: string | undefined
   readonly onComplete: (habitId: string) => void
+  readonly onUndo: () => void
 }) {
   const face = DECK_FACE[index] ?? DECK_FACE[0]
   const done = deckComplete(deck, completedIds)
@@ -124,20 +132,16 @@ function DeckCard({
         {deck.habits.map((habit, habitIndex) => {
           const complete = completedIds.includes(habit.id)
           const ready = readyId === habit.id
-          return (
-            <button
-              key={habit.id}
-              type="button"
-              disabled={!ready}
-              onClick={() => onComplete(habit.id)}
-              className={`press focus-ring flex items-center justify-between gap-2 rounded-2xl border px-2.5 py-2 text-left text-xs font-bold ${
-                ready
-                  ? 'border-ink bg-ink text-canvas shadow-[0_8px_16px_-8px_rgba(0,0,0,0.45)]'
-                  : complete
-                    ? 'habit-groove border-line text-muted'
-                    : 'habit-groove border-line text-faint'
-              }`}
-            >
+          const undo = undoId === habit.id
+          const rowClass = `flex items-center justify-between gap-2 rounded-2xl border px-2.5 py-2 text-left text-xs font-bold ${
+            ready
+              ? 'border-ink bg-ink text-canvas shadow-[0_8px_16px_-8px_rgba(0,0,0,0.45)]'
+              : complete
+                ? 'habit-groove border-line text-muted'
+                : 'habit-groove border-line text-faint'
+          }`
+          const body = (
+            <>
               <span className="flex min-w-0 items-center gap-2">
                 <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-num text-[10px] ${
                   ready ? 'bg-canvas text-ink' : complete ? 'bg-ink text-canvas' : 'border border-line text-faint'
@@ -146,12 +150,35 @@ function DeckCard({
                 </span>
                 <span className={`truncate ${complete ? 'line-through' : ''}`}>{habit.title}</span>
               </span>
-              <span className={`shrink-0 rounded-full px-2 py-0.5 font-num text-[10px] ${
-                ready ? 'bg-canvas text-ink' : 'border border-line bg-well text-muted'
-              }`}>
-                {habit.points}
-              </span>
-            </button>
+              {undo ? (
+                <button
+                  type="button"
+                  data-testid="undo-habit"
+                  onClick={onUndo}
+                  className="press focus-ring shrink-0 rounded-full border border-line bg-card px-2 py-0.5 text-[10px] font-extrabold text-ink"
+                >
+                  Undo
+                </button>
+              ) : (
+                <span className={`shrink-0 rounded-full px-2 py-0.5 font-num text-[10px] ${
+                  ready ? 'bg-canvas text-ink' : 'border border-line bg-well text-muted'
+                }`}>
+                  {habit.points}
+                </span>
+              )}
+            </>
+          )
+          if (ready) {
+            return (
+              <button key={habit.id} type="button" onClick={() => onComplete(habit.id)} className={`press focus-ring ${rowClass}`}>
+                {body}
+              </button>
+            )
+          }
+          return (
+            <div key={habit.id} className={rowClass}>
+              {body}
+            </div>
           )
         })}
       </div>

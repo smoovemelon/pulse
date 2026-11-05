@@ -54,7 +54,7 @@ export function TransactionCard({ tx, onDelete }: { readonly tx: Transaction; re
               aria-label={`Delete ${tx.title}`}
               data-testid={`delete-${tx.id}`}
               onClick={onDelete}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:text-rose-600 active:scale-90"
+              className="hit-spend inline-flex h-7 w-7 items-center justify-center rounded-lg active:scale-90"
             >
               <TrashIcon />
             </Button>

@@ -21,14 +21,6 @@ export function advanceStreak(count: number, earned: number, goal = DAILY_GOAL) 
   return { streakCount, streakState }
 }
 
-export function streakMultiplier(_days: number): number {
-  return 1
-}
-
-export function applyStreakBonus(points: number, _days: number): number {
-  return points
-}
-
 export function streakStatusMessage(todayPts: number, goal = DAILY_GOAL, fee = 15): string {
   const grace = graceFloor(goal)
   if (todayPts >= goal) return `${goal} PTS output target hit.`

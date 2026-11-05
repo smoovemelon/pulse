@@ -5,8 +5,7 @@ import type { PulseState, Transaction } from '../../types'
 import { runDecayAudit } from '../audit'
 import { disciplineDefaults } from '../engine'
 import { DEMO_ACTION, DEMO_ANCHOR, DEMO_BOUNTY, DEMO_SPEND, enterDemo, exitDemo } from '../demo'
-import { balanceAfterRemoval, calculateActionPoints, currentStreak, earnedOn, evaluateAnchorAction, lifetimeStats, localActionFallback, validateVaultDraft } from '../economy'
-import { applyStreakBonus, streakMultiplier, weekStrip } from '../engine'
+import { balanceAfterRemoval, calculateActionPoints, earnedOn, lifetimeStats, validateVaultDraft, weekStrip } from '../engine'
 import { shouldIntroduce } from '../intro'
 import { clearIntroSeen, freshState, hasSeenIntro, markIntroSeen, readDemoSnapshot } from '../persistence'
 
@@ -75,125 +74,6 @@ describe('action evaluation', () => {
     expect(score(10, 3.99, 45)).toMatchObject({ multiplier: 0.5, points: 40, weightClass: 'Lightweight (0.5x)' })
     expect(score(10, 7.99, 45).multiplier).toBe(1.5)
     expect(score(10, 10, 45).points).toBe(160)
-  })
-
-  it('pays half credit for productive work that misses the anchor', () => {
-    const off = evaluateAnchorAction({
-      strain: 10,
-      alignment: 9,
-      valid: false,
-      duration: 45,
-      title: 'Hydration',
-      raw: 'Drank 2 glasses of water',
-      reasoning: 'Useful, but not the anchor.',
-      rejectionReason: 'Water does not move the anchor.',
-    })
-    const on = evaluateAnchorAction({
-      strain: 10,
-      alignment: 9,
-      valid: true,
-      duration: 45,
-      title: 'Problem sets',
-      raw: 'Finished 20 problem sets',
-      reasoning: 'Direct practice toward the anchor.',
-    })
-
-    expect(off.partial).toBe(true)
-    expect(off.multiplier).toBe(0.5)
-    expect(off.weightClass).toBe('Lightweight (0.5x)')
-    expect(off.points).toBe(40)
-    expect(off.points).toBeLessThan(on.points)
-    expect(on.partial).toBe(false)
-    expect(on.multiplier).toBe(2)
-    expect(on.points).toBe(160)
-  })
-
-  it('keeps a specific anchor hit at cruiserweight once alignment clears 7', () => {
-    const cruiser = evaluateAnchorAction({
-      strain: 10,
-      alignment: 7,
-      valid: true,
-      duration: 45,
-      title: 'Review',
-      raw: 'Reviewed 12 pages of notes',
-      reasoning: 'Close work on the anchor.',
-    })
-
-    expect(cruiser.multiplier).toBe(1.5)
-    expect(cruiser.points).toBe(120)
-    expect(cruiser.partial).toBe(false)
-  })
-
-  it('pays middleweight baseline for a specific direct log under 7', () => {
-    const middle = evaluateAnchorAction({
-      strain: 10,
-      alignment: 5,
-      valid: true,
-      duration: 45,
-      title: 'Notes',
-      raw: 'Reviewed 4 pages of notes',
-      reasoning: 'Direct, but not a heavy session.',
-    })
-
-    expect(middle.partial).toBe(false)
-    expect(middle.multiplier).toBe(1)
-    expect(middle.weightClass).toBe('Middleweight (1.0x)')
-    expect(middle.points).toBe(80)
-    expect(middle.alignment).toBe(5)
-
-    const cruiserBand = evaluateAnchorAction({
-      strain: 10,
-      alignment: 6,
-      valid: true,
-      duration: 45,
-      title: 'Review',
-      raw: 'Reviewed 12 pages of notes',
-      reasoning: 'Solid direct work.',
-    })
-    expect(cruiserBand.multiplier).toBe(1.5)
-    expect(cruiserBand.weightClass).toBe('Cruiserweight (1.5x)')
-
-    const under = evaluateAnchorAction({
-      strain: 10,
-      alignment: 3.5,
-      valid: true,
-      duration: 45,
-      title: 'Notes',
-      raw: 'Reviewed 4 pages of notes',
-      reasoning: 'Too light to clear the line.',
-    })
-    expect(under.multiplier).toBe(0.5)
-    expect(under.weightClass).toBe('Lightweight (0.5x)')
-    expect(under.partial).toBe(true)
-  })
-
-  it('withholds the anchor bonus when the log names no concrete result', () => {
-    const vague = evaluateAnchorAction({
-      strain: 10,
-      alignment: 9,
-      valid: true,
-      duration: 45,
-      title: 'Workout',
-      raw: 'worked out',
-      reasoning: 'Too vague to confirm.',
-    })
-
-    expect(vague.partial).toBe(true)
-    expect(vague.multiplier).toBe(0.5)
-    expect(vague.points).toBe(40)
-  })
-
-  it('does not grant cruiserweight when the anchor cannot be checked', () => {
-    const offline = localActionFallback('Morning study block on problem sets', 45, 'offline')
-    expect(offline.multiplier).toBe(1)
-    expect(offline.partial).toBe(false)
-    expect(offline.weightClass).toBe('Middleweight (1.0x)')
-    expect(offline.strain).toBe(6)
-    expect(offline.title).toBe('Morning study block on problem sets')
-    expect(offline.title).not.toContain('Brandon')
-    expect(localActionFallback('push day', 60, '').title).toBe('push day')
-    expect(localActionFallback('   ', 30, '').title).toBe('30-Min Logged Session')
-    expect(offline.points).toBeGreaterThan(0)
   })
 })
 
@@ -350,7 +230,7 @@ describe('history removal', () => {
     category: 'Gaming',
   })
 
-  it('removes earned points from the balance, momentum, streak, and lifetime totals', () => {
+  it('removes earned points from the balance, that day’s total, and lifetime earned', () => {
     const today = '2026-10-21'
     const session = earn(today, 120)
     const kept = earn('2026-10-20', 120)
@@ -360,8 +240,6 @@ describe('history removal', () => {
     expect(balanceAfterRemoval(200, session)).toBe(80)
     expect(earnedOn(history, today)).toBe(120)
     expect(earnedOn(remaining, today)).toBe(0)
-    expect(currentStreak(history, today)).toBe(2)
-    expect(currentStreak(remaining, today)).toBe(1)
     expect(lifetimeStats(remaining)).toEqual({ earned: 120, spent: 0 })
   })
 
@@ -399,13 +277,7 @@ describe('vault category validation', () => {
   })
 })
 
-describe('streak multiplier', () => {
-  it('leaves judged points unscaled', () => {
-    expect(streakMultiplier(14)).toBe(1)
-    expect(applyStreakBonus(100, 14)).toBe(100)
-    expect(applyStreakBonus(84, 7)).toBe(84)
-  })
-
+describe('week strip', () => {
   it('marks the Monday-start week from secured, grace, today, and later days', () => {
     const days = weekStrip(
       [earn('2026-10-19', 120), earn('2026-10-20', 80), earn('2026-10-21', 30)],
@@ -414,25 +286,6 @@ describe('streak multiplier', () => {
     expect(days.map((day) => day.label)).toEqual(['M', 'T', 'W', 'T', 'F', 'S', 'S'])
     expect(days.map((day) => day.mark)).toEqual(['secured', 'grace', 'today', 'upcoming', 'upcoming', 'upcoming', 'upcoming'])
     expect(days[2]?.earned).toBe(30)
-  })
-})
-
-describe('current streak', () => {
-  const row = (date: string, points: number): Transaction => ({
-    id: `${date}-${points}`,
-    type: 'EARN',
-    title: 'Session',
-    points,
-    timestamp: date,
-    date,
-  })
-
-  it('counts consecutive days at or above 120 and defaults to 1 when today has activity', () => {
-    const today = '2026-10-21'
-    expect(currentStreak([row(today, 120), row('2026-10-20', 130), row('2026-10-19', 40)], today)).toBe(2)
-    expect(currentStreak([row(today, 30)], today)).toBe(1)
-    expect(currentStreak([row('2026-10-20', 120), row('2026-10-19', 120)], today)).toBe(2)
-    expect(currentStreak([row('2026-10-20', 40)], today)).toBe(0)
   })
 })
 
@@ -484,7 +337,8 @@ describe('demo mode', () => {
     expect(demo.theme).toBe('dark')
     expect(demo.disciplineAnchor).toBe(DEMO_ANCHOR)
     expect(earnedOn(demo.transactions, today)).toBeGreaterThanOrEqual(120)
-    expect(currentStreak(demo.transactions, today)).toBeGreaterThanOrEqual(2)
+    expect(demo.forgeStreak).toBe(1)
+    expect(demo.streakState).toBe('SECURED')
     expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Heavyweight'))).toBe(true)
     expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Cruiserweight'))).toBe(true)
     expect(demo.transactions.some((tx) => tx.weight_class?.startsWith('Middleweight'))).toBe(true)

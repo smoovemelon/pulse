@@ -5,7 +5,7 @@ import { useSettings } from '../../hooks/useSettings'
 import { Button } from '../Common/Button'
 import { DifficultyDial } from '../Common/DifficultyDial'
 import { CloseButton, ModalSheet } from '../Common/ModalSheet'
-import { Well } from '../Common/primitives'
+import { Eyebrow, Well } from '../Common/primitives'
 import { CheckIcon, ChevronIcon, DownloadIcon, MoonIcon, SunIcon, UploadIcon, VolumeOff, VolumeOn } from '../Icons'
 
 export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
@@ -15,6 +15,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
   const [name, setName] = useState(username)
   const [formulasOpen, setFormulasOpen] = useState(false)
   const [freshArmed, setFreshArmed] = useState(false)
+  const nameDirty = name.trim() !== '' && name.trim() !== username
 
   useEffect(() => {
     void checkKey(apiKey)
@@ -22,11 +23,8 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
 
   return (
     <ModalSheet labelledBy="settings-heading" className="max-h-[88vh]" onDismiss={onClose}>
-      <div className="flex justify-between items-center">
-        <div>
-          <span className="eyebrow block mb-0.5">Preferences</span>
-          <h3 id="settings-heading" className="text-base heading-athletic text-ink">Settings</h3>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <h3 id="settings-heading" className="text-base heading-athletic text-ink">Settings</h3>
         <div className="flex items-center gap-2">
           <span data-testid="version-stamp" className="font-num text-[10px] font-extrabold tracking-wide text-faint">
             {RELEASE_LABEL}
@@ -36,124 +34,114 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
       </div>
 
       <Well className="flex flex-col gap-3 px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <span className="flex items-center gap-2 text-xs font-extrabold tracking-tight text-ink">
-            {theme === 'dark' ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
-            Appearance
-          </span>
-          <Button
-            tone="card"
-            data-testid="theme-toggle"
-            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        <SettingRow
+          icon={theme === 'dark' ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+          label="Appearance"
+        >
+          <ToggleButton
+            testId="theme-toggle"
+            label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
             onClick={toggleTheme}
-            className="shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-black text-ink"
           >
             {theme === 'dark' ? 'Dark' : 'Light'}
-          </Button>
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <span className="flex items-center gap-2 text-xs font-extrabold tracking-tight text-ink">
-            {soundEnabled ? <VolumeOn className="h-5 w-5" /> : <VolumeOff className="h-5 w-5" />}
-            Sound
-          </span>
-          <Button
-            tone="card"
-            data-testid="sound-toggle"
-            aria-label="Toggle Sound"
-            onClick={toggleSound}
-            className={`shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-black ${soundEnabled ? 'text-ink' : 'text-muted'}`}
-          >
+          </ToggleButton>
+        </SettingRow>
+        <SettingRow
+          icon={soundEnabled ? <VolumeOn className="h-4 w-4" /> : <VolumeOff className="h-4 w-4" />}
+          label="Sound"
+        >
+          <ToggleButton testId="sound-toggle" label="Toggle Sound" onClick={toggleSound} muted={!soundEnabled}>
             {soundEnabled ? 'On' : 'Muted'}
-          </Button>
+          </ToggleButton>
+        </SettingRow>
+        <div className="flex flex-col gap-2 border-t border-line pt-3">
+          <div className="flex items-center justify-between gap-3">
+            <label htmlFor="display-name" className="text-xs font-extrabold tracking-tight text-ink">
+              Display name
+            </label>
+            <Button
+              tone="dark"
+              data-testid="save-display-name"
+              disabled={!nameDirty}
+              onClick={() => saveUsername(name)}
+              className="shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-black disabled:opacity-40"
+            >
+              Save
+            </Button>
+          </div>
+          <input
+            id="display-name"
+            data-testid="display-name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="e.g. adrinn"
+            className="field w-full rounded-xl px-3 py-2.5 text-xs font-bold"
+            autoComplete="nickname"
+          />
         </div>
       </Well>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="display-name" className="eyebrow eyebrow-muted">
-          Display Name
-        </label>
-        <input
-          id="display-name"
-          data-testid="display-name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="e.g. adrinn"
-          className="field w-full rounded-2xl p-3.5 text-xs font-bold"
-          autoComplete="nickname"
-        />
-        <Button
-          tone="dark"
-          data-testid="save-display-name"
-          disabled={!name.trim() || name.trim() === username}
-          onClick={() => saveUsername(name)}
-          className="action-btn disabled:opacity-40"
-        >
-          Save name
-        </Button>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <div className="flex justify-between items-center gap-2">
-          <label htmlFor="api-key" className="eyebrow eyebrow-muted">
-            Gemini API Key
+      <Well className="flex flex-col gap-2.5 px-4 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <label htmlFor="api-key" className="text-xs font-extrabold tracking-tight text-ink">
+            Gemini key
           </label>
-          <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border shrink-0 ${keyBadgeClass}`}>{keyBadge}</span>
+          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-extrabold ${keyBadgeClass}`}>{keyBadge}</span>
         </div>
         <input
           id="api-key"
           type="password"
           value={key}
           onChange={(event) => setKey(event.target.value)}
-          placeholder="Paste Google AI Studio Key"
-          className="field w-full rounded-2xl p-3.5 text-xs font-mono"
+          placeholder="Paste a Google AI Studio key"
+          className="field w-full rounded-xl px-3 py-2.5 text-xs font-mono"
           autoComplete="off"
         />
-      </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            tone="card"
+            onClick={() => {
+              feedback('click')
+              void checkKey(key)
+            }}
+            className="flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[11px] font-extrabold"
+          >
+            <CheckIcon className="pts-earn h-3.5 w-3.5" />
+            Test key
+          </Button>
+          <Button
+            tone="dark"
+            onClick={() => {
+              saveApiKey(key)
+              setKey(key.trim())
+            }}
+            className="rounded-xl py-2.5 text-[11px] font-extrabold"
+          >
+            Save key
+          </Button>
+        </div>
+      </Well>
 
-      <div className="grid grid-cols-2 gap-2">
-        <Button
-          tone="card"
-          onClick={() => {
-            feedback('click')
-            void checkKey(key)
-          }}
-          className="py-3.5 rounded-2xl text-xs font-extrabold active:scale-95 flex items-center justify-center gap-1.5"
-        >
-          <CheckIcon className="w-3.5 h-3.5 text-emerald-600" />
-          Test Key Ping
-        </Button>
-        <Button
-          tone="dark"
-          onClick={() => {
-            saveApiKey(key)
-            setKey(key.trim())
-          }}
-          className="action-btn"
-        >
-          Save Key
-        </Button>
-      </div>
-
-      <Well className="flex flex-col gap-2 p-4">
-        <span className="eyebrow eyebrow-muted">Discipline dial</span>
+      <Well className="flex flex-col gap-2 px-4 py-3">
+        <Eyebrow>Discipline dial</Eyebrow>
         <DifficultyDial />
       </Well>
 
-      <div className="depth-well rounded-2xl p-4 flex flex-col gap-2.5">
-        <span className="eyebrow eyebrow-muted block">Data & Backups</span>
+      <Well className="flex flex-col gap-2.5 px-4 py-3">
+        <Eyebrow>Data and backups</Eyebrow>
         <div className="grid grid-cols-2 gap-2">
           <Button
             tone="card"
             data-testid="export-backup"
             onClick={exportBackup}
-            className="py-2.5 px-3 rounded-xl text-[11px] font-extrabold flex items-center justify-center gap-1.5 active:scale-95"
+            className="flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[11px] font-extrabold"
           >
-            <DownloadIcon className="w-3.5 h-3.5 shrink-0 text-muted" />
-            Export Backup
+            <DownloadIcon className="h-3.5 w-3.5 shrink-0 text-muted" />
+            Export
           </Button>
-          <label className="py-2.5 px-3 rounded-xl depth-card text-ink text-[11px] font-extrabold flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer">
-            <UploadIcon className="w-3.5 h-3.5 shrink-0 text-muted" />
-            Import Backup
+          <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[11px] font-extrabold text-ink depth-card">
+            <UploadIcon className="h-3.5 w-3.5 shrink-0 text-muted" />
+            Import
             <input
               data-testid="import-backup"
               type="file"
@@ -170,40 +158,34 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
             />
           </label>
         </div>
-      </div>
+      </Well>
 
-      <div className="depth-well rounded-2xl px-4 py-3 flex flex-col gap-2">
+      <Well className="flex flex-col gap-2 px-4 py-3">
         <button
           type="button"
           onClick={() => setFormulasOpen((open) => !open)}
           className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={formulasOpen}
         >
-          <span className="text-xs font-extrabold tracking-tight text-ink leading-tight">Economic Formulas & Rules</span>
+          <span className="text-xs font-extrabold tracking-tight text-ink">Formulas</span>
           <ChevronIcon className="text-muted" up={formulasOpen} />
         </button>
         {formulasOpen && <EconomyRules />}
-      </div>
+      </Well>
+
       <Well className="flex flex-col gap-3 px-4 py-3">
-        <span className="eyebrow eyebrow-muted">Developer</span>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-xs font-extrabold tracking-tight text-ink">Demo mode</span>
-          <Button
-            tone="card"
-            data-testid="demo-mode"
-            onClick={toggleDemo}
-            className={`shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-black ${
-              demoMode ? 'text-emerald-700 border-emerald-200' : 'text-muted'
-            }`}
-          >
+        <Eyebrow>Developer</Eyebrow>
+        <SettingRow label="Demo mode">
+          <ToggleButton testId="demo-mode" label="Toggle demo mode" onClick={toggleDemo} muted={!demoMode}>
             {demoMode ? 'On' : 'Off'}
-          </Button>
-        </div>
+          </ToggleButton>
+        </SettingRow>
         {freshArmed ? (
           <div className="grid grid-cols-2 gap-2">
             <Button
               tone="card"
               onClick={() => setFreshArmed(false)}
-              className="py-2.5 rounded-xl text-[11px] font-extrabold active:scale-95"
+              className="rounded-xl py-2.5 text-[11px] font-extrabold"
             >
               Cancel
             </Button>
@@ -214,7 +196,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
                 startFresh()
                 onClose()
               }}
-              className="py-2.5 rounded-xl text-[11px] font-extrabold active:scale-95"
+              className="rounded-xl py-2.5 text-[11px] font-extrabold"
             >
               Start fresh
             </Button>
@@ -227,7 +209,7 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
               feedback('click')
               setFreshArmed(true)
             }}
-            className="py-2.5 rounded-xl text-[11px] font-extrabold text-body active:scale-95"
+            className="rounded-xl py-2.5 text-[11px] font-extrabold pts-spend"
           >
             Start fresh
           </Button>
@@ -240,15 +222,58 @@ export function SettingsModal({ onClose }: { readonly onClose: () => void }) {
   )
 }
 
+function SettingRow({
+  icon,
+  label,
+  children,
+}: {
+  readonly icon?: ReactNode
+  readonly label: string
+  readonly children: ReactNode
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="flex items-center gap-2 text-xs font-extrabold tracking-tight text-ink">
+        {icon}
+        {label}
+      </span>
+      {children}
+    </div>
+  )
+}
+
+function ToggleButton({
+  testId,
+  label,
+  onClick,
+  muted = false,
+  children,
+}: {
+  readonly testId: string
+  readonly label: string
+  readonly onClick: () => void
+  readonly muted?: boolean
+  readonly children: ReactNode
+}) {
+  return (
+    <Button
+      tone="card"
+      data-testid={testId}
+      aria-label={label}
+      onClick={onClick}
+      className={`shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-black ${muted ? 'text-muted' : 'text-ink'}`}
+    >
+      {children}
+    </Button>
+  )
+}
+
 function EconomyRules() {
   return (
     <div className="flex flex-col gap-3.5 pt-2.5 border-t border-line text-[11px] leading-relaxed text-body">
       <section className="flex flex-col gap-1.5">
         <RuleTitle>1. Action Points</RuleTitle>
-        <p>
-          Base = <Figure tone="earn">Strain (1–10) × 8 × (Duration / 45)<sup>0.45</sup></Figure>
-        </p>
-        <p>Gemini rates the log. The app multiplies those ratings by (duration / 45)<sup>0.45</sup>. Foundation decks share a 60–85 point pool by strain, relevance, and weight.</p>
+        <p>Gemini rates the log. Points are that rating times (duration / 45)<sup>0.45</sup>. Foundation decks share a 60–85 point pool by strain, relevance, and weight.</p>
         <ul className="flex flex-col gap-1">
           <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Strain</span><span className="font-num font-extrabold text-ink">60 / 40 / 20</span></li>
           <li className="flex items-center justify-between gap-2"><span className="font-bold text-muted">Relevance</span><span className="font-num font-extrabold text-ink">1 / 0.75 / 0.5</span></li>

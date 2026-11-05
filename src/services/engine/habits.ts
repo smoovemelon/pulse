@@ -1,5 +1,6 @@
 import { localDateKey, shiftDateKey } from '../../lib/dates'
-import type { HabitDay, HabitDeck, MicroHabit, Relevance, StrainBand } from '../../types'
+import type { HabitDay, HabitDeck, MicroHabit, PulseState, Relevance, StrainBand, WarningId } from '../../types'
+import { balanceAfterRemoval } from './history'
 
 const STRAIN_POINTS = { HIGH: 60, MEDIUM: 40, LOW: 20 } as const
 const RELEVANCE_MULT = { DIRECT: 1, ENABLING: 0.75, GENERAL: 0.5 } as const
@@ -139,4 +140,34 @@ export function decksAreValid(decks: readonly HabitDeck[]): string | null {
 
 export function tomorrowKey(today = localDateKey()): string {
   return shiftDateKey(today, 1)
+}
+
+const DECK_WARNING: readonly WarningId[] = ['deck1', 'deck2', 'deck3']
+
+export function undoLastHabit(state: PulseState, today: string): PulseState | null {
+  if (state.habitDay.date !== today || state.habitDay.completedIds.length === 0) return null
+  const lastId = state.habitDay.completedIds[state.habitDay.completedIds.length - 1]
+  const deckIndex = state.decks.findIndex((deck) => deck.habits.some((item) => item.id === lastId))
+  if (deckIndex < 0) return null
+  const deck = state.decks[deckIndex]
+  const habit = deck.habits.find((item) => item.id === lastId)
+  if (!habit) return null
+  const wasComplete = deckComplete(deck, state.habitDay.completedIds)
+  const txIndex = state.transactions.findIndex(
+    (tx) => tx.type === 'EARN' && tx.reasoning === 'Habit deck bounty' && tx.title === habit.title && tx.date === today,
+  )
+  const bounty = txIndex >= 0 ? state.transactions[txIndex] : null
+  const warning = DECK_WARNING[deckIndex]
+  return {
+    ...state,
+    balance: bounty ? balanceAfterRemoval(state.balance, bounty) : state.balance,
+    transactions: bounty ? state.transactions.filter((_, index) => index !== txIndex) : state.transactions,
+    habitDay: {
+      ...state.habitDay,
+      completedIds: state.habitDay.completedIds.slice(0, -1),
+      clearedWarnings: wasComplete && warning
+        ? state.habitDay.clearedWarnings.filter((id) => id !== warning)
+        : state.habitDay.clearedWarnings,
+    },
+  }
 }

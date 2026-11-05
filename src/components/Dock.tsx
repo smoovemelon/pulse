@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useSensory } from '../hooks/useSensory'
+import { formatElapsed, readSessionTimer, subscribeSessionTimer } from '../lib/sessionTimer'
 import { FeedIcon, FoundationIcon, PlusIcon, StatsIcon, VaultIcon } from './Icons'
 
 export type DockTab = 'feed' | 'foundation' | 'stats' | 'vault'
@@ -14,6 +15,8 @@ export function Dock({
   onAction: () => void
 }) {
   const { feedback } = useSensory()
+  const timer = useSessionClock()
+  const timing = timer.elapsedMs > 0
 
   return (
     <nav className="dock-bar">
@@ -51,9 +54,15 @@ export function Dock({
               onAction()
             }}
             className="focus-ring flex h-[72px] w-[72px] items-center justify-center rounded-full border text-3xl font-light shadow-[0_12px_28px_rgba(0,0,0,0.35)] depth-button-dark transition-transform active:scale-90"
-            aria-label="Log action"
+            aria-label={timing ? `Log action, ${formatElapsed(timer.elapsedMs)}` : 'Log action'}
           >
-            <PlusIcon className="h-7 w-7" />
+            {timing ? (
+              <span data-testid="dock-timer" className="font-num text-[11px] font-extrabold leading-none">
+                {formatElapsed(timer.elapsedMs)}
+              </span>
+            ) : (
+              <PlusIcon className="h-7 w-7" />
+            )}
           </button>
         </div>
         <DockTabButton
@@ -81,6 +90,17 @@ export function Dock({
       </div>
     </nav>
   )
+}
+
+function useSessionClock() {
+  const [timer, setTimer] = useState(() => readSessionTimer())
+  useEffect(() => subscribeSessionTimer(() => setTimer(readSessionTimer())), [])
+  useEffect(() => {
+    if (!timer.running) return
+    const id = window.setInterval(() => setTimer(readSessionTimer()), 250)
+    return () => window.clearInterval(id)
+  }, [timer.running])
+  return timer
 }
 
 function DockTabButton({

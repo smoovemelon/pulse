@@ -9,7 +9,7 @@ export function Feed() {
     <main data-tour="ledger" className="flex flex-col gap-3">
       <Eyebrow>History</Eyebrow>
       <FeedFilters filter={filter} onFilter={setFilter} />
-      <TransactionList transactions={transactions} onDelete={deleteEntry} />
+      <TransactionList transactions={transactions} onDelete={deleteEntry} groupDecay={filter === 'ALL'} />
     </main>
   )
 }

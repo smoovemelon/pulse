@@ -1,16 +1,26 @@
 import { useNotice } from '../../hooks/useNotice'
+import { useHabits } from '../../hooks/useHabits'
 import { usePulseEconomy } from '../../hooks/usePulseEconomy'
 import { useSensory } from '../../hooks/useSensory'
 import { useSettings } from '../../hooks/useSettings'
-import { Surface } from '../Common/primitives'
+import { nextOpenHabit } from '../../services/engine'
+import { Surface, Eyebrow } from '../Common/primitives'
 import { AnchorCard } from './AnchorCard'
 import { BalanceDisplay } from './BalanceDisplay'
 import { ProfilePhoto } from './ProfilePhoto'
 import { SplitCapsule } from './MomentumBar'
 import { StreakBadge } from './StreakBadge'
 
-export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void }) {
+export function Dashboard({
+  onEditAnchor,
+  onOpenFoundation,
+}: {
+  readonly onEditAnchor: () => void
+  readonly onOpenFoundation: () => void
+}) {
   const economy = usePulseEconomy()
+  const habits = useHabits()
+  const next = nextOpenHabit(habits.decks, habits.habitDay.completedIds)
   const { anchor, avatar, saveAvatar } = useSettings()
   const { feedback } = useSensory()
   const { notify } = useNotice()
@@ -48,13 +58,28 @@ export function Dashboard({ onEditAnchor }: { readonly onEditAnchor: () => void 
           discountPercent={economy.discountPercent}
         />
         <StreakBadge
-          streak={economy.streak}
-          multiplier={economy.streakMultiplier}
           state={economy.streakState}
           status={economy.streakStatus}
           week={economy.week}
           goal={economy.dailyGoal}
         />
+        {next && (
+          <button
+            type="button"
+            data-testid="next-habit"
+            onClick={() => {
+              feedback('click')
+              onOpenFoundation()
+            }}
+            className="press focus-ring flex items-center justify-between gap-3 rounded-2xl border border-line bg-well px-3 py-2.5 text-left"
+          >
+            <span className="min-w-0">
+              <Eyebrow>Next habit</Eyebrow>
+              <span className="mt-0.5 block truncate text-xs font-extrabold text-ink">{next.habit.title}</span>
+            </span>
+            <span className="shrink-0 font-num text-[11px] font-extrabold text-muted">{next.habit.points} PTS</span>
+          </button>
+        )}
       </div>
     </Surface>
   )

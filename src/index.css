@@ -448,6 +448,16 @@ html[data-theme='dark'] .depth-pill-active {
   color: var(--muted);
 }
 
+.hit-spend:hover,
+.hit-spend:focus-visible {
+  color: #e11d48;
+}
+
+html[data-theme='dark'] .hit-spend:hover,
+html[data-theme='dark'] .hit-spend:focus-visible {
+  color: #fda4af;
+}
+
 .chip-sky { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
 .chip-amber { background: #fffbeb; color: #b45309; border-color: #fde68a; }
 .chip-emerald { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }

@@ -112,6 +112,7 @@ function Shell() {
                 setResumeAction(false)
                 setModal('anchor')
               }}
+              onOpenFoundation={() => setTab('foundation')}
             />
             <Feed />
           </>

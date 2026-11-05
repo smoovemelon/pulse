@@ -21,62 +21,107 @@ const STEPS: readonly {
   {
     kicker: 'Get started',
     title: 'Points for the work',
-    body: 'Altius keeps a balance of what you earn and what you spend. Work adds points. Rewards take them back.',
+    body: 'Work adds points. Rewards spend them. The balance is what is left.',
   },
   {
     kicker: 'Balance',
     title: 'Anchor and balance',
-    body: 'This card holds the discipline balance and the anchor. Name the anchor before you log. Gemini rates relevance, strain, and weight, and the app turns those ratings into points.',
+    body: 'The top of this card is your balance and your photo. The anchor is the goal every log is scored against.',
     target: 'balance',
   },
   {
     kicker: 'Today',
     title: 'One day card',
-    body: 'Output fills left from the center of the pill, toward today’s target. Foundation fills right as the three decks finish. The week marks and the discount sit on this card. Output grows at the target, holds from half up, and resets under half. Foundation grows when every deck is done. Streaks change prices. They do not multiply points.',
+    body: 'The bar fills left for today’s points and right for finished decks. Hit the target to grow Output. Finish all three decks to grow Foundation. The week sits underneath.',
     target: 'day',
   },
   {
     kicker: 'Decks',
     title: 'Open Foundation',
-    body: 'The three decks live here. Finish habits in order. Edit opens the habits, and each cutoff opens a time slider. Use PTO asks you to confirm before it spends a token. Habit points stay separate from judged logs.',
+    body: 'Finish the three decks in order. Edit habits and cutoffs here. Habit points stay separate from a judged log.',
     target: 'foundation',
   },
   {
     kicker: 'Earn',
     title: 'Log it with plus',
-    body: 'Plus opens a log. Describe the work and set how long it took. The score lands on the balance and in History.',
+    body: 'Describe the work, then pick the minutes or start a timer. The timer keeps running if you close the sheet. The score lands on the balance and in History.',
     target: 'log',
   },
   {
     kicker: 'Spend',
     title: 'Park a bounty',
-    body: 'Spend and Add sit together. Add parks a reward. Spend uses points now. Prices follow the discipline dial in Settings. Confirm the first change. After that, Start fresh is how the dial moves.',
+    body: 'Add saves a reward for later. Spend uses points now. Prices follow the dial in Settings.',
     target: 'bounty',
   },
   {
     kicker: 'Photo',
     title: 'Add your photo',
-    body: 'The circle on the top right of the balance card is your photo. Choose one, then drag it until the frame looks right.',
+    body: 'Choose a picture, then drag and zoom until the circle frames it.',
     target: 'balance',
     requireAvatar: true,
   },
   {
     kicker: 'Anchor',
     title: 'Name your anchor',
-    body: 'Write the goal in your own words. Judged logs are scored against it. Set anchor saves it on the balance card and closes the guide.',
+    body: 'Write the goal in your own words. Logs are scored against it. Set anchor saves it and closes the guide.',
     target: 'balance',
     requireAnchor: true,
   },
 ]
 
-type Spot = { readonly top: number; readonly left: number; readonly width: number; readonly height: number; readonly radius: number }
+type Spot = { readonly top: number; readonly left: number; readonly width: number; readonly height: number; readonly radius: string }
 
-function spotFor(target: TourTarget, maxHeight: number): Spot | null {
+const SPOT_PAD = 4
+
+function rounded(cardRadius: number, atTop: boolean, atBottom: boolean): string {
+  const outer = cardRadius + SPOT_PAD
+  const inner = 16
+  if (atTop && atBottom) return `${outer}px`
+  if (atTop) return `${outer}px ${outer}px ${inner}px ${inner}px`
+  if (atBottom) return `${inner}px ${inner}px ${outer}px ${outer}px`
+  return `${inner}px`
+}
+
+function spotFor(target: TourTarget): Spot | null {
   const node = document.querySelector(`[data-tour="${target}"]`)
-  if (!node) return null
+  if (!(node instanceof HTMLElement)) return null
   const rect = node.getBoundingClientRect()
-  const radius = target === 'log' ? 999 : target === 'bounty' ? 18 : 32
-  return { top: rect.top, left: rect.left, width: rect.width, height: Math.min(rect.height, maxHeight), radius }
+  if (target === 'log') {
+    return {
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+      radius: `${rect.width / 2 + SPOT_PAD}px`,
+    }
+  }
+  const card = node.closest('.depth-card')
+  if (!(card instanceof HTMLElement) || card === node) {
+    const radius = Number.parseFloat(getComputedStyle(node).borderTopLeftRadius) || 28
+    return { top: rect.top, left: rect.left, width: rect.width, height: rect.height, radius: `${radius + SPOT_PAD}px` }
+  }
+  const cardRect = card.getBoundingClientRect()
+  const cardRadius = Number.parseFloat(getComputedStyle(card).borderTopLeftRadius) || 28
+  const atTop = rect.top - cardRect.top < 28
+  const atBottom = cardRect.bottom - rect.bottom < 28
+  const top = atTop ? cardRect.top : rect.top
+  const bottom = atBottom ? cardRect.bottom : rect.bottom
+  if (bottom - top < 120) {
+    return {
+      top: cardRect.top,
+      left: cardRect.left,
+      width: cardRect.width,
+      height: cardRect.height,
+      radius: `${cardRadius + SPOT_PAD}px`,
+    }
+  }
+  return {
+    top,
+    left: cardRect.left,
+    width: cardRect.width,
+    height: bottom - top,
+    radius: rounded(cardRadius, atTop, atBottom),
+  }
 }
 
 export function IntroTour({
@@ -174,18 +219,20 @@ export function IntroTour({
         setSpot(null)
         return
       }
-      const cardH = cardRef.current?.offsetHeight ?? 300
       if (allowScroll && !dock) {
-        const top = node.getBoundingClientRect().top
-        if (Math.abs(top - 16) > 8) {
+        const card = node.closest('.depth-card')
+        const nodeTop = node.getBoundingClientRect().top
+        const cardTop = card instanceof HTMLElement ? card.getBoundingClientRect().top : nodeTop
+        const atTop = card instanceof HTMLElement && nodeTop - cardTop < 28
+        const anchor = card instanceof HTMLElement && (atTop || node.getBoundingClientRect().height < 120) ? card : node
+        const top = anchor.getBoundingClientRect().top
+        if (Math.abs(top - 12) > 8) {
           const before = window.scrollY
-          window.scrollBy({ top: top - 16, behavior: 'auto' })
+          window.scrollBy({ top: top - 12, behavior: 'auto' })
           if (window.scrollY !== before) return
         }
       }
-      const rect = node.getBoundingClientRect()
-      const room = dock ? rect.height : Math.max(96, window.innerHeight - cardH - 28 - Math.max(rect.top, 0))
-      setSpot(spotFor(target, room))
+      setSpot(spotFor(target))
     }
     measure(true)
     const wait = window.setTimeout(() => measure(true), 48)
@@ -229,8 +276,11 @@ export function IntroTour({
   const cardTop = (() => {
     if (!spot) return null
     const cardH = cardRef.current?.offsetHeight ?? 300
-    const dock = current.target === 'log'
-    if (dock) return Math.max(8, spot.top - cardH - 12)
+    const gap = 16
+    const below = spot.top + spot.height + gap
+    const above = spot.top - cardH - gap
+    if (below + cardH <= window.innerHeight - 8) return below
+    if (above >= 8) return above
     return Math.max(8, window.innerHeight - cardH - 8)
   })()
 
@@ -251,10 +301,10 @@ export function IntroTour({
           aria-hidden="true"
           className="pointer-events-none absolute ring-2 ring-white/90"
           style={{
-            top: spot.top - 6,
-            left: spot.left - 6,
-            width: spot.width + 12,
-            height: spot.height + 12,
+            top: spot.top - SPOT_PAD,
+            left: spot.left - SPOT_PAD,
+            width: spot.width + SPOT_PAD * 2,
+            height: spot.height + SPOT_PAD * 2,
             borderRadius: spot.radius,
             boxShadow: '0 0 0 9999px rgb(0 0 0 / 0.5)',
           }}
@@ -327,7 +377,7 @@ export function IntroTour({
           {STEPS.map((item, index) => (
             <span
               key={item.title}
-              className={`h-1.5 rounded-full transition-all duration-300 ${index === step ? 'w-5 bg-emerald-500' : 'w-1.5 bg-line'}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${index === step ? 'w-5 bg-ink' : 'w-1.5 bg-line'}`}
             />
           ))}
         </div>

@@ -1,4 +1,4 @@
-export { calculateActionPoints, evaluateAnchorAction, localActionFallback } from './actionPoints'
+export { calculateActionPoints } from './actionPoints'
 export { coerceJudgment, offlineJudgment, scoreJudgment, weightClassLabel } from './judging'
 export {
   allDecksComplete,
@@ -10,6 +10,7 @@ export {
   emptyHabitDay,
   habitWeight,
   nextOpenHabit,
+  undoLastHabit,
   unfinishedHabits,
 } from './habits'
 export {
@@ -31,15 +32,13 @@ export {
 } from './pacing'
 export { forgeTarget, graceFloor } from './forge'
 export { balanceAfterRemoval, isLockedTransaction, removalShortfall } from './history'
-export { currentStreak, earnedOn, lifetimeStats } from './momentum'
+export { earnedOn, lifetimeStats } from './momentum'
 export { progressWindow } from './progress'
 export type { ProgressDay } from './progress'
 export {
   advanceStreak,
-  applyStreakBonus,
   replayStreak,
   resolveStreak,
-  streakMultiplier,
   streakStatusMessage,
   streakTier,
   weekStrip,

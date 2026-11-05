@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { distributeHabitPoints, nextOpenHabit } from '../engine/habits'
+import { distributeHabitPoints, nextOpenHabit, undoLastHabit } from '../engine/habits'
 import { freshState } from '../persistence'
 
 describe('habit decks', () => {
@@ -60,5 +60,40 @@ describe('habit decks', () => {
     const total = decks.reduce((sum, item) => sum + item.habits.reduce((inner, entry) => inner + entry.points, 0), 0)
     expect(total).toBe(85)
     expect(decks.every((item) => item.habits.every((entry) => entry.points >= 1))).toBe(true)
+  })
+
+  it('undoes only the last habit finished today and returns its points', () => {
+    const state = freshState()
+    const today = '2026-11-04'
+    const habit = state.decks[0].habits[0]
+    const done = {
+      ...state,
+      balance: 30,
+      habitDay: { date: today, completedIds: [habit.id], clearedWarnings: ['deck1' as const], shielded: false },
+      transactions: [
+        {
+          id: 'tx-habit',
+          type: 'EARN' as const,
+          title: habit.title,
+          points: 10,
+          timestamp: '2026-11-04T12:00:00.000Z',
+          date: today,
+          reasoning: 'Habit deck bounty',
+        },
+      ],
+    }
+    const undone = undoLastHabit(done, today)
+    expect(undone?.habitDay.completedIds).toEqual([])
+    expect(undone?.habitDay.clearedWarnings).toEqual(['deck1'])
+    expect(undone?.balance).toBe(20)
+    expect(undone?.transactions).toHaveLength(0)
+    expect(undoLastHabit({ ...done, habitDay: { ...done.habitDay, date: '2026-11-03' } }, today)).toBeNull()
+    const finished = state.decks[0].habits.map((item) => item.id)
+    const reopened = undoLastHabit({
+      ...done,
+      habitDay: { date: today, completedIds: finished, clearedWarnings: ['deck1'], shielded: false },
+    }, today)
+    expect(reopened?.habitDay.completedIds).toEqual(finished.slice(0, -1))
+    expect(reopened?.habitDay.clearedWarnings).toEqual([])
   })
 })

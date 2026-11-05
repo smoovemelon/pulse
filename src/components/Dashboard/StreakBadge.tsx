@@ -7,8 +7,6 @@ export function StreakBadge({
   week,
   goal,
 }: {
-  readonly streak: number
-  readonly multiplier: number
   readonly state: StreakState
   readonly status: string
   readonly week: readonly WeekDay[]

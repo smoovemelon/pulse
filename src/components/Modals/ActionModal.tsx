@@ -44,7 +44,7 @@ export function ActionModal({
   const [duration, setDuration] = useState(demoMode ? DEMO_ACTION.duration : 60)
   const [pending, setPending] = useState(false)
   const [verdict, setVerdict] = useState<ActionScore | null>(null)
-  const [tick, setTick] = useState(0)
+  const [, setTick] = useState(0)
 
   const timer = readSessionTimer()
   const timedDuration = elapsedToDuration(timer.elapsedMs)
@@ -183,20 +183,6 @@ export function ActionModal({
 
         {mode === 'manual' ? (
           <>
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted">Minutes</span>
-              <div className="flex items-center gap-1.5">
-                <button type="button" className="w-7 h-7 rounded-lg depth-well text-body flex items-center justify-center active:scale-90" aria-label="Decrease Duration" onClick={() => setMinutes(duration - 5)}>
-                  <MinusIcon />
-                </button>
-                <span data-testid="action-duration" className="font-num text-xs font-extrabold text-ink min-w-[42px] text-center">
-                  {duration}m
-                </span>
-                <button type="button" className="w-7 h-7 rounded-lg depth-well text-body flex items-center justify-center active:scale-90" aria-label="Increase Duration" onClick={() => setMinutes(duration + 5)}>
-                  <PlusIcon className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
             <div className="grid grid-cols-5 gap-1.5">
               {CHIPS.map((chip) => (
                 <Button
@@ -208,6 +194,17 @@ export function ActionModal({
                   {chip}m
                 </Button>
               ))}
+            </div>
+            <div className="grid grid-cols-[2.25rem_1fr_2.25rem] items-center gap-1.5 rounded-xl depth-well px-1.5 py-1.5">
+              <button type="button" className="flex h-9 w-9 items-center justify-center rounded-lg text-body active:scale-90" aria-label="Decrease Duration" onClick={() => setMinutes(duration - 5)}>
+                <MinusIcon />
+              </button>
+              <span data-testid="action-duration" className="text-center font-num text-sm font-extrabold text-ink">
+                {duration}m
+              </span>
+              <button type="button" className="flex h-9 w-9 items-center justify-center justify-self-end rounded-lg text-body active:scale-90" aria-label="Increase Duration" onClick={() => setMinutes(duration + 5)}>
+                <PlusIcon className="h-3.5 w-3.5" />
+              </button>
             </div>
           </>
         ) : (
@@ -272,24 +269,24 @@ export function ActionModal({
       )}
 
       {verdict && weight && (
-        <div data-testid="verdict-card" className="brand-mark rounded-2xl p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between border-b border-zinc-700 pb-2">
-            <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Verdict</span>
-            <span className={`text-[10px] font-black px-2 py-0.5 rounded border ${weight.badge}`}>{verdict.weightClass}</span>
+        <div data-testid="verdict-card" className="depth-well flex flex-col gap-3 rounded-2xl p-4">
+          <div className="flex items-center justify-between border-b border-line pb-2">
+            <span className="eyebrow">Verdict</span>
+            <span className={`rounded border px-2 py-0.5 text-[10px] font-black ${weight.badge}`}>{verdict.weightClass}</span>
           </div>
           <div>
-            <span className="text-[10px] text-zinc-400 uppercase font-bold block mb-0.5">Polished Title</span>
-            <h4 className="text-sm font-black text-white">{verdict.title}</h4>
+            <span className="eyebrow mb-0.5 block">Polished title</span>
+            <h4 className="text-sm font-extrabold tracking-tight text-ink">{verdict.title}</h4>
           </div>
           <div className="flex items-baseline gap-1">
-            <span data-testid="verdict-points" className="text-3xl font-black text-emerald-400 font-num">+{verdict.points}</span>
-            <span className="text-xs font-bold text-zinc-400 font-num">PTS</span>
+            <span data-testid="verdict-points" className="pts-earn font-num text-3xl font-extrabold">+{verdict.points}</span>
+            <span className="font-num text-xs font-bold text-muted">PTS</span>
           </div>
           {verdict.partial && (
-            <span className="text-[10px] font-black uppercase tracking-wider text-zinc-300">Half credit · still counts today</span>
+            <span className="eyebrow">Half credit · still counts today</span>
           )}
-          <div className="text-[10px] font-num text-zinc-400 border-t border-zinc-800 pt-2">{verdict.breakdown}</div>
-          <p className="text-[11px] text-zinc-300 leading-relaxed">{verdict.reasoning}</p>
+          <div className="border-t border-line pt-2 font-num text-[10px] font-semibold text-muted">{verdict.breakdown}</div>
+          <p className="text-[11px] leading-relaxed text-body">{verdict.reasoning}</p>
         </div>
       )}
 

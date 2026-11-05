@@ -64,7 +64,7 @@ export function BountyCard({
           </Button>
           <Button
             tone="ghost"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:text-rose-600 active:scale-90"
+            className="hit-spend inline-flex h-8 w-8 items-center justify-center rounded-lg active:scale-90"
             aria-label={`Delete ${item.title}`}
             onClick={onDelete}
           >

@@ -10,15 +10,11 @@ export interface EconomyApi {
   readonly balance: number
   readonly dailyGoal: number
   readonly todayEarned: number
-  readonly momentumPct: number
-  readonly streak: number
   readonly forgeStreak: number
   readonly chainStreak: number
   readonly tier: number
   readonly discountPercent: number
   readonly decksComplete: number
-  readonly graceFloor: number
-  readonly streakMultiplier: number
   readonly streakState: StreakState
   readonly streakStatus: string
   readonly week: readonly WeekDay[]
@@ -64,15 +60,11 @@ export function useEconomyController(): EconomyApi {
     balance: state.balance,
     dailyGoal: target,
     todayEarned,
-    momentumPct: Math.min(100, Math.round((todayEarned / target) * 100)),
-    streak: state.forgeStreak,
     forgeStreak: state.forgeStreak,
     chainStreak: state.chainStreak,
     tier: perk.tier,
     discountPercent: Math.round(discountRate(state) * 100),
     decksComplete: state.decks.filter((deck) => deckComplete(deck, state.habitDay.completedIds)).length,
-    graceFloor: target * 0.5,
-    streakMultiplier: 1,
     streakState: streakTier(todayEarned, target),
     streakStatus: streakStatusMessage(todayEarned, target, fee),
     week: weekStrip(state.transactions, today, target),

@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react'
+import { celebrate } from '../lib/confetti'
 import { localDateKey } from '../lib/dates'
 import { createId } from '../lib/id'
 import { buildHabitPayload, callGemini } from '../lib/gemini'
@@ -12,6 +13,7 @@ import {
   nextOpenHabit,
   proposePacing,
   syncLiveDiscipline,
+  undoLastHabit,
 } from '../services/engine'
 import type { HabitDeck, JudgeWeight, PulseState, Relevance, StrainBand } from '../types'
 import { useCore } from './core'
@@ -79,10 +81,27 @@ export function useHabitsController() {
       if (deckComplete(current.decks[open.deckIndex], completedIds)) next = clearDeckWarning(next, open.deckIndex)
       commit(next)
       feedback('earn')
+      celebrate()
       notify(`+${open.habit.points} PTS: "${open.habit.title}"`)
     },
     [commit, feedback, notify, read],
   )
+
+  const undoHabit = useCallback(() => {
+    const current = syncLiveDiscipline(read())
+    const next = undoLastHabit(current, localDateKey())
+    if (!next) {
+      feedback('error')
+      notify('Nothing to undo today')
+      return
+    }
+    const lastId = current.habitDay.completedIds[current.habitDay.completedIds.length - 1]
+    const habit = current.decks.flatMap((deck) => deck.habits).find((item) => item.id === lastId)
+    const returned = current.balance - next.balance
+    commit(syncLiveDiscipline(next))
+    feedback('click')
+    notify(`Undid "${habit?.title ?? 'habit'}". -${returned} PTS.`)
+  }, [commit, feedback, notify, read])
 
   const usePto = useCallback(() => {
     const current = read()
@@ -187,6 +206,7 @@ export function useHabitsController() {
     habitsNeedScore: state.habitsNeedScore,
     chainStreak: state.chainStreak,
     completeHabit,
+    undoHabit,
     usePto,
     savePacing,
     saveDecks,

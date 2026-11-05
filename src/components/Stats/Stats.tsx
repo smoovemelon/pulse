@@ -30,43 +30,51 @@ export function Stats() {
             <span className="mt-0.5 block font-num text-ink">{spent} spent</span>
           </p>
         </div>
-        <div
-          data-testid="stats-chart"
-          className="flex items-end gap-1"
-          role="img"
-          aria-label={`Earned points over 14 days. Today ${today?.earned ?? 0} of ${today?.goal ?? 0}.`}
-        >
-          {days.map((day) => {
-            const bar = (day.earned / scale) * 100
-            const goal = (day.goal / scale) * 100
-            const current = day.date === today?.date
-            return (
-              <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
-                <div className="relative flex h-28 w-full items-end justify-center">
-                  <span className="meter-track absolute bottom-0 h-full w-2.5 rounded-full bg-well" />
-                  <span className="absolute left-1/2 h-px w-3.5 -translate-x-1/2 bg-faint" style={{ bottom: `${goal}%` }} />
-                  <span
-                    className="relative w-2.5 rounded-full bg-emerald-500"
-                    style={{ height: `${bar}%`, opacity: current ? 1 : 0.55 }}
-                  />
-                </div>
-                <span className={`font-num text-[9px] font-extrabold leading-none ${current ? 'text-ink' : 'text-faint'}`}>
-                  {day.label}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-        <div className="flex items-center gap-4 text-[10px] font-bold text-muted">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            Earned
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-px w-3 bg-faint" />
-            Output target
-          </span>
-        </div>
+        {days.every((day) => day.earned === 0) ? (
+          <p className="py-8 text-center text-xs font-bold leading-relaxed text-muted">
+            No earned logs in these 14 days.
+          </p>
+        ) : (
+          <>
+            <div
+              data-testid="stats-chart"
+              className="flex items-end gap-1"
+              role="img"
+              aria-label={`Earned points over 14 days. Today ${today?.earned ?? 0} of ${today?.goal ?? 0}.`}
+            >
+              {days.map((day) => {
+                const bar = (day.earned / scale) * 100
+                const goal = (day.goal / scale) * 100
+                const current = day.date === today?.date
+                return (
+                  <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
+                    <div className="relative flex h-28 w-full items-end justify-center">
+                      <span className="meter-track absolute bottom-0 h-full w-2.5 rounded-full bg-well" />
+                      <span className="absolute left-1/2 h-px w-3.5 -translate-x-1/2 bg-faint" style={{ bottom: `${goal}%` }} />
+                      <span
+                        className="relative w-2.5 rounded-full bg-emerald-500"
+                        style={{ height: `${bar}%`, opacity: current ? 1 : 0.55 }}
+                      />
+                    </div>
+                    <span className={`font-num text-[9px] font-extrabold leading-none ${current ? 'text-ink' : 'text-faint'}`}>
+                      {day.label}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex items-center gap-4 text-[10px] font-bold text-muted">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                Earned
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-px w-3 bg-faint" />
+                Output target
+              </span>
+            </div>
+          </>
+        )}
       </Surface>
 
       <div className="grid grid-cols-2 gap-2">
